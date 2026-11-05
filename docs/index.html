@@ -1,1228 +1,204 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Elyssa — ESP32-S3 Dev Board</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-<style>
-:root {
-  --bg: #0a0c0f;
-  --bg2: #0f1318;
-  --bg3: #141920;
-  --border: #1e2730;
-  --border2: #2a3540;
-  --amber: #f59e0b;
-  --amber2: #fbbf24;
-  --amber-dim: rgba(245,158,11,0.12);
-  --amber-glow: rgba(245,158,11,0.06);
-  --teal: #14b8a6;
-  --teal-dim: rgba(20,184,166,0.1);
-  --red: #ef4444;
-  --red-dim: rgba(239,68,68,0.1);
-  --text: #e2e8f0;
-  --text2: #94a3b8;
-  --text3: #4a5568;
-  --mono: 'Space Mono', monospace;
-  --display: 'Syne', sans-serif;
-}
-
-*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-html { scroll-behavior: smooth; }
-
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--mono);
-  font-size: 14px;
-  line-height: 1.7;
-  overflow-x: hidden;
-}
-
-/* PCB grid background */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(245,158,11,0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(245,158,11,0.03) 1px, transparent 1px);
-  background-size: 40px 40px;
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* Scanlines overlay */
-body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    rgba(0,0,0,0.15) 2px,
-    rgba(0,0,0,0.15) 4px
-  );
-  pointer-events: none;
-  z-index: 0;
-}
-
-.content { position: relative; z-index: 1; }
-
-/* ─── NAV ─── */
-nav {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  z-index: 100;
-  background: rgba(10,12,15,0.88);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border);
-  padding: 0 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 56px;
-}
-
-.nav-logo {
-  font-family: var(--display);
-  font-size: 1.3rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  color: var(--amber);
-  text-decoration: none;
-}
-
-.nav-logo span { color: var(--text2); font-weight: 400; font-size: 0.8rem; margin-left: 6px; font-family: var(--mono); letter-spacing: 0.1em; }
-
-.nav-links { display: flex; gap: 1.5rem; list-style: none; }
-.nav-links a {
-  color: var(--text2);
-  text-decoration: none;
-  font-size: 12px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  transition: color 0.2s;
-}
-.nav-links a:hover { color: var(--amber); }
-
-/* ─── HERO ─── */
-.hero {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 6rem 2rem 4rem;
-  max-width: 1100px;
-  margin: 0 auto;
-  position: relative;
-}
-
-.hero-tag {
-  font-size: 11px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--amber);
-  margin-bottom: 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.hero-tag::before {
-  content: '';
-  display: inline-block;
-  width: 32px;
-  height: 1px;
-  background: var(--amber);
-}
-
-.hero h1 {
-  font-family: var(--display);
-  font-size: clamp(3.5rem, 8vw, 6.5rem);
-  font-weight: 800;
-  line-height: 0.92;
-  letter-spacing: -0.04em;
-  margin-bottom: 0.3em;
-}
-
-.hero h1 .dim { color: var(--text3); }
-.hero h1 .accent { color: var(--amber); }
-
-.hero-sub {
-  font-size: 13px;
-  color: var(--text2);
-  max-width: 520px;
-  margin: 1.8rem 0 2.5rem;
-  line-height: 1.9;
-}
-
-.hero-badges {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem;
-  margin-bottom: 3rem;
-}
-
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 12px;
-  border: 1px solid var(--border2);
-  border-radius: 4px;
-  font-size: 11px;
-  letter-spacing: 0.05em;
-  color: var(--text2);
-  background: var(--bg2);
-}
-
-.badge.amber { border-color: rgba(245,158,11,0.4); color: var(--amber); background: var(--amber-dim); }
-.badge.teal  { border-color: rgba(20,184,166,0.4); color: var(--teal); background: var(--teal-dim); }
-
-.badge::before { content: '◆'; font-size: 7px; }
-
-.hero-btns { display: flex; gap: 1rem; flex-wrap: wrap; }
-
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 11px 24px;
-  font-family: var(--mono);
-  font-size: 12px;
-  letter-spacing: 0.06em;
-  text-decoration: none;
-  border-radius: 4px;
-  transition: all 0.2s;
-  cursor: pointer;
-  border: none;
-}
-
-.btn-primary {
-  background: var(--amber);
-  color: #000;
-  font-weight: 700;
-}
-.btn-primary:hover { background: var(--amber2); transform: translateY(-1px); }
-
-.btn-ghost {
-  background: transparent;
-  color: var(--text2);
-  border: 1px solid var(--border2);
-}
-.btn-ghost:hover { border-color: var(--amber); color: var(--amber); transform: translateY(-1px); }
-
-/* Big corner decoration */
-.hero-corner {
-  position: absolute;
-  top: 5rem;
-  right: -2rem;
-  width: 340px;
-  height: 340px;
-  opacity: 0.06;
-  pointer-events: none;
-}
-
-/* ─── SECTION ─── */
-section {
-  padding: 5rem 2rem;
-  max-width: 1100px;
-  margin: 0 auto;
-}
-
-.section-label {
-  font-size: 10px;
-  letter-spacing: 0.25em;
-  text-transform: uppercase;
-  color: var(--amber);
-  margin-bottom: 0.6rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-.section-label::before { content: '//'; opacity: 0.5; }
-
-.section-title {
-  font-family: var(--display);
-  font-size: clamp(1.8rem, 3vw, 2.6rem);
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  margin-bottom: 0.5rem;
-}
-
-.section-desc {
-  color: var(--text2);
-  font-size: 13px;
-  max-width: 560px;
-  margin-bottom: 3rem;
-}
-
-/* ─── SPEC GRID ─── */
-.spec-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 1px;
-  background: var(--border);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.spec-card {
-  background: var(--bg2);
-  padding: 1.4rem 1.6rem;
-  transition: background 0.2s;
-}
-.spec-card:hover { background: var(--bg3); }
-
-.spec-card-label {
-  font-size: 10px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--text3);
-  margin-bottom: 0.4rem;
-}
-
-.spec-card-value {
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--text);
-  margin-bottom: 0.2rem;
-}
-
-.spec-card-value.amber { color: var(--amber); }
-.spec-card-value.teal { color: var(--teal); }
-
-.spec-card-note {
-  font-size: 11px;
-  color: var(--text3);
-}
-
-/* ─── WARNING BOX ─── */
-.callout {
-  display: flex;
-  gap: 1rem;
-  padding: 1.2rem 1.4rem;
-  border-radius: 6px;
-  margin: 2rem 0;
-  border-left: 3px solid;
-  font-size: 13px;
-}
-
-.callout.warn {
-  background: rgba(245,158,11,0.07);
-  border-color: var(--amber);
-  color: var(--text2);
-}
-
-.callout.danger {
-  background: rgba(239,68,68,0.07);
-  border-color: var(--red);
-  color: var(--text2);
-}
-
-.callout.info {
-  background: var(--teal-dim);
-  border-color: var(--teal);
-  color: var(--text2);
-}
-
-.callout-icon {
-  font-size: 16px;
-  flex-shrink: 0;
-  margin-top: 1px;
-}
-
-.callout strong { color: var(--text); font-weight: 700; }
-
-/* ─── PIN TABLE ─── */
-.table-wrap {
-  overflow-x: auto;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  margin-top: 2rem;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 12px;
-}
-
-thead tr {
-  background: var(--bg3);
-  border-bottom: 1px solid var(--border2);
-}
-
-th {
-  padding: 10px 14px;
-  text-align: left;
-  font-size: 10px;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--text3);
-  font-weight: 700;
-}
-
-td {
-  padding: 9px 14px;
-  border-bottom: 1px solid var(--border);
-  color: var(--text2);
-  vertical-align: top;
-}
-
-tr:last-child td { border-bottom: none; }
-tr:hover td { background: rgba(245,158,11,0.03); }
-
-td.pin-num {
-  color: var(--amber);
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-td.net-name {
-  color: var(--teal);
-  font-family: var(--mono);
-}
-
-td.func { color: var(--text); }
-
-.tag {
-  display: inline-block;
-  padding: 1px 7px;
-  border-radius: 3px;
-  font-size: 10px;
-  letter-spacing: 0.05em;
-  border: 1px solid;
-}
-
-.tag-warn { border-color: rgba(245,158,11,0.4); color: var(--amber); background: var(--amber-dim); }
-.tag-ok   { border-color: rgba(20,184,166,0.4);  color: var(--teal);  background: var(--teal-dim); }
-.tag-info { border-color: var(--border2); color: var(--text3); background: var(--bg3); }
-
-/* ─── POWER DIAGRAM ─── */
-.power-flow {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0;
-  margin: 2.5rem 0;
-}
-
-.power-node {
-  padding: 14px 20px;
-  border: 1px solid var(--border2);
-  border-radius: 6px;
-  background: var(--bg2);
-  text-align: center;
-  min-width: 120px;
-}
-
-.power-node .pn-label {
-  font-size: 10px;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--text3);
-  margin-bottom: 3px;
-}
-
-.power-node .pn-val {
-  font-family: var(--display);
-  font-size: 1.1rem;
-  font-weight: 700;
-}
-
-.power-node.amber { border-color: rgba(245,158,11,0.4); background: var(--amber-dim); }
-.power-node.amber .pn-val { color: var(--amber); }
-.power-node.teal { border-color: rgba(20,184,166,0.4); background: var(--teal-dim); }
-.power-node.teal .pn-val { color: var(--teal); }
-
-.power-arrow {
-  padding: 0 12px;
-  color: var(--text3);
-  font-size: 18px;
-  flex-shrink: 0;
-}
-
-/* ─── PERIPHERAL CARDS ─── */
-.periph-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1rem;
-  margin-top: 2rem;
-}
-
-.periph-card {
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 1.4rem;
-  transition: border-color 0.2s, background 0.2s;
-}
-
-.periph-card:hover {
-  border-color: var(--border2);
-  background: var(--bg3);
-}
-
-.periph-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 0.8rem;
-}
-
-.periph-card-title {
-  font-family: var(--display);
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--text);
-}
-
-.periph-card-proto {
-  font-size: 10px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  padding: 3px 8px;
-  border: 1px solid var(--border2);
-  border-radius: 3px;
-  color: var(--text3);
-}
-
-.periph-card-desc {
-  font-size: 12px;
-  color: var(--text2);
-  margin-bottom: 0.8rem;
-  line-height: 1.6;
-}
-
-.periph-pin-list {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.periph-pin {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 11px;
-  padding: 3px 0;
-  border-bottom: 1px solid var(--border);
-}
-
-.periph-pin:last-child { border-bottom: none; }
-.periph-pin-name { color: var(--text3); }
-.periph-pin-val  { color: var(--teal); font-family: var(--mono); }
-
-/* ─── QUICK START ─── */
-.quickstart-steps {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  margin-top: 2rem;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.qs-step {
-  display: flex;
-  gap: 1.5rem;
-  padding: 1.4rem 1.6rem;
-  background: var(--bg2);
-  border-bottom: 1px solid var(--border);
-  transition: background 0.2s;
-}
-
-.qs-step:last-child { border-bottom: none; }
-.qs-step:hover { background: var(--bg3); }
-
-.qs-num {
-  font-family: var(--display);
-  font-size: 2rem;
-  font-weight: 800;
-  color: var(--amber);
-  opacity: 0.25;
-  flex-shrink: 0;
-  width: 40px;
-  line-height: 1;
-  margin-top: 2px;
-}
-
-.qs-title {
-  font-weight: 700;
-  color: var(--text);
-  margin-bottom: 0.3rem;
-  font-size: 13px;
-}
-
-.qs-desc {
-  font-size: 12px;
-  color: var(--text2);
-  line-height: 1.7;
-}
-
-code {
-  background: var(--bg3);
-  border: 1px solid var(--border2);
-  border-radius: 3px;
-  padding: 1px 6px;
-  font-family: var(--mono);
-  font-size: 11px;
-  color: var(--amber);
-}
-
-.code-block {
-  background: var(--bg3);
-  border: 1px solid var(--border2);
-  border-radius: 6px;
-  padding: 1rem 1.2rem;
-  overflow-x: auto;
-  margin: 0.8rem 0;
-  font-size: 12px;
-  color: var(--text2);
-  line-height: 1.8;
-}
-
-.code-block .kw { color: var(--amber); }
-.code-block .str { color: var(--teal); }
-.code-block .cm { color: var(--text3); }
-
-/* ─── FOOTER ─── */
-footer {
-  border-top: 1px solid var(--border);
-  padding: 2.5rem 2rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 1rem;
-  max-width: 1100px;
-  margin: 0 auto;
-  font-size: 12px;
-  color: var(--text3);
-}
-
-footer a { color: var(--text3); text-decoration: none; }
-footer a:hover { color: var(--amber); }
-
-.footer-logo {
-  font-family: var(--display);
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--amber);
-}
-
-/* ─── DIVIDER ─── */
-.divider {
-  border: none;
-  border-top: 1px solid var(--border);
-  margin: 0;
-}
-
-/* ─── HERO SVG circuit ─── */
-.hero-circuit {
-  position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  width: min(420px, 40vw);
-  opacity: 0.07;
-  pointer-events: none;
-}
-
-/* ─── ANIMATIONS ─── */
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(24px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-.hero > * {
-  animation: fadeUp 0.6s ease both;
-}
-.hero > *:nth-child(1) { animation-delay: 0.05s; }
-.hero > *:nth-child(2) { animation-delay: 0.12s; }
-.hero > *:nth-child(3) { animation-delay: 0.20s; }
-.hero > *:nth-child(4) { animation-delay: 0.28s; }
-.hero > *:nth-child(5) { animation-delay: 0.35s; }
-
-/* Amber pulse dot for live indicator */
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
-.pulse-dot {
-  display: inline-block;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--amber);
-  animation: pulse 1.8s ease-in-out infinite;
-  vertical-align: middle;
-  margin-right: 4px;
-}
-
-/* ─── RESPONSIVE ─── */
-@media (max-width: 700px) {
-  nav { padding: 0 1rem; }
-  .nav-links { display: none; }
-  .hero { padding: 5rem 1rem 3rem; }
-  section { padding: 3.5rem 1rem; }
-  .power-flow { flex-direction: column; align-items: flex-start; }
-  .power-arrow { transform: rotate(90deg); }
-  footer { flex-direction: column; text-align: center; }
-}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Elyssa is Moovma's open ESP32-S3 development board for makers, sensors and connected things.">
+  <title>Elyssa — make the next thing</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Serif+Display:ital@0;1&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<div class="content">
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="Moovma home">
+      <img src="PNG/Moovma Black@2x.png" alt="Moovma">
+    </a>
+    <nav class="main-nav" aria-label="Main navigation">
+      <a href="#inside">Inside</a>
+      <a href="#specs">Specs</a>
+      <a href="#start">Start building</a>
+    </nav>
+    <a class="header-cta" href="https://github.com/moovma/Elyssa-dev-board" target="_blank" rel="noreferrer">GitHub <span aria-hidden="true">↗</span></a>
+  </header>
 
-<!-- NAV -->
-<nav>
-  <a href="#" class="nav-logo">Elyssa <span>DEV BOARD</span></a>
-  <ul class="nav-links">
-    <li><a href="#specs">Specs</a></li>
-    <li><a href="#power">Power</a></li>
-    <li><a href="#peripherals">Peripherals</a></li>
-    <li><a href="#pinout">Pinout</a></li>
-    <li><a href="#quickstart">Quick Start</a></li>
-  </ul>
-</nav>
-
-<!-- HERO -->
-<div class="hero">
-  <!-- circuit SVG background -->
-  <svg class="hero-circuit" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-    <rect x="60" y="80" width="280" height="240" rx="8" fill="none" stroke="#f59e0b" stroke-width="2"/>
-    <circle cx="200" cy="200" r="60" fill="none" stroke="#f59e0b" stroke-width="2"/>
-    <line x1="60" y1="140" x2="20" y2="140" stroke="#f59e0b" stroke-width="2"/>
-    <line x1="60" y1="180" x2="20" y2="180" stroke="#f59e0b" stroke-width="2"/>
-    <line x1="60" y1="220" x2="20" y2="220" stroke="#f59e0b" stroke-width="2"/>
-    <line x1="60" y1="260" x2="20" y2="260" stroke="#f59e0b" stroke-width="2"/>
-    <line x1="340" y1="140" x2="380" y2="140" stroke="#f59e0b" stroke-width="2"/>
-    <line x1="340" y1="180" x2="380" y2="180" stroke="#f59e0b" stroke-width="2"/>
-    <line x1="340" y1="220" x2="380" y2="220" stroke="#f59e0b" stroke-width="2"/>
-    <line x1="340" y1="260" x2="380" y2="260" stroke="#f59e0b" stroke-width="2"/>
-    <line x1="140" y1="80" x2="140" y2="40" stroke="#f59e0b" stroke-width="2"/>
-    <line x1="200" y1="80" x2="200" y2="40" stroke="#f59e0b" stroke-width="2"/>
-    <line x1="260" y1="80" x2="260" y2="40" stroke="#f59e0b" stroke-width="2"/>
-    <line x1="140" y1="320" x2="140" y2="360" stroke="#f59e0b" stroke-width="2"/>
-    <line x1="200" y1="320" x2="200" y2="360" stroke="#f59e0b" stroke-width="2"/>
-    <line x1="260" y1="320" x2="260" y2="360" stroke="#f59e0b" stroke-width="2"/>
-    <circle cx="20" cy="140" r="4" fill="#f59e0b"/>
-    <circle cx="20" cy="180" r="4" fill="#f59e0b"/>
-    <circle cx="20" cy="220" r="4" fill="#f59e0b"/>
-    <circle cx="20" cy="260" r="4" fill="#f59e0b"/>
-    <circle cx="380" cy="140" r="4" fill="#f59e0b"/>
-    <circle cx="380" cy="180" r="4" fill="#f59e0b"/>
-    <circle cx="380" cy="220" r="4" fill="#f59e0b"/>
-    <circle cx="380" cy="260" r="4" fill="#f59e0b"/>
-  </svg>
-
-  <div class="hero-tag"><span class="pulse-dot"></span>Open Hardware · Rev 1.0</div>
-  <h1>
-    <span class="dim">BOARD</span><br>
-    <span class="accent">ELYSSA</span>
-  </h1>
-  <p class="hero-sub">
-    A compact, power-efficient development platform built around the <strong>ESP32-S3FN8</strong>.
-    Dual-core 240 MHz, native USB, 6-axis IMU, LiPo charging, and MicroSD — in one board.
-  </p>
-  <div class="hero-badges">
-    <span class="badge amber">ESP32-S3FN8</span>
-    <span class="badge amber">240 MHz Dual-Core</span>
-    <span class="badge teal">Native USB-JTAG</span>
-    <span class="badge teal">Wi-Fi 802.11 b/g/n</span>
-    <span class="badge teal">BT 5 LE</span>
-    <span class="badge">8 MB Flash</span>
-    <span class="badge">LiPo Charging</span>
-    <span class="badge">LSM6DSV IMU</span>
-    <span class="badge">MicroSD FSPI</span>
-  </div>
-  <div class="hero-btns">
-    <a href="#quickstart" class="btn btn-primary">→ Quick Start</a>
-    <a href="#pinout" class="btn btn-ghost">Pin Reference</a>
-    <a href="https://github.com" class="btn btn-ghost" target="_blank">GitHub ↗</a>
-  </div>
-</div>
-
-<hr class="divider">
-
-<!-- SPECS -->
-<section id="specs">
-  <div class="section-label">01 — Core</div>
-  <h2 class="section-title">ESP32-S3FN8 SoC</h2>
-  <p class="section-desc">The heart of the board. Dual-core LX7 architecture with dedicated AI acceleration instructions and integrated 2.4 GHz radio.</p>
-
-  <div class="spec-grid">
-    <div class="spec-card">
-      <div class="spec-card-label">Architecture</div>
-      <div class="spec-card-value amber">Xtensa LX7 × 2</div>
-      <div class="spec-card-note">32-bit dual core</div>
-    </div>
-    <div class="spec-card">
-      <div class="spec-card-label">Clock Speed</div>
-      <div class="spec-card-value amber">240 MHz</div>
-      <div class="spec-card-note">max operating frequency</div>
-    </div>
-    <div class="spec-card">
-      <div class="spec-card-label">Internal Flash</div>
-      <div class="spec-card-value">8 MB</div>
-      <div class="spec-card-note">FN8 variant — on-chip</div>
-    </div>
-    <div class="spec-card">
-      <div class="spec-card-label">SRAM / ROM</div>
-      <div class="spec-card-value">512 KB / 384 KB</div>
-      <div class="spec-card-note">on-chip memory</div>
-    </div>
-    <div class="spec-card">
-      <div class="spec-card-label">Wi-Fi</div>
-      <div class="spec-card-value teal">802.11 b/g/n</div>
-      <div class="spec-card-note">2.4 GHz band</div>
-    </div>
-    <div class="spec-card">
-      <div class="spec-card-label">Bluetooth</div>
-      <div class="spec-card-value teal">BT 5.0 LE</div>
-      <div class="spec-card-note">Long Range support</div>
-    </div>
-    <div class="spec-card">
-      <div class="spec-card-label">USB</div>
-      <div class="spec-card-value teal">Native USB-OTG</div>
-      <div class="spec-card-note">Serial/JTAG built-in — no CP2102</div>
-    </div>
-    <div class="spec-card">
-      <div class="spec-card-label">AI Acceleration</div>
-      <div class="spec-card-value">Dedicated ISA</div>
-      <div class="spec-card-note">neural network &amp; DSP ops</div>
-    </div>
-  </div>
-
-  <div class="callout info" style="margin-top:2rem">
-    <div class="callout-icon">ℹ</div>
-    <div><strong>No USB chip needed.</strong> The ESP32-S3 connects directly to the USB port via IO19 (D−) and IO20 (D+). You do not need a CH340, CP2102, or any other USB-to-UART bridge. Simply plug in a USB-C cable and your computer will enumerate the device. Drivers are built into modern operating systems.</div>
-  </div>
-</section>
-
-<hr class="divider">
-
-<!-- POWER -->
-<section id="power">
-  <div class="section-label">02 — Power</div>
-  <h2 class="section-title">Power Architecture</h2>
-  <p class="section-desc">Sophisticated dual-input power path with automatic source selection, LiPo charging, and a synchronous buck converter delivering a clean 3.3 V rail.</p>
-
-  <div class="power-flow">
-    <div class="power-node amber">
-      <div class="pn-label">USB Input</div>
-      <div class="pn-val">5 V</div>
-    </div>
-    <div class="power-arrow">→</div>
-    <div class="power-node">
-      <div class="pn-label">Schottky D7</div>
-      <div class="pn-val">OR-ing</div>
-    </div>
-    <div class="power-arrow">→</div>
-    <div class="power-node amber">
-      <div class="pn-label">PMOS Q1</div>
-      <div class="pn-val">AO3401A</div>
-    </div>
-    <div class="power-arrow">→</div>
-    <div class="power-node">
-      <div class="pn-label">Buck U9</div>
-      <div class="pn-val">SY8089</div>
-    </div>
-    <div class="power-arrow">→</div>
-    <div class="power-node teal">
-      <div class="pn-label">System Rail</div>
-      <div class="pn-val">3.3 V / 2 A</div>
-    </div>
-  </div>
-
-  <div class="power-flow" style="margin-top:1rem">
-    <div class="power-node amber">
-      <div class="pn-label">LiPo Battery</div>
-      <div class="pn-val">3.7 V</div>
-    </div>
-    <div class="power-arrow">→</div>
-    <div class="power-node">
-      <div class="pn-label">Charger U13</div>
-      <div class="pn-val">BQ24090</div>
-    </div>
-    <div class="power-arrow">→</div>
-    <div class="power-node amber">
-      <div class="pn-label">PMOS Q1</div>
-      <div class="pn-val">auto-select</div>
-    </div>
-    <div class="power-arrow">→</div>
-    <div class="power-node">
-      <div class="pn-label">Buck U9</div>
-      <div class="pn-val">SY8089</div>
-    </div>
-    <div class="power-arrow">→</div>
-    <div class="power-node teal">
-      <div class="pn-label">System Rail</div>
-      <div class="pn-val">3.3 V / 2 A</div>
-    </div>
-  </div>
-
-  <div class="spec-grid" style="margin-top:2.5rem">
-    <div class="spec-card">
-      <div class="spec-card-label">Charger IC</div>
-      <div class="spec-card-value">BQ24090</div>
-      <div class="spec-card-note">Linear LiPo charger</div>
-    </div>
-    <div class="spec-card">
-      <div class="spec-card-label">Charge Current</div>
-      <div class="spec-card-value amber">500 mA</div>
-      <div class="spec-card-note">Set by R60 = 1 kΩ</div>
-    </div>
-    <div class="spec-card">
-      <div class="spec-card-label">Charge Indicator</div>
-      <div class="spec-card-value">D15 LED</div>
-      <div class="spec-card-note">CHG — on during charging</div>
-    </div>
-    <div class="spec-card">
-      <div class="spec-card-label">Buck Converter</div>
-      <div class="spec-card-value">SY8089AAAC</div>
-      <div class="spec-card-note">1 MHz synchronous</div>
-    </div>
-    <div class="spec-card">
-      <div class="spec-card-label">Output Voltage</div>
-      <div class="spec-card-value teal">3.3 V</div>
-      <div class="spec-card-note">±1%, set by R57/R58</div>
-    </div>
-    <div class="spec-card">
-      <div class="spec-card-label">Output Current</div>
-      <div class="spec-card-value teal">2 A max</div>
-      <div class="spec-card-note">1.6–1.8 A recommended</div>
-    </div>
-    <div class="spec-card">
-      <div class="spec-card-label">Battery Sense</div>
-      <div class="spec-card-value">GPIO7 / ADC</div>
-      <div class="spec-card-note">100k/100k divider (1/2 Vbat)</div>
-    </div>
-    <div class="spec-card">
-      <div class="spec-card-label">Deep Sleep Opt.</div>
-      <div class="spec-card-value">JP3 jumper</div>
-      <div class="spec-card-note">Disconnect divider to save power</div>
-    </div>
-  </div>
-
-  <div class="callout danger" style="margin-top:2rem">
-    <div class="callout-icon">⚠</div>
-    <div><strong>Battery polarity warning:</strong> Before connecting a LiPo battery to header J10, verify the polarity matches the board silkscreen. Reversed polarity will permanently damage the board. The charger IC does not have reverse-polarity protection.</div>
-  </div>
-</section>
-
-<hr class="divider">
-
-<!-- PERIPHERALS -->
-<section id="peripherals">
-  <div class="section-label">03 — Peripherals</div>
-  <h2 class="section-title">On-Board Peripherals</h2>
-  <p class="section-desc">Every peripheral is chosen for a specific role. Two independent I2C buses prevent a slow external sensor from starving the high-speed IMU.</p>
-
-  <div class="periph-grid">
-
-    <div class="periph-card">
-      <div class="periph-card-header">
-        <div class="periph-card-title">LSM6DSVQTR IMU</div>
-        <div class="periph-card-proto">I2C #2</div>
+  <main id="top">
+    <section class="hero section-wrap">
+      <div class="hero-gallery reveal">
+        <div class="hero-photo hero-photo-front"><img src="elyssa_images/elyssa_top.png" alt="Elyssa development board, front side"></div>
+        <div class="hero-photo hero-photo-back"><img src="elyssa_images/elyssa_buttom.png" alt="Elyssa development board, back side"></div>
       </div>
-      <div class="periph-card-desc">6-axis accelerometer + gyroscope on a dedicated I2C bus. High-speed motion data, independent from the main header bus.</div>
-      <div class="periph-pin-list">
-        <div class="periph-pin"><span class="periph-pin-name">SDA (dedicated)</span><span class="periph-pin-val">IO17</span></div>
-        <div class="periph-pin"><span class="periph-pin-name">SCL (dedicated)</span><span class="periph-pin-val">IO18</span></div>
-        <div class="periph-pin"><span class="periph-pin-name">INT1 (data ready)</span><span class="periph-pin-val">IO21</span></div>
-      </div>
-    </div>
-
-    <div class="periph-card">
-      <div class="periph-card-header">
-        <div class="periph-card-title">MicroSD Card</div>
-        <div class="periph-card-proto">FSPI</div>
-      </div>
-      <div class="periph-card-desc">Mapped to the native FSPI pins for maximum throughput. Includes 10 kΩ pull-ups on all SPI lines for stability. Ideal for data logging.</div>
-      <div class="periph-pin-list">
-        <div class="periph-pin"><span class="periph-pin-name">CS</span><span class="periph-pin-val">IO10</span></div>
-        <div class="periph-pin"><span class="periph-pin-name">MOSI / DI</span><span class="periph-pin-val">IO11</span></div>
-        <div class="periph-pin"><span class="periph-pin-name">SCLK</span><span class="periph-pin-val">IO12</span></div>
-        <div class="periph-pin"><span class="periph-pin-name">MISO / DO</span><span class="periph-pin-val">IO13</span></div>
-      </div>
-    </div>
-
-    <div class="periph-card">
-      <div class="periph-card-header">
-        <div class="periph-card-title">Native USB</div>
-        <div class="periph-card-proto">USB-JTAG</div>
-      </div>
-      <div class="periph-card-desc">Internal USB-Serial/JTAG peripheral. No external bridge chip. Supports programming, serial console, and full JTAG debug simultaneously.</div>
-      <div class="periph-pin-list">
-        <div class="periph-pin"><span class="periph-pin-name">D− (UD−)</span><span class="periph-pin-val">IO19</span></div>
-        <div class="periph-pin"><span class="periph-pin-name">D+ (UD+)</span><span class="periph-pin-val">IO20</span></div>
-      </div>
-    </div>
-
-    <div class="periph-card">
-      <div class="periph-card-header">
-        <div class="periph-card-title">Main I2C Header</div>
-        <div class="periph-card-proto">I2C #1</div>
-      </div>
-      <div class="periph-card-desc">Broken out to the main expansion header (J12) for external sensors. Separate from the IMU bus — a slow sensor won't impact gyro sampling.</div>
-      <div class="periph-pin-list">
-        <div class="periph-pin"><span class="periph-pin-name">SDA</span><span class="periph-pin-val">IO8</span></div>
-        <div class="periph-pin"><span class="periph-pin-name">SCL</span><span class="periph-pin-val">IO9</span></div>
-      </div>
-    </div>
-
-    <div class="periph-card">
-      <div class="periph-card-header">
-        <div class="periph-card-title">Hardware UART</div>
-        <div class="periph-card-proto">UART0</div>
-      </div>
-      <div class="periph-card-desc">Primary serial debug port. TX line includes a 470 Ω series resistor (R36) to protect against back-feed voltage or shorts from external serial adapters.</div>
-      <div class="periph-pin-list">
-        <div class="periph-pin"><span class="periph-pin-name">TX (RX_TX)</span><span class="periph-pin-val">U0TXD + 470 Ω</span></div>
-        <div class="periph-pin"><span class="periph-pin-name">RX (TX_RX)</span><span class="periph-pin-val">U0RXD</span></div>
-        <div class="periph-pin"><span class="periph-pin-name">LED TX/RX</span><span class="periph-pin-val">D16 / D17</span></div>
-      </div>
-    </div>
-
-    <div class="periph-card">
-      <div class="periph-card-header">
-        <div class="periph-card-title">RTC Crystal</div>
-        <div class="periph-card-proto">32.768 kHz</div>
-      </div>
-      <div class="periph-card-desc">External 32.768 kHz crystal for accurate real-time clock operation during deep sleep. Keeps time independent of the main oscillator.</div>
-      <div class="periph-pin-list">
-        <div class="periph-pin"><span class="periph-pin-name">XTAL32P</span><span class="periph-pin-val">GPIO21</span></div>
-        <div class="periph-pin"><span class="periph-pin-name">XTAL32N</span><span class="periph-pin-val">GPIO22</span></div>
-      </div>
-    </div>
-
-  </div>
-</section>
-
-<hr class="divider">
-
-<!-- PINOUT -->
-<section id="pinout">
-  <div class="section-label">04 — Pin Reference</div>
-  <h2 class="section-title">GPIO & Header Mapping</h2>
-  <p class="section-desc">Complete pin assignment. All signals referenced to the ESP32-S3 GPIO numbering.</p>
-
-  <div class="callout warn">
-    <div class="callout-icon">⚠</div>
-    <div><strong>GPIO45 — VDD_SPI strapping pin.</strong> On the ESP32-S3FN8, GPIO45 sets the internal LDO voltage for the Flash (VDD_SPI). Keep this pin floating or pulled LOW at boot to maintain 3.3 V on the Flash. Pulling it HIGH will set VDD_SPI to 1.8 V and the board will fail to boot.</div>
-  </div>
-
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th>Pin #</th>
-          <th>GPIO</th>
-          <th>Net / Label</th>
-          <th>Function</th>
-          <th>Notes</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr><td class="pin-num">5</td><td>GPIO0</td><td class="net-name">BOOT</td><td class="func">Strapping / Boot</td><td>Pull HIGH = run &nbsp;|&nbsp; Pull LOW = flash mode</td></tr>
-        <tr><td class="pin-num">6–12</td><td>GPIO1–7</td><td class="net-name">IO1 – IO7</td><td class="func">General Purpose IO</td><td>IO7 = battery sense (ADC, 1/2 Vbat)</td></tr>
-        <tr><td class="pin-num">13</td><td>GPIO8</td><td class="net-name">SDA</td><td class="func">I2C #1 Data</td><td>Main header — external sensors</td></tr>
-        <tr><td class="pin-num">14</td><td>GPIO9</td><td class="net-name">SCL</td><td class="func">I2C #1 Clock</td><td>Main header — external sensors</td></tr>
-        <tr><td class="pin-num">15</td><td>GPIO10</td><td class="net-name">CS_SD</td><td class="func">SPI CS</td><td>MicroSD card chip-select</td></tr>
-        <tr><td class="pin-num">16</td><td>GPIO11</td><td class="net-name">MOSI_DI</td><td class="func">SPI MOSI</td><td>MicroSD card data in</td></tr>
-        <tr><td class="pin-num">17</td><td>GPIO12</td><td class="net-name">SCLK</td><td class="func">SPI Clock</td><td>MicroSD card clock</td></tr>
-        <tr><td class="pin-num">18</td><td>GPIO13</td><td class="net-name">MISO_DO</td><td class="func">SPI MISO</td><td>MicroSD card data out</td></tr>
-        <tr><td class="pin-num">19</td><td>GPIO14</td><td class="net-name">PWM1</td><td class="func">PWM Output</td><td>General purpose, header breakout</td></tr>
-        <tr><td class="pin-num">23</td><td>GPIO17</td><td class="net-name">SDA_gyro</td><td class="func">I2C #2 Data</td><td>Dedicated IMU bus — LSM6DSV</td></tr>
-        <tr><td class="pin-num">24</td><td>GPIO18</td><td class="net-name">SCL_gyro</td><td class="func">I2C #2 Clock</td><td>Dedicated IMU bus — LSM6DSV</td></tr>
-        <tr><td class="pin-num">25</td><td>GPIO19</td><td class="net-name">UD−</td><td class="func">USB D−</td><td><span class="tag tag-ok">Native USB</span> — no bridge chip</td></tr>
-        <tr><td class="pin-num">26</td><td>GPIO20</td><td class="net-name">UD+</td><td class="func">USB D+</td><td><span class="tag tag-ok">Native USB</span> — no bridge chip</td></tr>
-        <tr><td class="pin-num">27</td><td>GPIO21</td><td class="net-name">INT_gyro</td><td class="func">Interrupt Input</td><td>IMU INT1 — data ready signal</td></tr>
-        <tr><td class="pin-num">36</td><td>GPIO36</td><td class="net-name">PWM2</td><td class="func">PWM Output</td><td>Header J12 breakout</td></tr>
-        <tr><td class="pin-num">37</td><td>GPIO37</td><td class="net-name">PWM3</td><td class="func">PWM Output</td><td>Header J12 breakout</td></tr>
-        <tr><td class="pin-num">39–42</td><td>GPIO34–37</td><td class="net-name">CS/MOSI/CLK/MISO</td><td class="func">Secondary SPI</td><td>General SPI breakout on header</td></tr>
-        <tr><td class="pin-num">43</td><td>GPIO38</td><td class="net-name">Builtin_LED</td><td class="func">Status LED</td><td>D12 — user programmable, active HIGH</td></tr>
-        <tr><td class="pin-num">49</td><td>U0TXD</td><td class="net-name">RX_TX</td><td class="func">UART TX</td><td>470 Ω R36 protection — debug serial</td></tr>
-        <tr><td class="pin-num">50</td><td>U0RXD</td><td class="net-name">TX_RX</td><td class="func">UART RX</td><td>Debug serial receive</td></tr>
-        <tr><td class="pin-num">51</td><td>GPIO45</td><td class="net-name">IO45</td><td class="func">VDD_SPI Strap</td><td><span class="tag tag-warn">KEEP LOW</span> — HIGH = 1.8 V Flash → no boot</td></tr>
-        <tr><td class="pin-num">21/22</td><td>XTAL_32K</td><td class="net-name">XTAL32P/N</td><td class="func">RTC Crystal</td><td>32.768 kHz for accurate RTC</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <h3 style="font-family:var(--display);font-size:1.1rem;font-weight:700;margin:2.5rem 0 1rem">Main Header J12 — Quick Reference</h3>
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr><th>Pin</th><th>Function</th><th>Pin</th><th>Function</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>1</td><td class="net-name">GND</td><td>13</td><td>NC</td></tr>
-        <tr><td>2</td><td class="net-name">RX_TX</td><td>14</td><td class="net-name">GND</td></tr>
-        <tr><td>3</td><td class="net-name">TX_RX</td><td>15</td><td class="net-name">PWM1 (IO14)</td></tr>
-        <tr><td>4</td><td class="net-name">IO1</td><td>16</td><td class="net-name">PWM3 (IO37)</td></tr>
-        <tr><td>5</td><td class="net-name">IO2</td><td>17</td><td class="net-name">PWM2 (IO36)</td></tr>
-        <tr><td>11</td><td class="net-name">3.3 V</td><td>24</td><td class="net-name">Vusb (5 V)</td></tr>
-      </tbody>
-    </table>
-  </div>
-</section>
-
-<hr class="divider">
-
-<!-- QUICK START -->
-<section id="quickstart">
-  <div class="section-label">05 — Getting Started</div>
-  <h2 class="section-title">Quick Start Guide</h2>
-  <p class="section-desc">From unboxing to running your first sketch in five steps. No drivers needed on modern systems.</p>
-
-  <div class="callout info">
-    <div class="callout-icon">ℹ</div>
-    <div><strong>No USB chip on this board.</strong> If you're looking for a CH340 or CP2102 — there isn't one. The ESP32-S3 handles USB itself. Windows 10+, macOS, and Linux will enumerate the device automatically when you plug in the USB-C cable.</div>
-  </div>
-
-  <div class="quickstart-steps">
-    <div class="qs-step">
-      <div class="qs-num">01</div>
-      <div>
-        <div class="qs-title">Install Arduino IDE 2 + ESP32 Board Package</div>
-        <div class="qs-desc">
-          In Arduino IDE 2, open <strong>File → Preferences</strong> and add the Espressif boards URL to <em>Additional Boards Manager URLs</em>:
-          <div class="code-block"><span class="str">https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json</span></div>
-          Then go to <strong>Tools → Board Manager</strong>, search for <code>esp32</code> and install the Espressif package.
+      <div class="hero-copy reveal delay-one">
+        <p class="eyebrow">Moovma presents</p>
+        <h1>Elyssa is a dev board<br>for <em>building things.</em></h1>
+        <p class="hero-intro">An ESP32-S3 board with motion sensing, wireless connectivity, and a documentation-first workflow for curious makers.</p>
+        <div class="hero-actions">
+          <a class="button button-dark" href="https://github.com/moovma/Elyssa-dev-board#readme" target="_blank" rel="noreferrer">Read the docs <span>↗</span></a>
+          <a class="text-link" href="#inside">Scroll to explore <span>↓</span></a>
         </div>
       </div>
-    </div>
+    </section>
 
-    <div class="qs-step">
-      <div class="qs-num">02</div>
-      <div>
-        <div class="qs-title">Select the Correct Board</div>
-        <div class="qs-desc">
-          In Arduino IDE: <strong>Tools → Board → ESP32 Arduino → ESP32S3 Dev Module</strong><br><br>
-          Set the following options in the Tools menu:
-          <div class="code-block">
-<span class="cm">// Recommended settings</span><br>
-Flash Mode        → <span class="str">QIO 80MHz</span><br>
-Flash Size        → <span class="str">8MB (64Mb)</span><br>
-PSRAM             → <span class="str">Disabled</span><br>
-USB Mode          → <span class="str">USB-OTG (TinyUSB)</span><br>
-Upload Mode       → <span class="str">UART0 / Hardware CDC</span>
+    <section class="anatomy-section" id="anatomy">
+      <div class="section-wrap">
+        <div class="section-label reveal"><span>01 / 02</span><span>Board anatomy</span></div>
+        <div class="anatomy-heading">
+          <h2 class="reveal">Meet the parts<br>that make <em>Elyssa.</em></h2>
+          <p class="reveal delay-one">Rotate the board and inspect the components that matter. Passive parts stay quiet so the real architecture can come forward.</p>
+        </div>
+        <div class="anatomy-layout anatomy-scroll">
+          <div class="model-frame model-sticky reveal">
+            <div class="model-status"><span class="status-dot"></span><span id="model-status-text">Loading 3D model</span></div>
+            <div id="board-viewer" aria-label="Interactive 3D model of the Elyssa development board"></div>
+            <div class="model-hint">Scroll to inspect <span>·</span> SD turns the board</div>
+            <div class="axis-legend" aria-label="3D axis reference"><span class="axis-x">X</span><span class="axis-y">Y</span><span class="axis-z">Z</span></div>
+          </div>
+          <div class="component-story" aria-label="Board component guide">
+            <article class="story-step is-active" data-component="mcu"><span class="story-number">01</span><div><h3>ESP32-S3FN8 MCU</h3><p>The board’s main computer: dual-core 240 MHz processing with Wi-Fi and Bluetooth LE 5 for connected builds.</p></div></article>
+            <article class="story-step" data-component="imu"><span class="story-number">02</span><div><h3>6-axis IMU</h3><p>The LSM6DS3TR-C reads acceleration, rotation and temperature on its own I2C bus, ready for gestures and orientation.</p></div></article>
+            <article class="story-step" data-component="bms"><span class="story-number">03</span><div><h3>LiPo / BMS</h3><p>The onboard BQ24092 handles battery charging and power-path management for portable prototypes.</p></div></article>
+            <article class="story-step" data-component="buck"><span class="story-number">04</span><div><h3>Buck converter</h3><p>A dedicated power rail keeps the board supplied efficiently when your project is drawing current.</p></div></article>
+            <article class="story-step" data-component="rgb"><span class="story-number">05</span><div><h3>RGB LED array</h3><p>Three independent channels give your firmware an immediate visual signal: red, green, blue or any mix.</p></div></article>
+            <article class="story-step" data-component="sd"><span class="story-number">06</span><div><h3>microSD socket</h3><p>Local storage on a dedicated SPI bus. Selecting this step turns the board to reveal the socket on the back.</p></div></article>
           </div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <div class="qs-step">
-      <div class="qs-num">03</div>
-      <div>
-        <div class="qs-title">Enter Bootloader Mode (First Upload)</div>
-        <div class="qs-desc">
-          For the very first firmware upload, you may need to manually enter download mode:<br><br>
-          1. Hold <code>SW5 (BOOT)</code> button down<br>
-          2. Press and release <code>SW6 (RESET / EN)</code><br>
-          3. Release <code>SW5</code><br><br>
-          After the first upload, subsequent uploads can be done automatically over USB without pressing any buttons.
+    <section class="intro section-wrap" id="inside">
+      <div class="section-label reveal"><span>01</span><span>The idea</span></div>
+      <div class="intro-grid">
+        <h2 class="reveal">Everything you need<br>to make it <em>real.</em></h2>
+        <div class="intro-copy reveal delay-one">
+          <p>Wireless, motion-aware and ready for the Arduino IDE. Elyssa keeps the useful stuff close, so your attention can stay on the thing you’re making.</p>
+          <a class="text-link" href="https://github.com/moovma/Elyssa-dev-board#features" target="_blank" rel="noreferrer">Explore the full feature list <span>↗</span></a>
         </div>
       </div>
-    </div>
+      <div class="feature-grid">
+        <article class="feature-card feature-card-wide reveal">
+          <div class="feature-card-top"><span class="card-index">A / 01</span><span class="card-icon icon-spark">✳</span></div>
+          <h3>Feel the world<br>around it.</h3>
+          <p>LSM6DS3TR-C accelerometer, gyroscope and temperature sensor on a dedicated I2C bus.</p>
+          <span class="card-arrow">↗</span>
+        </article>
+        <article class="feature-card feature-card-olive reveal delay-one">
+          <div class="feature-card-top"><span class="card-index">B / 02</span><span class="card-icon icon-wifi">⌁</span></div>
+          <h3>Connected<br>by default.</h3>
+          <p>ESP32-S3 dual-core power with Wi-Fi and Bluetooth LE 5 built into the board.</p>
+          <span class="card-arrow">↗</span>
+        </article>
+        <article class="feature-card feature-card-outline reveal delay-two">
+          <div class="feature-card-top"><span class="card-index">C / 03</span><span class="card-icon icon-led">●</span></div>
+          <h3>Room to<br>go further.</h3>
+          <p>microSD, Qwiic, LiPo charging, native USB-C and a generous maker-friendly header.</p>
+          <span class="card-arrow">↗</span>
+        </article>
+      </div>
+    </section>
 
-    <div class="qs-step">
-      <div class="qs-num">04</div>
-      <div>
-        <div class="qs-title">Blink the Built-in LED</div>
-        <div class="qs-desc">
-          Upload this sketch to verify everything is working:
-          <div class="code-block">
-<span class="kw">#define</span> LED_PIN <span class="str">38</span>  <span class="cm">// GPIO38 = Builtin_LED (D12)</span><br><br>
-<span class="kw">void</span> setup() {<br>
-&nbsp;&nbsp;pinMode(LED_PIN, OUTPUT);<br>
-}<br><br>
-<span class="kw">void</span> loop() {<br>
-&nbsp;&nbsp;digitalWrite(LED_PIN, HIGH); delay(<span class="str">500</span>);<br>
-&nbsp;&nbsp;digitalWrite(LED_PIN, LOW);  delay(<span class="str">500</span>);<br>
-}
-          </div>
+    <section class="spec-section" id="specs">
+      <div class="section-wrap">
+        <div class="section-label light reveal"><span>02</span><span>The details</span></div>
+        <div class="spec-heading">
+          <h2 class="reveal">Small footprint.<br><em>Serious range.</em></h2>
+          <p class="reveal delay-one">Elyssa gives prototypes a capable, dependable home. No mystery hardware. No locked-in black box.</p>
+        </div>
+        <div class="spec-list reveal delay-two">
+          <div class="spec-row"><span class="spec-name">Core</span><strong>ESP32-S3FN8</strong><span>Dual-core / 240 MHz</span></div>
+          <div class="spec-row"><span class="spec-name">Memory</span><strong>8 MB flash</strong><span>No PSRAM / QIO 80 MHz</span></div>
+          <div class="spec-row"><span class="spec-name">Sensing</span><strong>6-axis IMU</strong><span>Accelerometer + gyroscope</span></div>
+          <div class="spec-row"><span class="spec-name">Power</span><strong>LiPo ready</strong><span>BQ24092 charger onboard</span></div>
+          <div class="spec-row"><span class="spec-name">I/O</span><strong>USB-C · Qwiic · microSD</strong><span>Analog / touch / digital / PWM</span></div>
         </div>
       </div>
-    </div>
+    </section>
+    <!-- QUICK START: paste between the #specs section and the #start section -->
+    <section class="quick-section section-wrap" id="quickstart">
+      <div class="section-label reveal"><span>03</span><span>Quick start</span></div>
+      <div class="quick-grid">
+        <div class="quick-intro reveal">
+          <h2>Blink in<br>four <em>steps.</em></h2>
+          <p>Elyssa works with the Arduino IDE. Install the board package once, plug in the board, and upload your first sketch in a few minutes.</p>
+          <a class="text-link" href="https://github.com/moovma/Elyssa-dev-board#getting-started-arduino-ide" target="_blank" rel="noreferrer">Full guide on GitHub <span>↗</span></a>
+        </div>
 
-    <div class="qs-step">
-      <div class="qs-num">05</div>
-      <div>
-        <div class="qs-title">Read Battery Voltage</div>
-        <div class="qs-desc">
-          A 100k / 100k resistor divider on GPIO7 gives you half the battery voltage. Read it like this:
-          <div class="code-block">
-<span class="cm">// Battery voltage is Vbat/2 on IO7</span><br>
-<span class="kw">const int</span> BAT_PIN = <span class="str">7</span>;<br><br>
-<span class="kw">void</span> setup() { Serial.begin(<span class="str">115200</span>); }<br><br>
-<span class="kw">void</span> loop() {<br>
-&nbsp;&nbsp;<span class="kw">int</span> raw = analogRead(BAT_PIN);<br>
-&nbsp;&nbsp;<span class="kw">float</span> vbat = (raw / <span class="str">4095.0</span>) * <span class="str">3.3</span> * <span class="str">2.0</span>;<br>
-&nbsp;&nbsp;Serial.printf(<span class="str">"Vbat: %.2f V\n"</span>, vbat);<br>
-&nbsp;&nbsp;delay(<span class="str">1000</span>);<br>
-}
-          </div>
-          Disconnect the divider via <strong>JP3</strong> to eliminate the ~33 µA quiescent current during deep sleep.
+        <ol class="quick-steps">
+          <li class="quick-step reveal">
+            <span class="quick-number">01</span>
+            <div class="quick-body">
+              <h3>Install Arduino IDE 2</h3>
+              <p>Download and install the latest Arduino IDE 2 for your system. On Linux and macOS you also need Python 3.</p>
+              <a class="button button-dark" href="https://www.arduino.cc/en/software" target="_blank" rel="noreferrer">Download Arduino IDE <span>↗</span></a>
+            </div>
+          </li>
+
+          <li class="quick-step reveal">
+            <span class="quick-number">02</span>
+            <div class="quick-body">
+              <h3>Add the Elyssa board package</h3>
+              <p>Open <strong>File → Preferences</strong> and paste this link in <strong>Additional boards manager URLs</strong>:</p>
+              <div class="code-block">
+                <code id="board-url">https://raw.githubusercontent.com/yassinechouk/Elyssa-dev-board/main/elyssa-arduino/package_moovma_elyssa_index.json</code>
+                <button class="copy-button" type="button" data-copy-target="board-url">Copy</button>
+              </div>
+              <p>Then open <strong>Tools → Board → Boards Manager</strong>, search <strong>Moovma</strong> and click <strong>Install</strong>.</p>
+            </div>
+          </li>
+
+          <li class="quick-step reveal">
+            <span class="quick-number">03</span>
+            <div class="quick-body">
+              <h3>Connect the board</h3>
+              <p>Plug Elyssa in with a USB-C <strong>data</strong> cable. Select <strong>Tools → Board → Moovma → Elyssa</strong>, then <strong>Tools → Port</strong> and pick the port labelled <strong>Elyssa</strong>. Leave the other Tools options at their defaults.</p>
+            </div>
+          </li>
+
+          <li class="quick-step reveal">
+            <span class="quick-number">04</span>
+            <div class="quick-body">
+              <h3>Upload your first sketch</h3>
+              <p>Open <strong>File → Examples → 01.Basics → Blink</strong> and click <strong>Upload</strong>. The on-board LED starts blinking.</p>
+              <div class="quick-note">
+                <span class="quick-note-label">If the upload fails</span>
+                <p>Hold <strong>BOOT</strong>, press and release <strong>RESET</strong>, then release <strong>BOOT</strong>. Select the port that appears and upload again. This is usually only needed once.</p>
+              </div>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </section>
+    <section class="start-section section-wrap" id="start">
+      <div class="section-label reveal"><span>03</span><span>Make a start</span></div>
+      <div class="start-grid">
+        <div class="start-copy reveal">
+          <h2>Your next build<br>starts <em>here.</em></h2>
+          <p>Pick up the board, open the examples, and let the first blink become whatever comes after.</p>
+          <a class="button button-orange" href="https://github.com/moovma/Elyssa-dev-board#-getting-started-arduino-ide" target="_blank" rel="noreferrer">Get started <span>↗</span></a>
+        </div>
+        <div class="start-links reveal delay-one">
+          <a href="https://github.com/moovma/Elyssa-dev-board/blob/main/README.md" target="_blank" rel="noreferrer"><span><small>01</small>Read the README</span><b>↗</b></a>
+          <a href="https://github.com/moovma/Elyssa-dev-board/tree/main/platform/libraries/ElyssaIMU" target="_blank" rel="noreferrer"><span><small>02</small>Explore ElyssaIMU</span><b>↗</b></a>
+          <a href="https://github.com/moovma/Elyssa-dev-board/blob/main/CHANGELOG.md" target="_blank" rel="noreferrer"><span><small>03</small>See what’s new</span><b>↗</b></a>
         </div>
       </div>
-    </div>
-  </div>
-</section>
+    </section>
+  </main>
 
-<hr class="divider">
-
-<!-- RF NOTE -->
-<section>
-  <div class="section-label">06 — RF</div>
-  <h2 class="section-title">Antenna & RF Design</h2>
-  <p class="section-desc">The board includes a pi matching network for 50 Ω impedance and an antenna connection for maximum Wi-Fi / Bluetooth range.</p>
-  <div class="spec-grid">
-    <div class="spec-card">
-      <div class="spec-card-label">Antenna Type</div>
-      <div class="spec-card-value">Inverted-F (IFA)</div>
-      <div class="spec-card-note">PCB trace / external AE1</div>
+  <footer class="site-footer">
+    <div class="footer-inner section-wrap">
+      <div class="footer-brand"><img src="PNG/Moovma White@2x.png" alt="Moovma"><span>ELYSSA / DEV BOARD</span></div>
+      <div class="footer-meta"><span>Open hardware from Tunisia</span><a href="https://github.com/moovma/Elyssa-dev-board" target="_blank" rel="noreferrer">GitHub ↗</a></div>
     </div>
-    <div class="spec-card">
-      <div class="spec-card-label">Matching Network</div>
-      <div class="spec-card-value amber">Pi (L6, C34, C31)</div>
-      <div class="spec-card-note">50 Ω impedance</div>
-    </div>
-    <div class="spec-card">
-      <div class="spec-card-label">Feed Trace</div>
-      <div class="spec-card-value">0.40 mm</div>
-      <div class="spec-card-note">50 Ω microstrip on 4-layer</div>
-    </div>
-    <div class="spec-card">
-      <div class="spec-card-label">Frequency</div>
-      <div class="spec-card-value teal">2.4 GHz</div>
-      <div class="spec-card-note">Wi-Fi + Bluetooth shared</div>
-    </div>
-  </div>
-</section>
-
-<hr class="divider">
-
-<!-- FOOTER -->
-<footer>
-  <div>
-    <div class="footer-logo">Elyssa</div>
-    <div style="margin-top:4px">ESP32-S3 Dev Board — Open Hardware</div>
-  </div>
-  <div style="text-align:right">
-    <div><a href="https://github.com" target="_blank">GitHub Repository ↗</a></div>
-    <div style="margin-top:4px">Hardware Rev 1.0</div>
-  </div>
-</footer>
-
-</div>
+  </footer>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
+      }
+    }
+  </script>
+  <script type="module" src="three-viewer.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>

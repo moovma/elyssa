@@ -1,0 +1,12 @@
+# Blender 5.1.1 MTL File: 'elyssa_cinematic.blend'
+# www.blender.org
+
+newmtl mat_25
+Ns 640.000000
+Ka 1.000000 1.000000 1.000000
+Kd 1.000000 0.780000 0.360000
+Ks 0.500000 0.500000 0.500000
+Ke 1.000000 0.520000 0.160000
+Ni 1.500000
+d 1.000000
+illum 3
