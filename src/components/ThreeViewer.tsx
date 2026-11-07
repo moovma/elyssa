@@ -9,7 +9,7 @@ import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment
 /*  Settings from docs/three-viewer.js (original moovma.github.io)      */
 /* ------------------------------------------------------------------ */
 const CONFIG = {
-  modelUrl: '/elyssa_3d/elyssa.glb',
+  modelUrl: '/elyssa_3d/elyssa-compressed.glb',
   pcbColor: 0x0b8a3e, // solder-mask green
   pcbOpacity: 0.7, // 1 = solid, lower = traces more visible
   boxColor: 0xccff00, // colour of the selection box
