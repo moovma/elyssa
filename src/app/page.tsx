@@ -9,11 +9,8 @@ import QuickStart from '../components/QuickStart';
 import PreorderSection from '../components/PreorderSection';
 import Footer from '../components/Footer';
 
-// Lazy‑load the heavy 3D viewer to avoid blocking the initial render
-const ThreeViewer = dynamic(() => import('../components/ThreeViewer'), {
-  ssr: false,
-  loading: () => <div className="loader">Loading 3D viewer…</div>,
-});
+// Lazy‑load the 3D viewer without a loading placeholder to keep server/client markup identical
+const ThreeViewer = dynamic(() => import('../components/ThreeViewer'), { ssr: false });
 
 export default function Home() {
   return (
