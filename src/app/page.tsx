@@ -9,7 +9,7 @@ import QuickStart from '../components/QuickStart';
 import PreorderSection from '../components/PreorderSection';
 import Footer from '../components/Footer';
 
-// Lazy‑load the 3D viewer without a loading placeholder to keep server/client markup identical
+// Lazy‑load the 3D viewer on the client only – the surrounding <div> ensures identical markup on server & client
 const ThreeViewer = dynamic(() => import('../components/ThreeViewer'), { ssr: false });
 
 export default function Home() {
@@ -17,7 +17,9 @@ export default function Home() {
     <main>
       <Navbar />
       <Hero />
-      <ThreeViewer />
+      <div className="three-viewer-wrapper">
+        <ThreeViewer />
+      </div>
       <Features />
       <Specs />
       <QuickStart />
