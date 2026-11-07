@@ -2,12 +2,18 @@
 
 import Navbar from '../components/Navbar';
 import Hero from '../components/Hero';
-import ThreeViewer from '../components/ThreeViewer';
+import dynamic from 'next/dynamic';
 import Features from '../components/Features';
 import Specs from '../components/Specs';
 import QuickStart from '../components/QuickStart';
 import PreorderSection from '../components/PreorderSection';
 import Footer from '../components/Footer';
+
+// Lazy‑load the heavy 3D viewer to avoid blocking the initial render
+const ThreeViewer = dynamic(() => import('../components/ThreeViewer'), {
+  ssr: false,
+  loading: () => <div className="loader">Loading 3D viewer…</div>,
+});
 
 export default function Home() {
   return (
