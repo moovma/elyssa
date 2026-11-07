@@ -15,6 +15,8 @@
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--sans); font-size: 15px; line-height: 1.5; }
+/* Ensure main sections use the sans font */
+.site-header, .site-footer, .hero, .intro, .feature-card, .anatomy-section, .spec-section, .quick-section, .preorder-section { font-family: var(--sans); }
 a { color: inherit; text-decoration: none; }
 .section-wrap { width: min(1180px, calc(100% - 64px)); margin: 0 auto; }
 
