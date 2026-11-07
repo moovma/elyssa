@@ -12,16 +12,15 @@ export default function Footer() {
           </div>
           <div className="footer-brand">
             <img src="/PNG/Moovma White@2x.png" alt="Moovma" />
-            <span>ELYSSA / DEV BOARD</span>
+            <div className="footer-copyright">
+              <span className="copyright-symbol">&copy;</span> ALL RIGHTS RESERVED BY MOOVMA 2027
+            </div>
           </div>
           <div className="footer-side footer-right">
             <a href="https://github.com/moovma/Elyssa-dev-board" target="_blank" rel="noreferrer">
               GitHub ↗
             </a>
           </div>
-        </div>
-        <div className="footer-copyright">
-          <span>&copy; ALL RIGHTS RESERVED BY MOOVMA</span>
         </div>
       </div>
     </footer>
