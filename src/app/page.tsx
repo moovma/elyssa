@@ -7,6 +7,7 @@ import QuickStart from '../components/QuickStart';
 import PreorderSection from '../components/PreorderSection';
 import Footer from '../components/Footer';
 import ScrollReveal from '../components/ScrollReveal';
+import PageLoader from '../components/PageLoader';
 
 // Lazy-load the heavy 3D viewer on client side with no SSR overhead
 const ThreeViewer = dynamic(() => import('../components/ThreeViewer'), {
@@ -16,6 +17,7 @@ const ThreeViewer = dynamic(() => import('../components/ThreeViewer'), {
 export default function Home() {
   return (
     <main>
+      <PageLoader />
       <ScrollReveal />
       <Navbar />
       <Hero />

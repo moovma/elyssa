@@ -363,18 +363,6 @@ export default function ThreeViewer() {
               <span>{statusMessage}</span>
             </div>
 
-            {!modelLoaded && (
-              <div className="viewer-progress-overlay">
-                <div className="viewer-progress-track">
-                  <div
-                    className="viewer-progress-fill"
-                    style={{ width: `${Math.max(loadProgress, 12)}%` }}
-                  ></div>
-                </div>
-                <span className="viewer-progress-text">{statusMessage}</span>
-              </div>
-            )}
-
             <div id="board-viewer" ref={containerRef}></div>
 
             <div className="model-hint">
