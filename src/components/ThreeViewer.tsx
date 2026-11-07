@@ -9,7 +9,7 @@ import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment
 /*  Settings from docs/three-viewer.js (original moovma.github.io)      */
 /* ------------------------------------------------------------------ */
 const CONFIG = {
-  modelUrl: '/elyssa_3d/elyssa-compressed.glb',
+  modelUrl: '/elyssa_3d/elyssa.glb',
   pcbColor: 0x0b8a3e, // solder-mask green
   pcbOpacity: 0.7, // 1 = solid, lower = traces more visible
   boxColor: 0xccff00, // colour of the selection box
@@ -22,7 +22,6 @@ const CONFIG = {
   swayAmount: 0.03, // tiny tilt while floating (radians)
   flipSpeed: 3.5, // higher = faster flip
   flipAxis: 'y' as const, // 'y' = turn like a page
-  debugHud: false,
 
   partNames: {
     mcu: [/^U1_QFN-56/i],
@@ -133,6 +132,16 @@ interface Board {
   max: number;
 }
 
+interface LoadedData {
+  model: THREE.Group;
+  board: Board;
+  componentMeshes: Record<string, THREE.Mesh[]>;
+}
+
+/* Module-level singleton cache: Load & parse the 30MB CAD model only once per browser session */
+let cachedModelPromise: Promise<LoadedData> | null = null;
+let cachedModelData: LoadedData | null = null;
+
 function asArray<T>(m: T | T[]): T[] {
   return Array.isArray(m) ? m : [m];
 }
@@ -212,7 +221,7 @@ function resolvePart(
         });
       }
     });
-    if (out.size) return [...out];
+    if (out.size) return Array.from(out);
   }
 
   const seeds = meshes.filter(
@@ -239,15 +248,14 @@ function resolvePart(
     const inside = c.x >= box.min.x && c.x <= box.max.x && c.y >= box.min.y && c.y <= box.max.y;
     if (inside && (m.userData.area as number) >= footprintArea * 0.15) out.add(m);
   });
-  return [...out];
+  return Array.from(out);
 }
 
 function prepareModel(
   model: THREE.Object3D,
-  scene: THREE.Scene,
   board: Board
 ): { componentMeshes: Record<string, THREE.Mesh[]>; meshes: THREE.Mesh[] } {
-  scene.updateMatrixWorld(true);
+  model.updateMatrixWorld(true);
   const meshes: THREE.Mesh[] = [];
   model.traverse((o) => {
     if ((o as THREE.Mesh).isMesh) meshes.push(o as THREE.Mesh);
@@ -344,7 +352,7 @@ function splitByDistance(meshes: THREE.Mesh[], board: Board): THREE.Mesh[][] {
     if (!clusters.has(r)) clusters.set(r, []);
     clusters.get(r)!.push(mesh);
   });
-  return [...clusters.values()];
+  return Array.from(clusters.values());
 }
 
 function groupsFor(
@@ -365,7 +373,7 @@ function groupsFor(
         });
       }
     });
-    if (set.size) groups.push([...set]);
+    if (set.size) groups.push(Array.from(set));
   });
   if (!groups.length && (componentMeshes[key] || []).length) groups.push(componentMeshes[key]);
   return groups.flatMap((meshes) => splitByDistance(meshes, board));
@@ -428,6 +436,60 @@ function createSelectionBox(
 }
 
 /* ------------------------------------------------------------------ */
+/*  Singleton Loader (fetches 30MB once across all mounts/pages)       */
+/* ------------------------------------------------------------------ */
+function getOrLoadModel(onProgress?: (percent: number) => void): Promise<LoadedData> {
+  if (cachedModelData) {
+    return Promise.resolve(cachedModelData);
+  }
+  if (cachedModelPromise) {
+    return cachedModelPromise;
+  }
+
+  cachedModelPromise = new Promise<LoadedData>((resolve, reject) => {
+    new GLTFLoader().load(
+      CONFIG.modelUrl,
+      (gltf) => {
+        const model = gltf.scene;
+
+        // Board centre -> pivot, so it sits and turns around 0,0,0
+        const raw = new THREE.Box3().setFromObject(model);
+        model.position.sub(raw.getCenter(new THREE.Vector3()));
+
+        // Measure board bounds in KiCad Z-up orientation
+        const tempGroup = new THREE.Group();
+        tempGroup.rotation.x = Math.PI / 2;
+        tempGroup.add(model);
+        tempGroup.updateMatrixWorld(true);
+        const size = new THREE.Box3().setFromObject(tempGroup).getSize(new THREE.Vector3());
+        const board: Board = { w: size.x, h: size.y, d: size.z, max: Math.max(size.x, size.y, size.z) };
+        tempGroup.remove(model);
+
+        const prepared = prepareModel(model, board);
+        cachedModelData = {
+          model,
+          board,
+          componentMeshes: prepared.componentMeshes,
+        };
+        resolve(cachedModelData);
+      },
+      (xhr) => {
+        if (xhr.total > 0 && onProgress) {
+          const p = Math.min(Math.round((xhr.loaded / xhr.total) * 100), 99);
+          onProgress(p);
+        }
+      },
+      (error) => {
+        cachedModelPromise = null;
+        reject(error);
+      }
+    );
+  });
+
+  return cachedModelPromise;
+}
+
+/* ------------------------------------------------------------------ */
 /*  Main Component                                                     */
 /* ------------------------------------------------------------------ */
 export default function ThreeViewer() {
@@ -438,6 +500,7 @@ export default function ThreeViewer() {
   const [loadFailed, setLoadFailed] = useState(false);
   const [statusMessage, setStatusMessage] = useState('Loading 3D model');
 
+  const pendingKeyRef = useRef<string>('mcu');
   const targetFlipRef = useRef(0);
   const userRotationYRef = useRef(0);
   const isDraggingRef = useRef(false);
@@ -447,6 +510,7 @@ export default function ThreeViewer() {
 
   const selectComponent = useCallback((key: string) => {
     setActiveComponent(key);
+    pendingKeyRef.current = key;
     focusComponentRef.current?.(key);
   }, []);
 
@@ -464,7 +528,6 @@ export default function ThreeViewer() {
     if (!container) return;
 
     let disposed = false;
-    let started = false;
     let animId = 0;
     let modelRoot: THREE.Object3D | null = null;
     let board: Board = { w: 1, h: 1, d: 0.1, max: 1 };
@@ -492,7 +555,8 @@ export default function ThreeViewer() {
     camera.up.set(0, 1, 0);
 
     const pmrem = new THREE.PMREMGenerator(renderer);
-    scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+    const roomTex = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+    scene.environment = roomTex;
     pmrem.dispose();
 
     scene.add(new THREE.AmbientLight(0xffffff, 0.1));
@@ -512,7 +576,7 @@ export default function ThreeViewer() {
     flipGroup.add(orientGroup);
     scene.add(floatGroup);
 
-    /* Original camera resize logic from moovma.github.io */
+    /* Camera resize logic matching original moovma.github.io */
     const resize = () => {
       if (!container || !renderer) return;
       const width = container.clientWidth || 1;
@@ -550,55 +614,52 @@ export default function ThreeViewer() {
     };
     focusComponentRef.current = focusComponent;
 
-    /* Load the full model */
+    /* Mount the cached model into our scene */
+    const mountModel = (data: LoadedData) => {
+      if (disposed) return;
+      modelRoot = data.model;
+      board = data.board;
+      componentMeshesMap = data.componentMeshes;
+
+      orientGroup.add(modelRoot);
+      scene.updateMatrixWorld(true);
+
+      const distance = board.max * 4;
+      camera.position.set(0, 0, distance);
+      camera.near = distance - board.max * 2;
+      camera.far = distance + board.max * 2;
+      camera.lookAt(0, 0, 0);
+
+      resize();
+      setModelLoaded(true);
+      setStatusMessage('3D model ready');
+
+      // Process any pending selection buffered while downloading
+      const initialKey = pendingKeyRef.current || activeComponent || 'mcu';
+      focusComponent(initialKey);
+    };
+
+    /* Start or attach to the singleton loader */
     const loadModel = () => {
-      if (started) return;
-      started = true;
+      if (cachedModelData) {
+        mountModel(cachedModelData);
+        return;
+      }
+
       setStatusMessage('Loading 3D model');
-
-      new GLTFLoader().load(
-        CONFIG.modelUrl,
-        (gltf) => {
-          if (disposed) return;
-          const model = gltf.scene;
-          modelRoot = model;
-
-          // Board centre -> pivot, so it sits and turns around 0,0,0
-          const raw = new THREE.Box3().setFromObject(model);
-          model.position.sub(raw.getCenter(new THREE.Vector3()));
-          orientGroup.add(model);
-          scene.updateMatrixWorld(true);
-
-          const size = new THREE.Box3().setFromObject(orientGroup).getSize(new THREE.Vector3());
-          board = { w: size.x, h: size.y, d: size.z, max: Math.max(size.x, size.y, size.z) };
-
-          const distance = board.max * 4;
-          camera.position.set(0, 0, distance);
-          camera.near = distance - board.max * 2;
-          camera.far = distance + board.max * 2;
-          camera.lookAt(0, 0, 0);
-
-          const prepared = prepareModel(model, scene, board);
-          componentMeshesMap = prepared.componentMeshes;
-
-          resize();
-          setModelLoaded(true);
-          setStatusMessage('3D model ready');
-          focusComponent(activeComponent);
-        },
-        (xhr) => {
-          if (xhr.total > 0 && !disposed) {
-            const p = Math.min(Math.round((xhr.loaded / xhr.total) * 100), 99);
-            setStatusMessage(`Loading 3D model ${p}%`);
-          }
-        },
-        (error) => {
+      getOrLoadModel((p) => {
+        if (!disposed) setStatusMessage(`Loading 3D model ${p}%`);
+      })
+        .then((data) => {
+          if (!disposed) mountModel(data);
+        })
+        .catch((error) => {
           console.error('[ThreeViewer] GLB failed to load', error);
-          if (disposed) return;
-          setLoadFailed(true);
-          setStatusMessage('3D model unavailable');
-        }
-      );
+          if (!disposed) {
+            setLoadFailed(true);
+            setStatusMessage('3D model unavailable');
+          }
+        });
     };
 
     const observer = new IntersectionObserver(
@@ -607,7 +668,7 @@ export default function ThreeViewer() {
           if (e.isIntersecting) loadModel();
         });
       },
-      { rootMargin: '120px 0px 120px 0px', threshold: 0.05 }
+      { rootMargin: '160px 0px 160px 0px', threshold: 0.05 }
     );
     if (sectionRef.current) observer.observe(sectionRef.current);
 
@@ -689,13 +750,19 @@ export default function ThreeViewer() {
       el.removeEventListener('touchstart', onTouchStart);
       window.removeEventListener('touchmove', onTouchMove);
       window.removeEventListener('touchend', onTouchEnd);
+
       clearHighlight();
-      scene.traverse((o) => {
-        const m = o as THREE.Mesh;
-        if (!m.isMesh) return;
-        m.geometry?.dispose();
-        asArray(m.material).forEach((mat) => mat.dispose());
-      });
+
+      // Detach cached model from the scene so its meshes are preserved for the next mount
+      if (modelRoot) {
+        orientGroup.remove(modelRoot);
+        modelRoot = null;
+      }
+
+      roomTex.dispose();
+
+      // Free WebGL context immediately to prevent context exhaustion in browser
+      renderer.forceContextLoss();
       renderer.dispose();
       container.innerHTML = '';
     };
