@@ -1,11 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Footer from '@/components/Footer';
 
 const PRICE_OPTIONS = ['80 DT', '95 DT', '110 DT', '130 DT', '150 DT'];
 
 export default function PreorderPage() {
+  const [mounted, setMounted]         = useState(false);
   const [firstName, setFirstName]     = useState('');
   const [familyName, setFamilyName]   = useState('');
   const [age, setAge]                 = useState('');
@@ -18,6 +20,10 @@ export default function PreorderPage() {
   const [error, setError]             = useState<string | null>(null);
   const [submitted, setSubmitted]     = useState(false);
   const [actualPrice, setActualPrice] = useState('70 DT');
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,7 +55,7 @@ export default function PreorderPage() {
   };
 
   return (
-    <div className="preorder-page-wrapper">
+    <div className="preorder-page-wrapper" suppressHydrationWarning>
 
       {/* ── Top nav ── */}
       <div className="preorder-top-nav">
@@ -57,7 +63,7 @@ export default function PreorderPage() {
           <Link href="/" className="brand" aria-label="Moovma home">
             <img src="/PNG/Moovma Black@2x.png" alt="Moovma" />
           </Link>
-          <Link href="/" className="text-link">← Overview</Link>
+          <Link href="/" className="text-link">&larr; Overview</Link>
         </div>
       </div>
 
@@ -200,21 +206,7 @@ export default function PreorderPage() {
       </main>
 
       {/* ── Footer ── */}
-      <footer className="site-footer">
-        <div className="footer-inner section-wrap">
-          <div className="footer-row">
-            <div className="footer-side"><span>Open hardware from Tunisia</span></div>
-            <div className="footer-brand">
-              <img src="/PNG/Moovma White@2x.png" alt="Moovma" />
-              <span>ELYSSA / DEV BOARD</span>
-            </div>
-            <div className="footer-side">
-              <a href="https://github.com/moovma/Elyssa-dev-board" target="_blank" rel="noreferrer">GitHub ↗</a>
-            </div>
-          </div>
-          <div className="footer-copyright">&copy; All rights reserved by MOOVMA</div>
-        </div>
-      </footer>
+      <Footer />
 
     </div>
   );
