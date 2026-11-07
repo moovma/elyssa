@@ -209,43 +209,72 @@ h2 { font-size: clamp(50px, 7vw, 95px); }
    DEDICATED PRE-ORDER PAGE
    ============================ */
 .preorder-page-wrapper { min-height: 100vh; display: flex; flex-direction: column; background: #fafafa; }
-.preorder-top-nav { height: 64px; background: rgba(255,255,255,0.95); backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
-.preorder-main-container { padding: 56px 0 80px; flex: 1; }
-.preorder-form-card { background: #fff; border: 1px solid var(--line); padding: 40px; max-width: 640px; margin: 0 auto; }
-.preorder-form-title { font-size: clamp(32px, 4vw, 48px); line-height: 1; margin-bottom: 8px; }
-.preorder-form-subtitle { color: var(--muted); font-size: 15px; margin-bottom: 28px; }
-.form-error-banner { background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; padding: 12px 16px; font-size: 13px; margin-bottom: 20px; }
-.preorder-actual-form { display: flex; flex-direction: column; gap: 20px; }
-.form-row-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.form-field-group { display: flex; flex-direction: column; }
-.form-field-group label { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 8px; font-weight: 500; }
-.form-field-group input { padding: 12px 14px; border: 1px solid var(--line); font-family: var(--sans); font-size: 15px; color: var(--ink); background: #fff; outline: none; transition: border-color .2s; min-height: 46px; }
-.form-field-group input:focus { border-color: var(--ink); }
 
-/* iOS segmented control */
-.ios-segmented-control { display: grid; grid-template-columns: 1fr 1fr; background: #e2e8f0; padding: 3px; position: relative; user-select: none; }
-.ios-segment-btn { border: none; background: transparent; padding: 10px 16px; font-family: var(--sans); font-size: 14px; font-weight: 600; color: #64748b; cursor: pointer; transition: all .25s; text-align: center; min-height: 40px; }
-.ios-segment-btn.is-active { background: #000; color: var(--acid); }
+/* Top nav */
+.preorder-top-nav { height: 72px; background: #fff; border-bottom: 1px solid var(--line); }
+.po-nav-inner { display: flex; align-items: center; justify-content: space-between; height: 100%; }
+.po-nav-inner .brand img { width: 90px; height: auto; }
 
-/* Price pills */
-.price-options-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
-.price-option-pill { border: 1px solid var(--line); background: #fff; color: var(--ink); padding: 10px 4px; font: 13px/1 var(--mono); font-weight: 500; cursor: pointer; text-align: center; transition: all .2s; min-height: 44px; display: grid; place-items: center; }
-.price-option-pill:hover { border-color: var(--ink); }
-.price-option-pill.is-selected { background: #000; color: var(--acid); border-color: #000; }
+/* Main container */
+.preorder-main-container { flex: 1; padding: 64px 0 100px; }
+.po-content-wrap { width: min(680px, calc(100% - 48px)); margin: 0 auto; }
 
-/* Price reveal */
-.preorder-reveal-card { background: #fff; border: 1px solid var(--line); padding: 48px 40px; text-align: center; max-width: 640px; margin: 0 auto; }
-.reveal-badge { display: inline-block; font: 11px var(--mono); text-transform: uppercase; letter-spacing: 0.08em; color: #059669; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 4px 12px; margin-bottom: 20px; }
-.reveal-heading { font-size: clamp(34px, 4.5vw, 52px); line-height: 1.05; margin-bottom: 24px; }
-.reveal-heading em { color: #000; background: var(--acid); padding: 2px 8px; font-style: normal; }
-.reveal-comparison-box { display: flex; align-items: center; justify-content: center; gap: 20px; background: #f8fafc; border: 1px solid var(--line); padding: 20px; margin-bottom: 28px; }
-.reveal-comparison-item { display: flex; flex-direction: column; align-items: center; }
-.comparison-label { font: 10px var(--mono); text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 4px; }
-.comparison-value.strike { font: 18px var(--mono); text-decoration: line-through; color: #94a3b8; }
-.reveal-comparison-divider { font-size: 20px; color: var(--muted); }
-.comparison-value.highlight-price { font: 24px var(--mono); font-weight: 700; color: #000; }
-.reveal-message-body p { color: var(--muted); font-size: 15px; line-height: 1.65; margin-bottom: 14px; }
-.reveal-notice-box { background: #f1f5f9; border-left: 3px solid var(--ink); padding: 14px 18px; text-align: left; font-size: 14px; color: var(--ink); margin-top: 20px; line-height: 1.6; }
+/* Eyebrow label */
+.po-eyebrow { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin-bottom: 20px; }
+
+/* Form card */
+.po-form-card { background: #fff; border: 1px solid var(--line); padding: 48px; }
+.po-form-heading { font-family: var(--serif); font-size: clamp(36px, 5vw, 56px); font-weight: 400; letter-spacing: -.04em; line-height: .96; margin: 0 0 14px; }
+.po-form-sub { color: var(--muted); font-size: 15px; margin-bottom: 32px; }
+.po-form { display: flex; flex-direction: column; gap: 22px; }
+
+/* Two-col row */
+.po-row-two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+/* Field */
+.po-field { display: flex; flex-direction: column; }
+.po-field label { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 8px; }
+.po-field input { padding: 12px 14px; border: 1px solid var(--line); font-family: var(--sans); font-size: 15px; color: var(--ink); background: #fff; outline: none; transition: border-color .2s; }
+.po-field input:focus { border-color: var(--ink); }
+
+/* Segmented control */
+.po-segment { display: grid; grid-template-columns: 1fr 1fr; background: #f1f5f9; padding: 3px; }
+.po-seg-btn { border: none; background: transparent; padding: 10px 16px; font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); cursor: pointer; transition: all .2s; }
+.po-seg-btn.is-active { background: #000; color: var(--acid); }
+
+/* Price picker */
+.po-price-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 10px; }
+.po-price-btn { border: 1px solid var(--line); background: #fff; color: var(--ink); padding: 12px 4px; font-family: var(--mono); font-size: 12px; cursor: pointer; text-align: center; transition: all .2s; }
+.po-price-btn:hover { border-color: var(--ink); }
+.po-price-btn.is-selected { background: #000; color: var(--acid); border-color: #000; }
+
+/* Submit */
+.po-submit { width: 100%; padding: 16px 24px; font-size: 12px; justify-content: center; margin-top: 6px; }
+.po-note { font-family: var(--mono); font-size: 10px; color: var(--muted); text-align: center; margin-top: 10px; text-transform: uppercase; letter-spacing: .04em; }
+
+/* Error */
+.form-error-banner { background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; padding: 12px 16px; font-size: 13px; margin-bottom: 16px; }
+
+/* Confirmation screen */
+.po-confirm { background: #fff; border: 1px solid var(--line); padding: 48px; text-align: center; }
+.po-confirm-heading { font-family: var(--serif); font-size: clamp(36px, 5vw, 56px); font-weight: 400; letter-spacing: -.04em; line-height: .96; margin: 0 0 28px; }
+.po-confirm-heading em { font-style: normal; background: var(--acid); color: #000; padding: 2px 10px; }
+.po-price-row { display: flex; align-items: center; justify-content: center; gap: 20px; background: #f8fafc; border: 1px solid var(--line); padding: 20px; margin-bottom: 28px; }
+.po-price-col { display: flex; flex-direction: column; align-items: center; }
+.po-price-col.accent .po-price-val { color: #000; }
+.po-price-label { font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 4px; }
+.po-price-val { font-family: var(--mono); font-size: 22px; font-weight: 700; }
+.po-price-val.strike { text-decoration: line-through; color: #94a3b8; }
+.po-arrow { font-size: 18px; color: var(--muted); }
+.po-confirm-body { color: var(--muted); font-size: 15px; line-height: 1.65; margin-bottom: 14px; }
+.po-notice { background: #f1f5f9; border-left: 3px solid var(--ink); padding: 14px 18px; text-align: left; font-size: 14px; color: var(--ink); line-height: 1.6; }
+
+@media (max-width: 640px) {
+  .po-form-card, .po-confirm { padding: 24px 20px; }
+  .po-row-two { grid-template-columns: 1fr; }
+  .po-price-grid { grid-template-columns: repeat(3, 1fr); }
+  .po-price-row { flex-direction: column; gap: 12px; }
+}
 
 /* ============================
    RESPONSIVE
