@@ -62,17 +62,17 @@ export default function PreorderPage() {
   return (
     <div className="preorder-page-wrapper">
       {/* Top Header */}
-      <header className="preorder-top-nav">
-        <div className="section-wrap" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '100%' }}>
-          <Link href="/" className="brand-link" aria-label="Back to Elyssa home">
-            <img src="/PNG/Moovma Black@2x.png" alt="Moovma" className="brand-logo-img" />
-            <span className="brand-badge">ELYSSA / V3</span>
-          </Link>
-          <Link href="/" className="text-link">
-            Back to Overview
-          </Link>
+      <div className="preorder-top-nav">
+          <div className="section-wrap" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '100%' }}>
+            <Link href="/" className="brand-link" aria-label="Back to Elyssa home">
+              <img src="/PNG/Moovma Black@2x.png" alt="Moovma" className="brand-logo-img" />
+              <span className="brand-badge">ELYSSA / V3</span>
+            </Link>
+            <Link href="/" className="text-link">
+              Back to Overview
+            </Link>
+          </div>
         </div>
-      </header>
 
       <main className="preorder-main-container">
         <div className="section-wrap" style={{ maxWidth: 640 }}>
