@@ -5,26 +5,15 @@ import Link from 'next/link';
 
 export default function Hero() {
   return (
-    <section className="hero section-wrap" id="top">
-      <div className="hero-gallery reveal">
-        <div className="hero-photo hero-photo-front">
-          <img
-            src="/elyssa_images/elyssa_top.png"
-            alt="Elyssa development board, front side"
-            loading="eager"
-            decoding="async"
-          />
-        </div>
-        <div className="hero-photo hero-photo-back">
-          <img
-            src="/elyssa_images/elyssa_buttom.png"
-            alt="Elyssa development board, back side"
-            loading="eager"
-            decoding="async"
-          />
-        </div>
+    <section className="hero" id="top">
+      <div className="hero-logo-wrap reveal">
+        <img
+          src="/graphics/logo2.svg"
+          alt="Elyssa logo"
+          className="hero-logo-img"
+        />
       </div>
-      <div className="hero-copy reveal delay-one">
+      <div className="hero-copy section-wrap reveal delay-one">
         <p className="eyebrow">Moovma presents</p>
         <h1>Elyssa is a dev board<br />for <em>building things.</em></h1>
         <p className="hero-intro">
