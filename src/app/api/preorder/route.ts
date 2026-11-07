@@ -6,7 +6,7 @@ import path from 'path';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { firstName, familyName, age, email, phone, isStudent, offeredPrice } = body;
+    const { firstName, familyName, age, email, phone, isStudent, college, offeredPrice } = body;
 
     // Validate required fields
     if (!firstName || !familyName || !email || !phone) {
@@ -16,13 +16,14 @@ export async function POST(request: Request) {
       );
     }
 
-    const newRecord = {
+    const newRecord: any = {
       first_name: String(firstName).trim(),
       family_name: String(familyName).trim(),
       age: Number(age) || 0,
       email: String(email).trim().toLowerCase(),
       phone: String(phone).trim(),
       is_student: Boolean(isStudent),
+      college: isStudent ? String(college || '').trim() : '',
       offered_price: String(offeredPrice || '80 DT'),
       actual_price: '70 DT',
       status: 'pending',
@@ -30,12 +31,23 @@ export async function POST(request: Request) {
     };
 
     let supabaseSaved = false;
+    let supabaseError: string | null = null;
 
     // 1. Save to Supabase if configured
     if (isSupabaseConfigured && supabase) {
       const { data, error } = await supabase.from('preorders').insert([newRecord]);
       if (error) {
-        console.error('Supabase insert error:', error);
+        console.error('Supabase insert error:', error.message);
+        supabaseError = error.message;
+        // If college column does not exist in user Supabase table yet, retry without it
+        const { college: _, ...fallbackRecord } = newRecord;
+        const retry = await supabase.from('preorders').insert([fallbackRecord]);
+        if (!retry.error) {
+          supabaseSaved = true;
+          supabaseError = null;
+        } else {
+          supabaseError = retry.error.message;
+        }
       } else {
         supabaseSaved = true;
       }
@@ -66,6 +78,7 @@ export async function POST(request: Request) {
       success: true,
       actualPrice: '70 DT',
       supabaseSaved,
+      supabaseError,
       message: 'Pre-order recorded successfully.',
     });
   } catch (err: any) {

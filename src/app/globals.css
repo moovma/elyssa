@@ -55,7 +55,7 @@ h1 { font-size: clamp(58px, 8.4vw, 118px); }
 h1 em, h2 em { font-style: italic; }
 .hero-intro { max-width: 425px; color: var(--muted); font-size: 16px; line-height: 1.65; margin-top: 32px; }
 .hero-actions { display: flex; align-items: center; gap: 25px; margin-top: 32px; }
-.button { display: inline-flex; gap: 25px; align-items: center; padding: 14px 17px; border: 1px solid var(--ink); font: 10px var(--mono); text-transform: uppercase; letter-spacing: .04em; transition: background .2s, color .2s; cursor: pointer; white-space: nowrap; }
+.button { display: inline-flex; gap: 25px; align-items: center; padding: 14px 24px; border: 1px solid var(--ink); border-radius: 9999px; font: 10px var(--mono); text-transform: uppercase; letter-spacing: .04em; transition: background .2s, color .2s; cursor: pointer; white-space: nowrap; }
 .button-dark { background: var(--ink); color: #fff; }
 .button-dark:hover { background: #fff; color: var(--ink); }
 .button-acid, .button-orange { background: var(--acid); color: #000; border-color: var(--acid); }
@@ -239,37 +239,134 @@ h2 { font-size: clamp(50px, 7vw, 95px); }
 .po-field input { padding: 12px 14px; border: 1px solid var(--line); font-family: var(--sans); font-size: 15px; color: var(--ink); background: #fff; outline: none; transition: border-color .2s; }
 .po-field input:focus { border-color: var(--ink); }
 
-/* Segmented control */
-.po-segment { display: grid; grid-template-columns: 1fr 1fr; background: #f1f5f9; padding: 3px; }
-.po-seg-btn { border: none; background: transparent; padding: 10px 16px; font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); cursor: pointer; transition: all .2s; }
-.po-seg-btn.is-active { background: #000; color: var(--acid); }
+/* iPhone UISwitch Control */
+.po-uiswitch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  background: #f8fafc;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  transition: border-color .2s;
+}
+.po-uiswitch-label {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.po-uiswitch-label span:first-child {
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.po-uiswitch-sub {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.po-uiswitch {
+  width: 51px;
+  height: 31px;
+  background: #e2e8f0;
+  border-radius: 31px;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  padding: 2px;
+  transition: background-color 0.25s ease;
+  outline: none;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+.po-uiswitch.is-on {
+  background: var(--acid);
+}
+.po-uiswitch-thumb {
+  display: block;
+  width: 27px;
+  height: 27px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.22), 0 0 1px rgba(0, 0, 0, 0.12);
+  transition: transform 0.25s cubic-bezier(0.2, 0.85, 0.32, 1.2);
+  transform: translateX(0);
+}
+.po-uiswitch.is-on .po-uiswitch-thumb {
+  transform: translateX(20px);
+}
 
-/* Price picker */
-.po-price-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 10px; }
-.po-price-btn { border: 1px solid var(--line); background: #fff; color: var(--ink); padding: 12px 4px; font-family: var(--mono); font-size: 12px; cursor: pointer; text-align: center; transition: all .2s; }
-.po-price-btn:hover { border-color: var(--ink); }
-.po-price-btn.is-selected { background: #000; color: var(--acid); border-color: #000; }
+/* College fade in */
+.po-college-fade {
+  animation: fadeIn 0.25s ease-out forwards;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Price picker - black oblong pills, inverted to green when selected/pressed */
+.po-price-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 10px; }
+.po-price-btn { 
+  border: 1px solid #000; 
+  background: #000; 
+  color: #fff; 
+  padding: 12px 6px; 
+  font-family: var(--mono); 
+  font-size: 13px; 
+  font-weight: 500;
+  cursor: pointer; 
+  text-align: center; 
+  transition: background .2s, color .2s, transform .15s, border-color .2s; 
+  border-radius: 9999px; 
+}
+.po-price-btn:hover { 
+  background: #1a1a1a;
+  color: var(--acid);
+  transform: translateY(-1px);
+}
+.po-price-btn:active {
+  transform: scale(0.96);
+}
+.po-price-btn.is-selected { 
+  background: var(--acid); 
+  color: #000; 
+  border-color: #000; 
+  border-width: 1.5px;
+  font-weight: 800;
+  box-shadow: 0 2px 12px rgba(204, 255, 0, 0.5); 
+}
 
 /* Submit */
-.po-submit { width: 100%; padding: 16px 24px; font-size: 12px; justify-content: center; margin-top: 6px; }
+.po-submit { width: 100%; padding: 16px 24px; font-size: 12px; justify-content: center; margin-top: 6px; border-radius: 9999px; }
 .po-note { font-family: var(--mono); font-size: 10px; color: var(--muted); text-align: center; margin-top: 10px; text-transform: uppercase; letter-spacing: .04em; }
 
 /* Error */
-.form-error-banner { background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; padding: 12px 16px; font-size: 13px; margin-bottom: 16px; }
+.form-error-banner { background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; padding: 12px 16px; font-size: 13px; margin-bottom: 16px; border-radius: 12px; }
 
 /* Confirmation screen */
 .po-confirm { background: #fff; border: 1px solid var(--line); padding: 48px; text-align: center; }
 .po-confirm-heading { font-family: var(--serif); font-size: clamp(36px, 5vw, 56px); font-weight: 400; letter-spacing: -.04em; line-height: .96; margin: 0 0 28px; }
-.po-confirm-heading em { font-style: normal; background: var(--acid); color: #000; padding: 2px 10px; }
-.po-price-row { display: flex; align-items: center; justify-content: center; gap: 20px; background: #f8fafc; border: 1px solid var(--line); padding: 20px; margin-bottom: 28px; }
+.po-confirm-heading em { font-style: normal; background: var(--acid); color: #000; padding: 4px 14px; border-radius: 9999px; }
+.po-price-row { display: flex; align-items: center; justify-content: center; gap: 20px; background: #f8fafc; border: 1px solid var(--line); padding: 20px; margin-bottom: 28px; border-radius: 16px; }
 .po-price-col { display: flex; flex-direction: column; align-items: center; }
-.po-price-col.accent .po-price-val { color: #000; }
+.po-price-col.accent .po-price-val { 
+  background: var(--acid); 
+  color: #000; 
+  padding: 6px 18px; 
+  border-radius: 9999px; 
+  border: 1.5px solid #000;
+  box-shadow: 0 2px 8px rgba(204, 255, 0, 0.4);
+}
 .po-price-label { font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 4px; }
 .po-price-val { font-family: var(--mono); font-size: 22px; font-weight: 700; }
 .po-price-val.strike { text-decoration: line-through; color: #94a3b8; }
 .po-arrow { font-size: 18px; color: var(--muted); }
 .po-confirm-body { color: var(--muted); font-size: 15px; line-height: 1.65; margin-bottom: 14px; }
-.po-notice { background: #f1f5f9; border-left: 3px solid var(--ink); padding: 14px 18px; text-align: left; font-size: 14px; color: var(--ink); line-height: 1.6; }
+.po-notice { background: #f1f5f9; border-left: 3px solid var(--ink); padding: 14px 18px; text-align: left; font-size: 14px; color: var(--ink); line-height: 1.6; border-radius: 0 12px 12px 0; }
 
 @media (max-width: 640px) {
   .po-form-card, .po-confirm { padding: 24px 20px; }

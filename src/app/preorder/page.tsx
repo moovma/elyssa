@@ -12,6 +12,7 @@ export default function PreorderPage() {
   const [email, setEmail]             = useState('');
   const [phone, setPhone]             = useState('');
   const [isStudent, setIsStudent]     = useState(true);
+  const [college, setCollege]         = useState('');
   const [offeredPrice, setOfferedPrice] = useState('95 DT');
   const [loading, setLoading]         = useState(false);
   const [error, setError]             = useState<string | null>(null);
@@ -25,12 +26,16 @@ export default function PreorderPage() {
       setError('All required fields must be filled in.');
       return;
     }
+    if (isStudent && !college.trim()) {
+      setError('Please specify your college or university.');
+      return;
+    }
     setLoading(true);
     try {
       const res = await fetch('/api/preorder', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ firstName, familyName, age: parseInt(age) || 0, email, phone, isStudent, offeredPrice }),
+        body: JSON.stringify({ firstName, familyName, age: parseInt(age) || 0, email, phone, isStudent, college, offeredPrice }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Submission failed.');
@@ -79,7 +84,7 @@ export default function PreorderPage() {
                 </div>
               </div>
               <p className="po-confirm-body">
-                {firstName} {familyName}, your reservation is in. Elyssa is priced at <strong>70 DT</strong> — built to stay accessible for makers and students across Tunisia.
+                {firstName} {familyName}{isStudent && college ? ` (${college})` : ''}, your reservation is in. Elyssa is priced at <strong>70 DT</strong> — built to stay accessible for makers and students across Tunisia.
               </p>
               <div className="po-notice">
                 You will receive a confirmation call at <strong>{phone}</strong> or an email at <strong>{email}</strong>.
@@ -135,16 +140,40 @@ export default function PreorderPage() {
                     value={email} onChange={e => setEmail(e.target.value)} />
                 </div>
 
-                {/* Student toggle */}
-                <div className="po-field">
-                  <label>Status</label>
-                  <div className="po-segment" role="radiogroup">
-                    <button type="button" className={`po-seg-btn${isStudent ? ' is-active' : ''}`}
-                      onClick={() => setIsStudent(true)} aria-checked={isStudent}>Student</button>
-                    <button type="button" className={`po-seg-btn${!isStudent ? ' is-active' : ''}`}
-                      onClick={() => setIsStudent(false)} aria-checked={!isStudent}>Non-student</button>
+                {/* Student toggle with iPhone UISwitch */}
+                <div className="po-uiswitch-row">
+                  <div className="po-uiswitch-label">
+                    <span>Student status</span>
+                    <span className="po-uiswitch-sub">
+                      {isStudent ? 'Student (eligible for student batch)' : 'Non-student / Professional'}
+                    </span>
                   </div>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={isStudent}
+                    aria-label="Student toggle"
+                    onClick={() => setIsStudent(!isStudent)}
+                    className={`po-uiswitch ${isStudent ? 'is-on' : ''}`}
+                  >
+                    <span className="po-uiswitch-thumb" />
+                  </button>
                 </div>
+
+                {/* College / University field (shown if student) */}
+                {isStudent && (
+                  <div className="po-field po-college-fade">
+                    <label htmlFor="college">College / University / Institute *</label>
+                    <input
+                      id="college"
+                      type="text"
+                      required={isStudent}
+                      placeholder="e.g. INSAT, ENIT, ESPRIT, SUP'COM, ISET, FST..."
+                      value={college}
+                      onChange={e => setCollege(e.target.value)}
+                    />
+                  </div>
+                )}
 
                 {/* Price picker */}
                 <div className="po-field">
