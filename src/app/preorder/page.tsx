@@ -272,18 +272,21 @@ export default function PreorderPage() {
         </div>
       </main>
 
-      {/* Clean Footer */}
+      {/* Footer – same as main site */}
       <footer className="site-footer" style={{ marginTop: 'auto' }}>
-        <div className="section-wrap footer-inner">
-          <div className="footer-center-brand">
-            <span className="footer-copyright-logo" title="Copyright">©</span>
-            <img src="/PNG/Moovma White@2x.png" alt="Moovma Logo" className="footer-moovma-logo" />
-            <span className="footer-brand-title">ELYSSA / DEV BOARD</span>
+        <div className="footer-inner section-wrap">
+          <div className="footer-row">
+            <div className="footer-side footer-left"><span>Open hardware from Tunisia</span></div>
+            <div className="footer-brand">
+              <img src="/PNG/Moovma White@2x.png" alt="Moovma" />
+              <span>ELYSSA / DEV BOARD</span>
+            </div>
+            <div className="footer-side footer-right">
+              <a href="https://github.com/moovma/Elyssa-dev-board" target="_blank" rel="noreferrer">GitHub ↗</a>
+            </div>
           </div>
-          <div className="footer-bottom-copy">
-            <span>Open Hardware from Tunisia</span>
-            <span>·</span>
-            <span>© 2026 MOOVMA. All rights reserved.</span>
+          <div className="footer-copyright">
+            &copy; All rights reserved by MOOVMA
           </div>
         </div>
       </footer>
