@@ -10,7 +10,6 @@ export default function Navbar() {
     <header className="site-header">
       <Link href="/" className="brand" aria-label="Moovma home">
         <img src="/PNG/Moovma Black@2x.png" alt="Moovma" />
-        <span className="brand-badge">ELYSSA / V3</span>
       </Link>
 
       <nav className="main-nav" aria-label="Main navigation">
