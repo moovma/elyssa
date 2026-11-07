@@ -363,6 +363,17 @@ export default function ThreeViewer() {
               <span>{statusMessage}</span>
             </div>
 
+            {!modelLoaded && (
+              <div className="model-placeholder-loader">
+                <div className="viewer-radar-loader">
+                  <div className="radar-ring"></div>
+                  <div className="radar-sweep"></div>
+                  <div className="radar-core"></div>
+                </div>
+                <span className="loader-status-text">{statusMessage}</span>
+              </div>
+            )}
+
             <div id="board-viewer" ref={containerRef}></div>
 
             <div className="model-hint">
