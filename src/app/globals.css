@@ -1,3 +1,4 @@
+@import url('/fonts/fonts.css');
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Serif+Display:ital@0;1&family=Manrope:wght@400;500;600;700;800&display=swap');
 
 /* ============================
@@ -206,6 +207,7 @@ h2 { font-size: clamp(50px, 7vw, 95px); }
 /* Scroll reveal */
 .reveal { opacity: 0; transform: translateY(28px); transition: opacity .8s ease, transform .8s ease; }
 .reveal.is-visible { opacity: 1; transform: translateY(0); }
+.hero .reveal { opacity: 1; transform: translateY(0); }
 .delay-one { transition-delay: .14s; }
 .delay-two { transition-delay: .25s; }
 

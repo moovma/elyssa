@@ -8,10 +8,20 @@ export default function Hero() {
     <section className="hero section-wrap" id="top">
       <div className="hero-gallery reveal">
         <div className="hero-photo hero-photo-front">
-          <img src="/elyssa_images/elyssa_top.png" alt="Elyssa development board, front side" />
+          <img
+            src="/elyssa_images/elyssa_top.png"
+            alt="Elyssa development board, front side"
+            loading="eager"
+            decoding="async"
+          />
         </div>
         <div className="hero-photo hero-photo-back">
-          <img src="/elyssa_images/elyssa_buttom.png" alt="Elyssa development board, back side" />
+          <img
+            src="/elyssa_images/elyssa_buttom.png"
+            alt="Elyssa development board, back side"
+            loading="eager"
+            decoding="async"
+          />
         </div>
       </div>
       <div className="hero-copy reveal delay-one">

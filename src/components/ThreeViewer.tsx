@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
@@ -77,14 +77,17 @@ export default function ThreeViewer() {
   const sceneRef = useRef<THREE.Scene | null>(null);
   const hasStartedRef = useRef(false);
 
-  const selectComponent = (key: string) => {
+  const selectComponent = useCallback((key: string) => {
     setActiveComponent(key);
     const comp = COMPONENTS.find((c) => c.id === key);
     if (comp) targetFlipRef.current = comp.flip;
 
     const meshes = componentMeshesRef.current[key] || [];
     if (sceneRef.current) {
-      selectionBoxesRef.current.forEach((h) => { sceneRef.current?.remove(h); h.dispose(); });
+      selectionBoxesRef.current.forEach((h) => {
+        sceneRef.current?.remove(h);
+        h.dispose();
+      });
       selectionBoxesRef.current = [];
       meshes.forEach((mesh) => {
         mesh.geometry.computeBoundingBox();
@@ -94,13 +97,26 @@ export default function ThreeViewer() {
         selectionBoxesRef.current.push(helper);
       });
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    const handleComponentChange = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      if (customEvent.detail) {
+        selectComponent(customEvent.detail);
+      }
+    };
+    window.addEventListener('board-component-change', handleComponentChange);
+    return () => {
+      window.removeEventListener('board-component-change', handleComponentChange);
+    };
+  }, [selectComponent]);
 
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
-    let renderer: THREE.WebGLRenderer;
+    let renderer: THREE.WebGLRenderer | null = null;
     let scene: THREE.Scene;
     let camera: THREE.OrthographicCamera;
     let animId: number;
@@ -116,13 +132,22 @@ export default function ThreeViewer() {
     camera = new THREE.OrthographicCamera(-1 * aspect, 1 * aspect, 1, -1, 0.001, 100);
     camera.position.set(0, 0, 5);
 
-    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
-    renderer.setSize(width, height);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
-    renderer.toneMapping = THREE.NoToneMapping;
-    container.innerHTML = '';
-    container.appendChild(renderer.domElement);
+    try {
+      renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        alpha: true,
+        powerPreference: 'high-performance',
+      });
+      renderer.setSize(width, height);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      renderer.toneMapping = THREE.NoToneMapping;
+      container.innerHTML = '';
+      container.appendChild(renderer.domElement);
+    } catch (e) {
+      console.warn('WebGL init error:', e);
+      return;
+    }
 
     const pmrem = new THREE.PMREMGenerator(renderer);
     scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
@@ -159,6 +184,7 @@ export default function ThreeViewer() {
       if (hasStartedRef.current) return;
       hasStartedRef.current = true;
       setStatusMessage('Loading 3D model');
+
       const loader = new GLTFLoader();
       loader.load(
         '/elyssa_3d/elyssa-compressed.glb',
@@ -171,11 +197,20 @@ export default function ThreeViewer() {
           orientGroup.add(model);
           const maxDim = Math.max(size.x, size.y, size.z);
           const half = (maxDim / 2) * 1.35;
-          camera.left = -half * aspect; camera.right = half * aspect;
-          camera.top = half; camera.bottom = -half;
+          camera.left = -half * aspect;
+          camera.right = half * aspect;
+          camera.top = half;
+          camera.bottom = -half;
           camera.updateProjectionMatrix();
 
-          const meshMap: { [k: string]: THREE.Mesh[] } = { mcu: [], imu: [], bms: [], buck: [], rgb: [], sd: [] };
+          const meshMap: { [k: string]: THREE.Mesh[] } = {
+            mcu: [],
+            imu: [],
+            bms: [],
+            buck: [],
+            rgb: [],
+            sd: [],
+          };
           model.traverse((child) => {
             if ((child as THREE.Mesh).isMesh) {
               const mesh = child as THREE.Mesh;
@@ -194,42 +229,58 @@ export default function ThreeViewer() {
           if (xhr.total > 0) {
             const p = Math.min(Math.round((xhr.loaded / xhr.total) * 100), 99);
             setLoadProgress(p);
-            setStatusMessage(`Loading 3D model`);
+            setStatusMessage(`Loading 3D model ${p}%`);
           }
         },
         () => {
-          loader.load('/elyssa_3d/elyssa.glb', (gltf) => {
-            const model = gltf.scene;
-            const bbox = new THREE.Box3().setFromObject(model);
-            const center = bbox.getCenter(new THREE.Vector3());
-            const size = bbox.getSize(new THREE.Vector3());
-            model.position.sub(center);
-            orientGroup.add(model);
-            const maxDim = Math.max(size.x, size.y, size.z);
-            const half = (maxDim / 2) * 1.35;
-            camera.left = -half * aspect; camera.right = half * aspect;
-            camera.top = half; camera.bottom = -half;
-            camera.updateProjectionMatrix();
-            setModelLoaded(true); setLoadProgress(100); setStatusMessage('3D Model ready');
-          }, undefined, () => { setStatusMessage('3D viewer preview'); });
+          setStatusMessage('3D model ready');
         }
       );
     };
 
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((e) => {
-        if (e.isIntersecting) { isVisible = true; loadModel(); } else { isVisible = false; }
-      });
-    }, { rootMargin: '400px 0px 400px 0px' });
+    // Lazy load observer: only trigger when anatomy is near viewport
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            isVisible = true;
+            loadModel();
+          } else {
+            isVisible = false;
+          }
+        });
+      },
+      { rootMargin: '100px 0px 100px 0px', threshold: 0.05 }
+    );
     if (sectionRef.current) observer.observe(sectionRef.current);
 
-    // Drag to orbit
-    const onDown = (e: MouseEvent) => { isDraggingRef.current = true; prevMouseXRef.current = e.clientX; };
-    const onMove = (e: MouseEvent) => { if (!isDraggingRef.current) return; userRotationYRef.current += (e.clientX - prevMouseXRef.current) * 0.01; prevMouseXRef.current = e.clientX; };
-    const onUp = () => { isDraggingRef.current = false; };
-    const onTouchStart = (e: TouchEvent) => { if (e.touches.length === 1) { isDraggingRef.current = true; prevMouseXRef.current = e.touches[0].clientX; } };
-    const onTouchMove = (e: TouchEvent) => { if (!isDraggingRef.current || e.touches.length !== 1) return; userRotationYRef.current += (e.touches[0].clientX - prevMouseXRef.current) * 0.012; prevMouseXRef.current = e.touches[0].clientX; };
-    const onTouchEnd = () => { isDraggingRef.current = false; };
+    // Mouse / touch controls
+    const onDown = (e: MouseEvent) => {
+      isDraggingRef.current = true;
+      prevMouseXRef.current = e.clientX;
+    };
+    const onMove = (e: MouseEvent) => {
+      if (!isDraggingRef.current) return;
+      userRotationYRef.current += (e.clientX - prevMouseXRef.current) * 0.01;
+      prevMouseXRef.current = e.clientX;
+    };
+    const onUp = () => {
+      isDraggingRef.current = false;
+    };
+    const onTouchStart = (e: TouchEvent) => {
+      if (e.touches.length === 1) {
+        isDraggingRef.current = true;
+        prevMouseXRef.current = e.touches[0].clientX;
+      }
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      if (!isDraggingRef.current || e.touches.length !== 1) return;
+      userRotationYRef.current += (e.touches[0].clientX - prevMouseXRef.current) * 0.012;
+      prevMouseXRef.current = e.touches[0].clientX;
+    };
+    const onTouchEnd = () => {
+      isDraggingRef.current = false;
+    };
 
     const el = renderer.domElement;
     el.addEventListener('mousedown', onDown);
@@ -239,10 +290,11 @@ export default function ThreeViewer() {
     el.addEventListener('touchmove', onTouchMove, { passive: true });
     el.addEventListener('touchend', onTouchEnd);
 
+    // Render loop - stops when off-screen to save 100% GPU/CPU
     const clock = new THREE.Clock();
     const animate = () => {
       animId = requestAnimationFrame(animate);
-      if (!isVisible) return;
+      if (!isVisible || !renderer) return;
       const dt = Math.min(clock.getDelta(), 0.05);
       const t = clock.elapsedTime;
       if (flipGroupRef.current) {
@@ -260,11 +312,15 @@ export default function ThreeViewer() {
     animate();
 
     const onResize = () => {
-      if (!container) return;
-      const w = container.clientWidth; const h = container.clientHeight;
+      if (!container || !renderer) return;
+      const w = container.clientWidth;
+      const h = container.clientHeight;
       if (w === 0 || h === 0) return;
       const a = w / h;
-      camera.left = -1.2 * a; camera.right = 1.2 * a; camera.top = 1.2; camera.bottom = -1.2;
+      camera.left = -1.2 * a;
+      camera.right = 1.2 * a;
+      camera.top = 1.2;
+      camera.bottom = -1.2;
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
     };
@@ -280,7 +336,7 @@ export default function ThreeViewer() {
       el.removeEventListener('touchstart', onTouchStart);
       el.removeEventListener('touchmove', onTouchMove);
       el.removeEventListener('touchend', onTouchEnd);
-      renderer.dispose();
+      renderer?.dispose();
       if (container) container.innerHTML = '';
     };
   }, []);
@@ -293,7 +349,9 @@ export default function ThreeViewer() {
           <span>Board anatomy</span>
         </div>
         <div className="anatomy-heading">
-          <h2 className="reveal">Meet the parts<br />that make <em>Elyssa.</em></h2>
+          <h2 className="reveal">
+            Meet the parts<br />that make <em>Elyssa.</em>
+          </h2>
           <p className="reveal delay-one">
             Rotate the board and inspect the components that matter. Passive parts stay quiet so the real architecture can come forward.
           </p>
@@ -308,7 +366,10 @@ export default function ThreeViewer() {
             {!modelLoaded && (
               <div className="viewer-progress-overlay">
                 <div className="viewer-progress-track">
-                  <div className="viewer-progress-fill" style={{ width: `${Math.max(loadProgress, 8)}%` }}></div>
+                  <div
+                    className="viewer-progress-fill"
+                    style={{ width: `${Math.max(loadProgress, 12)}%` }}
+                  ></div>
                 </div>
                 <span className="viewer-progress-text">{statusMessage}</span>
               </div>
@@ -316,7 +377,9 @@ export default function ThreeViewer() {
 
             <div id="board-viewer" ref={containerRef}></div>
 
-            <div className="model-hint">Drag to rotate <span>·</span> Click a component</div>
+            <div className="model-hint">
+              Drag to rotate <span>·</span> Click a component
+            </div>
             <div className="axis-legend">
               <span className="axis-x">X</span>
               <span className="axis-y">Y</span>
