@@ -14,7 +14,8 @@ body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(
 a { color: inherit; text-decoration: none; }
 .section-wrap { width: min(1180px, calc(100% - 64px)); margin: 0 auto; }
 .site-header { height: 91px; display: flex; align-items: center; justify-content: space-between; width: min(1320px, calc(100% - 64px)); margin: auto; position: relative; z-index: 4; }
-.brand { display: flex; align-items: center; margin-top: 100px; }
+
+.brand { display: flex; align-items: center; margin-top: 12px; }
 .brand img { width: 108px; height: auto; display: block; }
 .brand-mark { display: none; }
 .main-nav, .header-cta { display: none; }
@@ -93,15 +94,20 @@ h2 { font-size: clamp(50px, 7vw, 95px); }
 .start-links a:hover { color: var(--muted); padding-left: 8px; }
 .start-links small { font: 10px var(--mono); color: var(--muted); margin-right: 23px; }
 .start-links b { font-family: var(--sans); font-size: 20px; font-weight: 400; }
-.site-footer { background: var(--ink); color: #fff; padding: 31px 0; }
-.footer-inner { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; text-align: center; }
-.footer-row { display: flex; align-items: center; justify-content: center; gap: 60px; width: 100%; max-width: 560px; }
-.footer-brand { display: flex; align-items: center; justify-content: center; gap: 14px; }
-.footer-brand img { width: 140px; height: auto; max-height: 44px; object-fit: contain; }
-.footer-brand span { color: #bfbfbf; font-family: var(--mono); text-transform: uppercase; letter-spacing: .08em; font-size: 10px; }
-.footer-side { color: #999; font: 10px var(--mono); text-transform: uppercase; letter-spacing: .07em; }
-.footer-side a { color: #fff; }
-.footer-copyright { color: #6b6b6b; font: 10px var(--mono); text-transform: uppercase; letter-spacing: .07em; margin-top: 6px; }
+
+
+
+
+
+
+
+
+
+.site-footer { background: var(--ink); color: #fff; padding: 80px 0; }
+.footer-inner { display: flex; flex-direction: column; align-items: center; gap: 40px; }
+.footer-brand { display: flex; flex-direction: column; align-items: center; gap: 15px; }
+.footer-brand img { width: 180px; height: auto; object-fit: contain; }
+.footer-meta { display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: 800px; border-top: 1px solid #333; padding-top: 30px; color: #999; font: 10px var(--mono); text-transform: uppercase; letter-spacing: .07em; }
 .anatomy-scroll { align-items: start; }
 .model-sticky { position: sticky; top: 28px; height: min(70vh, 620px); min-height: 520px; }
 .component-story { display: flex; flex-direction: column; border-top: 1px solid #333; }
