@@ -1,15 +1,37 @@
 'use client';
 
-import React, { useEffect, useRef, useState, useCallback } from 'react';
-import * as THREE from 'three';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
+import { useCallback, useEffect, useRef, useState } from 'react';
+// Type-only import: erased at build time, so three.js is NOT in this file's static bundle.
+// Runtime classes come from the dynamic imports in loadThreeLibs() below.
+import type * as THREE from 'three';
+
+type ThreeModule = typeof THREE;
+type GLTFLoaderModule = typeof import('three/examples/jsm/loaders/GLTFLoader.js');
+type DRACOLoaderModule = typeof import('three/examples/jsm/loaders/DRACOLoader.js');
+type OrbitControlsModule = typeof import('three/examples/jsm/controls/OrbitControls.js');
+type RoomEnvironmentModule = typeof import('three/examples/jsm/environments/RoomEnvironment.js');
+
+interface ThreeLibs {
+  GLTFLoader: GLTFLoaderModule['GLTFLoader'];
+  DRACOLoader: DRACOLoaderModule['DRACOLoader'];
+  OrbitControls: OrbitControlsModule['OrbitControls'];
+  RoomEnvironment: RoomEnvironmentModule['RoomEnvironment'];
+}
+
+/**
+ * Runtime three.js namespace. Assigned once by loadThreeLibs() before any helper below runs.
+ * (Type positions use `THREE.*`, runtime positions use `T.*`.)
+ */
+let T!: ThreeModule;
 
 /* ------------------------------------------------------------------ */
 /*  Settings from docs/three-viewer.js (original moovma.github.io)      */
 /* ------------------------------------------------------------------ */
 const CONFIG = {
-  modelUrl: '/elyssa_3d/elyssa.glb',
+  modelUrl: '/elyssa_3d/elyssa-compressed.glb', // Draco-compressed GLB: the ONLY model this page loads
+  dracoDecoderPath: '/draco/', // copy of node_modules/three/examples/jsm/libs/draco/gltf/ in /public/draco
+  maxPixelRatio: 2,
+  maxTilt: 0.35, // radians the user can tilt the board up/down with OrbitControls
   pcbColor: 0x0b8a3e, // solder-mask green
   pcbOpacity: 0.7, // 1 = solid, lower = traces more visible
   boxColor: 0xccff00, // colour of the selection box
@@ -21,7 +43,6 @@ const CONFIG = {
   hoverHeight: 0.012, // up/down float, fraction of board size
   swayAmount: 0.03, // tiny tilt while floating (radians)
   flipSpeed: 3.5, // higher = faster flip
-  flipAxis: 'y' as const, // 'y' = turn like a page
 
   partNames: {
     mcu: [/^U1_QFN-56/i],
@@ -138,9 +159,56 @@ interface LoadedData {
   componentMeshes: Record<string, THREE.Mesh[]>;
 }
 
-/* Module-level singleton cache: Load & parse the 30MB CAD model only once per browser session */
+/* ------------------------------------------------------------------ */
+/*  Lazy library loading (three + GLTF + Draco + OrbitControls)         */
+/* ------------------------------------------------------------------ */
+let libsPromise: Promise<ThreeLibs> | null = null;
+
+function loadThreeLibs(): Promise<ThreeLibs> {
+  if (!libsPromise) {
+    libsPromise = Promise.all([
+      import('three'),
+      import('three/examples/jsm/loaders/GLTFLoader.js'),
+      import('three/examples/jsm/loaders/DRACOLoader.js'),
+      import('three/examples/jsm/controls/OrbitControls.js'),
+      import('three/examples/jsm/environments/RoomEnvironment.js'),
+    ])
+      .then(([three, gltf, draco, orbit, room]) => {
+        T = three;
+        return {
+          GLTFLoader: gltf.GLTFLoader,
+          DRACOLoader: draco.DRACOLoader,
+          OrbitControls: orbit.OrbitControls,
+          RoomEnvironment: room.RoomEnvironment,
+        };
+      })
+      .catch((error) => {
+        libsPromise = null; // allow a retry on the next mount
+        throw error;
+      });
+  }
+  return libsPromise;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Model cache: download + parse the GLB once per browser session      */
+/* ------------------------------------------------------------------ */
 let cachedModelPromise: Promise<LoadedData> | null = null;
 let cachedModelData: LoadedData | null = null;
+
+// Status broadcast so a remount (e.g. React StrictMode in dev) still sees progress
+type StatusFn = (message: string) => void;
+const statusListeners = new Set<StatusFn>();
+let lastStatus = 'Loading 3D model';
+const emitStatus = (message: string) => {
+  lastStatus = message;
+  statusListeners.forEach((fn) => fn(message));
+};
+
+// Resolve after the browser has had a chance to paint, so status text updates show
+// before a long synchronous step.
+const nextPaint = () =>
+  new Promise<void>((resolve) => requestAnimationFrame(() => setTimeout(resolve, 0)));
 
 function asArray<T>(m: T | T[]): T[] {
   return Array.isArray(m) ? m : [m];
@@ -178,7 +246,7 @@ function styleSilkscreen(mat: StdMat) {
   mat.toneMapped = false;
   mat.transparent = false;
   mat.opacity = 1;
-  mat.side = THREE.DoubleSide;
+  mat.side = T.DoubleSide;
   mat.polygonOffset = true;
   mat.polygonOffsetFactor = -1;
   mat.polygonOffsetUnits = -1;
@@ -230,18 +298,18 @@ function resolvePart(
   if (!seeds.length) return [];
 
   const side = seeds.reduce((sum, m) => sum + (m.userData.side as number), 0) >= 0 ? 1 : -1;
-  const box = new THREE.Box3();
+  const box = new T.Box3();
   seeds.forEach((m) => box.union(m.userData.box as THREE.Box3));
   const margin = board.max * 0.01;
   box.min.x -= margin;
   box.min.y -= margin;
   box.max.x += margin;
   box.max.y += margin;
-  const fp = box.getSize(new THREE.Vector3());
+  const fp = box.getSize(new T.Vector3());
   const footprintArea = fp.x * fp.y;
 
   const out = new Set(seeds.filter(isPartRole));
-  const c = new THREE.Vector3();
+  const c = new T.Vector3();
   meshes.forEach((m) => {
     if (!isPartRole(m) || m.userData.side !== side) return;
     (m.userData.box as THREE.Box3).getCenter(c);
@@ -269,8 +337,8 @@ function prepareModel(
     mesh.material = Array.isArray(mesh.material) ? mesh.material.map((m) => m.clone()) : mesh.material.clone();
     const mats = matsOf(mesh);
     const label = `${labelOf(mesh, model)} ${mats.map((m) => m.name).join(' ')}`;
-    const box = new THREE.Box3().setFromObject(mesh);
-    const size = box.getSize(new THREE.Vector3());
+    const box = new T.Box3().setFromObject(mesh);
+    const size = box.getSize(new T.Vector3());
     const spansBoard = size.x >= board.w * 0.6 && size.y >= board.h * 0.6;
     mesh.userData.box = box;
     mesh.userData.area = size.x * size.y;
@@ -318,7 +386,7 @@ function prepareModel(
     mesh.renderOrder = role === 'silk' ? 2 : role === 'mask' ? 1 : 0;
   });
 
-  const v = new THREE.Vector3();
+  const v = new T.Vector3();
   const maskMesh = meshes.find((m) => m.userData.role === 'mask');
   const pcbZ = maskMesh ? (maskMesh.userData.box as THREE.Box3).getCenter(v).z : 0;
   meshes.forEach((m) => {
@@ -386,14 +454,14 @@ function createSelectionBox(
   board: Board
 ): THREE.Group {
   modelRoot.updateWorldMatrix(true, true);
-  const inv = new THREE.Matrix4().copy(modelRoot.matrixWorld).invert();
-  const m = new THREE.Matrix4();
-  const tmp = new THREE.Box3();
+  const inv = new T.Matrix4().copy(modelRoot.matrixWorld).invert();
+  const m = new T.Matrix4();
+  const tmp = new T.Box3();
   const pad = board.max * CONFIG.boxPadding * 2;
-  const selectionGroup = new THREE.Group();
+  const selectionGroup = new T.Group();
 
   groupsFor(component, modelRoot, componentMeshes, board).forEach((meshes) => {
-    const box = new THREE.Box3();
+    const box = new T.Box3();
     meshes.forEach((mesh) => {
       if (!mesh.geometry.boundingBox) mesh.geometry.computeBoundingBox();
       m.multiplyMatrices(inv, mesh.matrixWorld);
@@ -401,13 +469,13 @@ function createSelectionBox(
       box.union(tmp);
     });
     if (box.isEmpty()) return;
-    const size = box.getSize(new THREE.Vector3()).addScalar(pad);
-    const center = box.getCenter(new THREE.Vector3());
-    const cube = new THREE.BoxGeometry(size.x, size.y, size.z);
+    const size = box.getSize(new T.Vector3()).addScalar(pad);
+    const center = box.getCenter(new T.Vector3());
+    const cube = new T.BoxGeometry(size.x, size.y, size.z);
 
-    const fill = new THREE.Mesh(
+    const fill = new T.Mesh(
       cube,
-      new THREE.MeshBasicMaterial({
+      new T.MeshBasicMaterial({
         color: CONFIG.boxColor,
         transparent: true,
         opacity: CONFIG.boxFillOpacity,
@@ -416,9 +484,9 @@ function createSelectionBox(
         toneMapped: false,
       })
     );
-    const edges = new THREE.LineSegments(
-      new THREE.EdgesGeometry(cube),
-      new THREE.LineBasicMaterial({
+    const edges = new T.LineSegments(
+      new T.EdgesGeometry(cube),
+      new T.LineBasicMaterial({
         color: CONFIG.boxColor,
         depthTest: false,
         toneMapped: false,
@@ -436,77 +504,320 @@ function createSelectionBox(
 }
 
 /* ------------------------------------------------------------------ */
-/*  Singleton Loader (fetches 30MB once across all mounts/pages)       */
+/*  Singleton loader: fetches + parses the compressed GLB once          */
 /* ------------------------------------------------------------------ */
-function getOrLoadModel(onProgress?: (percent: number) => void): Promise<LoadedData> {
-  if (cachedModelData) {
-    return Promise.resolve(cachedModelData);
-  }
-  if (cachedModelPromise) {
-    return cachedModelPromise;
-  }
+function getOrLoadModel(libs: ThreeLibs): Promise<LoadedData> {
+  if (cachedModelData) return Promise.resolve(cachedModelData);
+  if (cachedModelPromise) return cachedModelPromise;
 
-  cachedModelPromise = new Promise<LoadedData>((resolve, reject) => {
-    new GLTFLoader().load(
-      CONFIG.modelUrl,
-      (gltf) => {
-        const model = gltf.scene;
+  cachedModelPromise = (async () => {
+    const draco = new libs.DRACOLoader();
+    draco.setDecoderPath(CONFIG.dracoDecoderPath);
+    const loader = new libs.GLTFLoader();
+    loader.setDRACOLoader(draco);
 
-        // Board centre -> pivot, so it sits and turns around 0,0,0
-        const raw = new THREE.Box3().setFromObject(model);
-        model.position.sub(raw.getCenter(new THREE.Vector3()));
-
-        // Measure board bounds in KiCad Z-up orientation
-        const tempGroup = new THREE.Group();
-        tempGroup.rotation.x = Math.PI / 2;
-        tempGroup.add(model);
-        tempGroup.updateMatrixWorld(true);
-        const size = new THREE.Box3().setFromObject(tempGroup).getSize(new THREE.Vector3());
-        const board: Board = { w: size.x, h: size.y, d: size.z, max: Math.max(size.x, size.y, size.z) };
-        tempGroup.remove(model);
-
-        const prepared = prepareModel(model, board);
-        cachedModelData = {
-          model,
-          board,
-          componentMeshes: prepared.componentMeshes,
-        };
-        resolve(cachedModelData);
-      },
-      (xhr) => {
-        if (xhr.total > 0 && onProgress) {
-          const p = Math.min(Math.round((xhr.loaded / xhr.total) * 100), 99);
-          onProgress(p);
+    try {
+      emitStatus('Loading 3D model');
+      const gltf = await loader.loadAsync(CONFIG.modelUrl, (xhr) => {
+        if (xhr.total > 0) {
+          emitStatus(`Loading 3D model ${Math.min(Math.round((xhr.loaded / xhr.total) * 100), 99)}%`);
         }
-      },
-      (error) => {
-        cachedModelPromise = null;
-        reject(error);
-      }
-    );
-  });
+      });
+
+      emitStatus('Preparing model');
+      await nextPaint();
+
+      const model = gltf.scene;
+
+      // Board centre -> pivot, so it sits and turns around 0,0,0
+      const raw = new T.Box3().setFromObject(model);
+      model.position.sub(raw.getCenter(new T.Vector3()));
+
+      // Measure board bounds in KiCad Z-up orientation
+      const tempGroup = new T.Group();
+      tempGroup.rotation.x = Math.PI / 2;
+      tempGroup.add(model);
+      tempGroup.updateMatrixWorld(true);
+      const size = new T.Box3().setFromObject(tempGroup).getSize(new T.Vector3());
+      const board: Board = { w: size.x, h: size.y, d: size.z, max: Math.max(size.x, size.y, size.z) };
+      tempGroup.remove(model);
+
+      const prepared = prepareModel(model, board);
+      cachedModelData = { model, board, componentMeshes: prepared.componentMeshes };
+      return cachedModelData;
+    } catch (error) {
+      cachedModelPromise = null; // allow a retry on the next mount
+      throw error;
+    } finally {
+      draco.dispose(); // decoding is finished, release the decoder workers
+    }
+  })();
 
   return cachedModelPromise;
 }
 
 /* ------------------------------------------------------------------ */
-/*  Main Component                                                     */
+/*  Scene: renderer, OrbitControls, animation loop (imperative part)    */
 /* ------------------------------------------------------------------ */
-export default function ThreeViewer() {
+interface ViewerCallbacks {
+  onStatus: (message: string) => void;
+  onReady: () => void;
+  onError: (message: string) => void;
+  getInitialKey: () => string;
+}
+
+interface ViewerHandle {
+  focusComponent: (key: string) => void;
+  dispose: () => void;
+}
+
+function createViewer(container: HTMLDivElement, libs: ThreeLibs, cb: ViewerCallbacks): ViewerHandle {
+  let disposed = false;
+  let running = false;
+  let animId = 0;
+  let modelRoot: THREE.Object3D | null = null;
+  let board: Board = { w: 1, h: 1, d: 0.1, max: 1 };
+  let componentMeshesMap: Record<string, THREE.Mesh[]> = {};
+  let selectionBox: THREE.Group | null = null;
+  let targetFlip = 0;
+
+  /* Renderer matching moovma.github.io */
+  let renderer: THREE.WebGLRenderer;
+  try {
+    renderer = new T.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+  } catch (e) {
+    console.warn('[ThreeViewer] WebGL init error:', e);
+    cb.onError('3D preview needs WebGL');
+    return { focusComponent: () => {}, dispose: () => {} };
+  }
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, CONFIG.maxPixelRatio));
+  renderer.outputColorSpace = T.SRGBColorSpace;
+  renderer.toneMapping = T.NoToneMapping;
+  renderer.setSize(container.clientWidth || 600, container.clientHeight || 520);
+  container.innerHTML = '';
+  container.appendChild(renderer.domElement);
+  const el = renderer.domElement;
+
+  /* Scene, camera & lights */
+  const scene = new T.Scene();
+  const camera = new T.OrthographicCamera(-1, 1, 1, -1, 0.001, 100);
+  camera.up.set(0, 1, 0);
+  camera.position.set(0, 0, 5); // provisional, set from the board size once the model is mounted
+
+  const pmrem = new T.PMREMGenerator(renderer);
+  const envScene = new libs.RoomEnvironment();
+  const roomTex = pmrem.fromScene(envScene, 0.04).texture;
+  scene.environment = roomTex;
+  pmrem.dispose();
+  envScene.dispose();
+
+  scene.add(new T.AmbientLight(0xffffff, 0.1));
+  const keyLight = new T.DirectionalLight(0xffffff, 1.4);
+  keyLight.position.set(2, 4, 5);
+  scene.add(keyLight);
+  const rimLight = new T.DirectionalLight(0x9fd0ff, 0.6);
+  rimLight.position.set(-3, 1, -2);
+  scene.add(rimLight);
+
+  /* Pivot hierarchy: floatGroup -> flipGroup -> orientGroup -> model */
+  const floatGroup = new T.Group();
+  const flipGroup = new T.Group();
+  const orientGroup = new T.Group();
+  orientGroup.rotation.x = Math.PI / 2;
+  floatGroup.add(flipGroup);
+  flipGroup.add(orientGroup);
+  scene.add(floatGroup);
+
+  /* OrbitControls: drag to rotate, no zoom/pan (so the page can still scroll) */
+  const controls = new libs.OrbitControls(camera, el);
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.08;
+  controls.enableZoom = false;
+  controls.enablePan = false;
+  controls.rotateSpeed = 0.7;
+  controls.minPolarAngle = Math.PI / 2 - CONFIG.maxTilt;
+  controls.maxPolarAngle = Math.PI / 2 + CONFIG.maxTilt;
+  controls.target.set(0, 0, 0);
+  // OrbitControls sets touch-action:none, which would block vertical page scroll when a finger
+  // starts on the canvas. pan-y keeps vertical swipes for the page; horizontal swipes rotate.
+  el.style.touchAction = 'pan-y';
+
+  /* Camera frustum from board size (matches original moovma.github.io) */
+  const resize = () => {
+    const width = container.clientWidth || 1;
+    const height = container.clientHeight || 1;
+    const aspect = width / height;
+    const half = Math.max(board.h / 2, board.w / 2 / aspect) * CONFIG.zoomOut;
+    camera.left = -half * aspect;
+    camera.right = half * aspect;
+    camera.top = half;
+    camera.bottom = -half;
+    camera.updateProjectionMatrix();
+    renderer.setSize(width, height, false);
+  };
+
+  const clearHighlight = () => {
+    if (selectionBox && modelRoot) {
+      modelRoot.remove(selectionBox);
+      selectionBox.traverse((o) => {
+        const m = o as THREE.Mesh;
+        if (m.geometry) m.geometry.dispose();
+        if (m.material) asArray(m.material).forEach((mat) => mat.dispose());
+      });
+    }
+    selectionBox = null;
+  };
+
+  const focusComponent = (key: string) => {
+    if (!modelRoot) return;
+    targetFlip = componentView[key]?.flip ?? 0;
+    clearHighlight();
+    selectionBox = createSelectionBox(key, modelRoot, componentMeshesMap, board);
+    modelRoot.add(selectionBox);
+  };
+
+  /* Mount the (cached) model into our scene */
+  const mountModel = (data: LoadedData) => {
+    if (disposed) return;
+    modelRoot = data.model;
+    board = data.board;
+    componentMeshesMap = data.componentMeshes;
+
+    orientGroup.add(modelRoot);
+    scene.updateMatrixWorld(true);
+
+    const distance = board.max * 4;
+    camera.position.set(0, 0, distance);
+    camera.near = distance - board.max * 2;
+    camera.far = distance + board.max * 2;
+    camera.lookAt(0, 0, 0);
+
+    resize();
+    controls.update();
+    cb.onStatus('3D model ready');
+    cb.onReady();
+    focusComponent(cb.getInitialKey());
+  };
+
+  /* Animation loop: only runs while the viewer is on screen */
+  const clock = new T.Clock();
+  const animate = () => {
+    if (!running) return;
+    animId = requestAnimationFrame(animate);
+    const dt = Math.min(clock.getDelta(), 0.05);
+    const t = clock.elapsedTime;
+
+    if (modelRoot) {
+      const k = 1 - Math.exp(-dt * CONFIG.flipSpeed);
+      flipGroup.rotation.y += (targetFlip - flipGroup.rotation.y) * k;
+
+      floatGroup.position.set(0, Math.sin(t * 1.4) * board.max * CONFIG.hoverHeight, 0);
+      floatGroup.rotation.set(
+        Math.sin(t * 0.9) * CONFIG.swayAmount,
+        Math.sin(t * 0.7) * CONFIG.swayAmount * 1.3,
+        0
+      );
+    }
+    controls.update(); // required for damping
+    renderer.render(scene, camera);
+  };
+  const start = () => {
+    if (running || disposed) return;
+    running = true;
+    clock.getDelta(); // reset so the first frame after a pause doesn't jump
+    animId = requestAnimationFrame(animate);
+  };
+  const stop = () => {
+    running = false;
+    cancelAnimationFrame(animId);
+  };
+
+  let visibilityObserver: IntersectionObserver | null = null;
+  if (typeof IntersectionObserver !== 'undefined') {
+    visibilityObserver = new IntersectionObserver(
+      (entries) => entries.forEach((entry) => (entry.isIntersecting ? start() : stop())),
+      { rootMargin: '120px 0px' }
+    );
+    visibilityObserver.observe(container);
+  } else {
+    start();
+  }
+
+  const resizeObserver = new ResizeObserver(resize);
+  resizeObserver.observe(container);
+  resize();
+
+  /* Kick off (or attach to) the model load */
+  const handleStatus: StatusFn = (message) => {
+    if (!disposed) cb.onStatus(message);
+  };
+  if (cachedModelData) {
+    mountModel(cachedModelData);
+  } else {
+    statusListeners.add(handleStatus);
+    handleStatus(lastStatus);
+    getOrLoadModel(libs)
+      .then((data) => mountModel(data))
+      .catch((error) => {
+        console.error('[ThreeViewer] GLB failed to load', error);
+        if (!disposed) cb.onError('3D model unavailable');
+      });
+  }
+
+  return {
+    focusComponent,
+    dispose() {
+      disposed = true;
+      stop();
+      statusListeners.delete(handleStatus);
+      visibilityObserver?.disconnect();
+      resizeObserver.disconnect();
+      controls.dispose();
+      clearHighlight();
+
+      // Detach the cached model so its meshes survive for the next mount
+      if (modelRoot) {
+        orientGroup.remove(modelRoot);
+        modelRoot = null;
+      }
+
+      scene.environment = null;
+      roomTex.dispose();
+
+      // Free the WebGL context right away to avoid hitting the browser's context limit
+      renderer.forceContextLoss();
+      renderer.dispose();
+      if (el.parentNode === container) container.removeChild(el);
+    },
+  };
+}
+
+/* ------------------------------------------------------------------ */
+/*  React component                                                    */
+/* ------------------------------------------------------------------ */
+export interface ThreeViewerProps {
+  /** Fires whenever `ready` changes. `true` once the model is mounted and rendering. */
+  onReadyChange?: (ready: boolean) => void;
+}
+
+export default function ThreeViewer({ onReadyChange }: ThreeViewerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const sectionRef = useRef<HTMLElement>(null);
   const [activeComponent, setActiveComponent] = useState<string>('mcu');
-  const [modelLoaded, setModelLoaded] = useState(false);
+  const [ready, setReady] = useState(false);
   const [loadFailed, setLoadFailed] = useState(false);
   const [statusMessage, setStatusMessage] = useState('Loading 3D model');
 
   const pendingKeyRef = useRef<string>('mcu');
-  const targetFlipRef = useRef(0);
-  const userRotationYRef = useRef(0);
-  const isDraggingRef = useRef(false);
-  const prevMouseXRef = useRef(0);
-  const selectionBoxRef = useRef<THREE.Group | null>(null);
   const focusComponentRef = useRef<((key: string) => void) | null>(null);
+  const onReadyChangeRef = useRef(onReadyChange);
+
+  useEffect(() => {
+    onReadyChangeRef.current = onReadyChange;
+  }, [onReadyChange]);
+
+  useEffect(() => {
+    onReadyChangeRef.current?.(ready);
+  }, [ready]);
 
   const selectComponent = useCallback((key: string) => {
     setActiveComponent(key);
@@ -528,248 +839,44 @@ export default function ThreeViewer() {
     if (!container) return;
 
     let disposed = false;
-    let animId = 0;
-    let modelRoot: THREE.Object3D | null = null;
-    let board: Board = { w: 1, h: 1, d: 0.1, max: 1 };
-    let componentMeshesMap: Record<string, THREE.Mesh[]> = {};
+    let viewer: ViewerHandle | null = null;
 
-    /* Renderer matching moovma.github.io */
-    let renderer: THREE.WebGLRenderer;
-    try {
-      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
-    } catch (e) {
-      console.warn('WebGL init error:', e);
-      return;
-    }
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
-    renderer.toneMapping = THREE.NoToneMapping;
-    renderer.setSize(container.clientWidth || 600, container.clientHeight || 520);
-    container.innerHTML = '';
-    container.appendChild(renderer.domElement);
-    const el = renderer.domElement;
-
-    /* Scene, Camera & Lights */
-    const scene = new THREE.Scene();
-    const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.001, 100);
-    camera.up.set(0, 1, 0);
-
-    const pmrem = new THREE.PMREMGenerator(renderer);
-    const roomTex = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
-    scene.environment = roomTex;
-    pmrem.dispose();
-
-    scene.add(new THREE.AmbientLight(0xffffff, 0.1));
-    const keyLight = new THREE.DirectionalLight(0xffffff, 1.4);
-    keyLight.position.set(2, 4, 5);
-    scene.add(keyLight);
-    const rimLight = new THREE.DirectionalLight(0x9fd0ff, 0.6);
-    rimLight.position.set(-3, 1, -2);
-    scene.add(rimLight);
-
-    /* Pivot Hierarchy: floatGroup -> flipGroup -> orientGroup -> model */
-    const floatGroup = new THREE.Group();
-    const flipGroup = new THREE.Group();
-    const orientGroup = new THREE.Group();
-    orientGroup.rotation.x = Math.PI / 2;
-    floatGroup.add(flipGroup);
-    flipGroup.add(orientGroup);
-    scene.add(floatGroup);
-
-    /* Camera resize logic matching original moovma.github.io */
-    const resize = () => {
-      if (!container || !renderer) return;
-      const width = container.clientWidth || 1;
-      const height = container.clientHeight || 1;
-      const aspect = width / height;
-      const half = Math.max(board.h / 2, board.w / 2 / aspect) * CONFIG.zoomOut;
-      camera.left = -half * aspect;
-      camera.right = half * aspect;
-      camera.top = half;
-      camera.bottom = -half;
-      camera.updateProjectionMatrix();
-      renderer.setSize(width, height, false);
-    };
-
-    const clearHighlight = () => {
-      if (selectionBoxRef.current && modelRoot) {
-        modelRoot.remove(selectionBoxRef.current);
-        selectionBoxRef.current.traverse((o) => {
-          const m = o as THREE.Mesh;
-          if (m.geometry) m.geometry.dispose();
-          if (m.material) asArray(m.material).forEach((mat) => mat.dispose());
-        });
-        selectionBoxRef.current = null;
-      }
-    };
-
-    const focusComponent = (key: string) => {
-      if (!modelRoot) return;
-      const target = componentView[key]?.flip ?? 0;
-      targetFlipRef.current = target;
-      clearHighlight();
-      const newBox = createSelectionBox(key, modelRoot, componentMeshesMap, board);
-      selectionBoxRef.current = newBox;
-      modelRoot.add(newBox);
-    };
-    focusComponentRef.current = focusComponent;
-
-    /* Mount the cached model into our scene */
-    const mountModel = (data: LoadedData) => {
+    const fail = (message: string) => {
       if (disposed) return;
-      modelRoot = data.model;
-      board = data.board;
-      componentMeshesMap = data.componentMeshes;
-
-      orientGroup.add(modelRoot);
-      scene.updateMatrixWorld(true);
-
-      const distance = board.max * 4;
-      camera.position.set(0, 0, distance);
-      camera.near = distance - board.max * 2;
-      camera.far = distance + board.max * 2;
-      camera.lookAt(0, 0, 0);
-
-      resize();
-      setModelLoaded(true);
-      setStatusMessage('3D model ready');
-
-      // Process any pending selection buffered while downloading
-      const initialKey = pendingKeyRef.current || activeComponent || 'mcu';
-      focusComponent(initialKey);
+      setLoadFailed(true);
+      setStatusMessage(message);
     };
 
-    /* Start or attach to the singleton loader */
-    const loadModel = () => {
-      if (cachedModelData) {
-        mountModel(cachedModelData);
-        return;
-      }
-
-      setStatusMessage('Loading 3D model');
-      getOrLoadModel((p) => {
-        if (!disposed) setStatusMessage(`Loading 3D model ${p}%`);
+    loadThreeLibs()
+      .then((libs) => {
+        if (disposed) return;
+        viewer = createViewer(container, libs, {
+          onStatus: (message) => {
+            if (!disposed) setStatusMessage(message);
+          },
+          onReady: () => {
+            if (!disposed) setReady(true);
+          },
+          onError: fail,
+          getInitialKey: () => pendingKeyRef.current,
+        });
+        focusComponentRef.current = viewer.focusComponent;
       })
-        .then((data) => {
-          if (!disposed) mountModel(data);
-        })
-        .catch((error) => {
-          console.error('[ThreeViewer] GLB failed to load', error);
-          if (!disposed) {
-            setLoadFailed(true);
-            setStatusMessage('3D model unavailable');
-          }
-        });
-    };
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting) loadModel();
-        });
-      },
-      { rootMargin: '160px 0px 160px 0px', threshold: 0.05 }
-    );
-    if (sectionRef.current) observer.observe(sectionRef.current);
-
-    /* User Interaction: Drag to rotate */
-    const onDown = (e: MouseEvent) => {
-      isDraggingRef.current = true;
-      prevMouseXRef.current = e.clientX;
-    };
-    const onMove = (e: MouseEvent) => {
-      if (!isDraggingRef.current) return;
-      const dx = e.clientX - prevMouseXRef.current;
-      userRotationYRef.current += dx * 0.01;
-      prevMouseXRef.current = e.clientX;
-    };
-    const onUp = () => {
-      isDraggingRef.current = false;
-    };
-    const onTouchStart = (e: TouchEvent) => {
-      if (e.touches.length === 1) {
-        isDraggingRef.current = true;
-        prevMouseXRef.current = e.touches[0].clientX;
-      }
-    };
-    const onTouchMove = (e: TouchEvent) => {
-      if (!isDraggingRef.current || e.touches.length !== 1) return;
-      const dx = e.touches[0].clientX - prevMouseXRef.current;
-      userRotationYRef.current += dx * 0.01;
-      prevMouseXRef.current = e.touches[0].clientX;
-    };
-    const onTouchEnd = () => {
-      isDraggingRef.current = false;
-    };
-
-    el.addEventListener('mousedown', onDown);
-    window.addEventListener('mousemove', onMove);
-    window.addEventListener('mouseup', onUp);
-    el.addEventListener('touchstart', onTouchStart, { passive: true });
-    window.addEventListener('touchmove', onTouchMove, { passive: true });
-    window.addEventListener('touchend', onTouchEnd, { passive: true });
-
-    /* Animation Loop matching original moovma.github.io */
-    const clock = new THREE.Clock();
-    const animate = () => {
-      animId = requestAnimationFrame(animate);
-      const dt = Math.min(clock.getDelta(), 0.05);
-      const t = clock.elapsedTime;
-
-      if (modelRoot) {
-        const k = 1 - Math.exp(-dt * CONFIG.flipSpeed);
-        const target = targetFlipRef.current + userRotationYRef.current;
-        flipGroup.rotation.y += (target - flipGroup.rotation.y) * k;
-
-        floatGroup.position.set(0, Math.sin(t * 1.4) * board.max * CONFIG.hoverHeight, 0);
-        floatGroup.rotation.set(
-          Math.sin(t * 0.9) * CONFIG.swayAmount,
-          Math.sin(t * 0.7) * CONFIG.swayAmount * 1.3,
-          0
-        );
-      }
-      renderer.render(scene, camera);
-    };
-    animate();
-
-    const resizeObserver = new ResizeObserver(resize);
-    resizeObserver.observe(container);
-    window.addEventListener('resize', resize);
-    resize();
+      .catch((error) => {
+        console.error('[ThreeViewer] three.js failed to load', error);
+        fail('3D viewer unavailable');
+      });
 
     return () => {
       disposed = true;
       focusComponentRef.current = null;
-      cancelAnimationFrame(animId);
-      observer.disconnect();
-      resizeObserver.disconnect();
-      window.removeEventListener('resize', resize);
-      el.removeEventListener('mousedown', onDown);
-      window.removeEventListener('mousemove', onMove);
-      window.removeEventListener('mouseup', onUp);
-      el.removeEventListener('touchstart', onTouchStart);
-      window.removeEventListener('touchmove', onTouchMove);
-      window.removeEventListener('touchend', onTouchEnd);
-
-      clearHighlight();
-
-      // Detach cached model from the scene so its meshes are preserved for the next mount
-      if (modelRoot) {
-        orientGroup.remove(modelRoot);
-        modelRoot = null;
-      }
-
-      roomTex.dispose();
-
-      // Free WebGL context immediately to prevent context exhaustion in browser
-      renderer.forceContextLoss();
-      renderer.dispose();
-      container.innerHTML = '';
+      viewer?.dispose();
+      viewer = null;
     };
   }, []);
 
   return (
-    <section className="anatomy-section" id="anatomy" ref={sectionRef}>
+    <section className="anatomy-section" id="anatomy" data-ready={ready}>
       <div className="section-wrap">
         <div className="section-label reveal">
           <span>01 / 02</span>
@@ -785,12 +892,12 @@ export default function ThreeViewer() {
         </div>
         <div className="anatomy-layout anatomy-scroll">
           <div className="model-frame model-sticky reveal">
-            <div className="model-status">
-              <span className={`status-dot${modelLoaded ? ' is-ready' : ' is-loading'}`}></span>
+            <div className="model-status" role="status">
+              <span className={`status-dot${ready ? ' is-ready' : ' is-loading'}`}></span>
               <span>{statusMessage}</span>
             </div>
 
-            {!modelLoaded && !loadFailed && (
+            {!ready && !loadFailed && (
               <div className="model-placeholder-loader">
                 <div className="viewer-radar-loader">
                   <div className="radar-ring"></div>
