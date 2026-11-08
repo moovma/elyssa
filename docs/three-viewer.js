@@ -7,7 +7,7 @@ import { RoomEnvironment } from 'https://unpkg.com/three@0.160.0/examples/jsm/en
 /* ------------------------------------------------------------------ */
 const CONFIG = {
   modelUrl: 'elyssa_3d/elyssa.glb',
-  pcbColor: 0x0dde3e,        // solder-mask green
+  pcbColor: 0x0dde3e,        // soldermask green
   pcbOpacity: 0.7,           // 1 = solid, lower = traces more visible
   boxColor: 0xccff00,        // colour of the selection box
   boxFillOpacity: 0.35,      // 0 = lines only, 1 = solid fill
