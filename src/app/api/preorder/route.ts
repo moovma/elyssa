@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { createServerClient, isSupabaseConfigured } from '@/lib/supabase';
 import fs from 'fs';
 import path from 'path';
 
@@ -34,7 +34,8 @@ export async function POST(request: Request) {
     let supabaseError: string | null = null;
 
     // 1. Save to Supabase if configured
-    if (isSupabaseConfigured && supabase) {
+    if (isSupabaseConfigured) {
+      const supabase = createServerClient();
       const { data, error } = await supabase.from('preorders').insert([newRecord]);
       if (error) {
         console.error('Supabase insert error:', error.message);

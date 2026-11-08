@@ -13,6 +13,7 @@ create table if not exists public.preorders (
   email text not null,
   phone text not null,
   is_student boolean not null default false,
+  college text default '' not null,
   offered_price text not null,
   actual_price text default '70 DT' not null,
   status text default 'pending' not null,
