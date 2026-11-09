@@ -4,7 +4,7 @@ import './globals.css';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://github.com/moovma/Elyssa-dev-board'),
-  title: 'Elyssa — ESP32-S3 Development Board by Moovma',
+  title: 'Elyssa — dev board by Moovma',
   description: 'Elyssa is Moovma\'s open ESP32-S3 development board for makers, sensors, and connected things. Featuring 6-axis IMU, Wi-Fi 4, BLE 5, and LiPo charging.',
   icons: {
     icon: '/PNG/ICON@2x.png',
