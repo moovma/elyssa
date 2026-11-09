@@ -29,7 +29,7 @@ let T!: ThreeModule;
 /* ------------------------------------------------------------------ */
 const CONFIG = {
   modelUrl: '/elyssa_3d/elyssa-compressed.glb', // Draco-compressed GLB: the ONLY model this page loads
-  dracoDecoderPath: '/draco/', // copy of node_modules/three/examples/jsm/libs/draco/gltf/ in /public/draco
+  dracoDecoderPath: 'https://unpkg.com/three@0.160.0/examples/jsm/libs/draco/gltf/', // CDN fallback (no local /draco/ folder needed)
   maxPixelRatio: 2,
   maxTilt: 0.35, // radians the user can tilt the board up/down with OrbitControls
   pcbColor: 0x0dde3e, // solder-mask green
@@ -809,6 +809,7 @@ export default function ThreeViewer({ onReadyChange }: ThreeViewerProps) {
 
   const pendingKeyRef = useRef<string>('mcu');
   const focusComponentRef = useRef<((key: string) => void) | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const onReadyChangeRef = useRef(onReadyChange);
 
   useEffect(() => {
@@ -843,19 +844,31 @@ export default function ThreeViewer({ onReadyChange }: ThreeViewerProps) {
 
     const fail = (message: string) => {
       if (disposed) return;
+      clearTimeout(timeoutRef.current);
       setLoadFailed(true);
       setStatusMessage(message);
     };
 
+    // 15-second timeout: if the 3D model hasn't loaded by then, show fallback
+    timeoutRef.current = setTimeout(() => {
+      if (!ready && !loadFailed && !disposed) {
+        fail('3D model is taking too long — showing static image instead.');
+      }
+    }, 15000);
+
     loadThreeLibs()
       .then((libs) => {
         if (disposed) return;
+        clearTimeout(timeoutRef.current);
         viewer = createViewer(container, libs, {
           onStatus: (message) => {
             if (!disposed) setStatusMessage(message);
           },
           onReady: () => {
-            if (!disposed) setReady(true);
+            if (!disposed) {
+              clearTimeout(timeoutRef.current);
+              setReady(true);
+            }
           },
           onError: fail,
           getInitialKey: () => pendingKeyRef.current,
@@ -869,6 +882,7 @@ export default function ThreeViewer({ onReadyChange }: ThreeViewerProps) {
 
     return () => {
       disposed = true;
+      clearTimeout(timeoutRef.current);
       focusComponentRef.current = null;
       viewer?.dispose();
       viewer = null;
@@ -905,6 +919,21 @@ export default function ThreeViewer({ onReadyChange }: ThreeViewerProps) {
                   <div className="radar-core"></div>
                 </div>
                 <span className="loader-status-text">{statusMessage}</span>
+              </div>
+            )}
+            {loadFailed && (
+              <div className="model-placeholder-loader model-fallback">
+                <img
+                  src="/elyssa_images/elyssa_top.png"
+                  alt="Elyssa board (3D model unavailable)"
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'contain',
+                    opacity: 0.6,
+                  }}
+                />
+                <div className="model-fallback-label">{statusMessage}</div>
               </div>
             )}
 
