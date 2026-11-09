@@ -32,7 +32,7 @@ export default function LazyThreeViewer() {
           observer.disconnect();
         }
       },
-      { threshold: 0.1, rootMargin: '150px' }
+      { threshold: 0.05, rootMargin: '300px' }
     );
 
     if (ref.current) {

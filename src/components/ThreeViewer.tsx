@@ -29,7 +29,7 @@ let T!: ThreeModule;
 /* ------------------------------------------------------------------ */
 const CONFIG = {
   modelUrl: '/elyssa_3d/elyssa-compressed.glb', // Draco-compressed GLB: the ONLY model this page loads
-  dracoDecoderPath: 'https://unpkg.com/three@0.160.0/examples/jsm/libs/draco/gltf/', // CDN fallback (no local /draco/ folder needed)
+  dracoDecoderPath: '/draco/', // local copy of three.js Draco decoder in /public/draco
   maxPixelRatio: 2,
   maxTilt: 0.35, // radians the user can tilt the board up/down with OrbitControls
   pcbColor: 0x0dde3e, // solder-mask green
@@ -849,17 +849,16 @@ export default function ThreeViewer({ onReadyChange }: ThreeViewerProps) {
       setStatusMessage(message);
     };
 
-    // 15-second timeout: if the 3D model hasn't loaded by then, show fallback
+    // 20-second timeout: if the 3D model hasn't loaded by then, show fallback
     timeoutRef.current = setTimeout(() => {
       if (!ready && !loadFailed && !disposed) {
         fail('3D model is taking too long — showing static image instead.');
       }
-    }, 15000);
+    }, 20000);
 
     loadThreeLibs()
       .then((libs) => {
         if (disposed) return;
-        clearTimeout(timeoutRef.current);
         viewer = createViewer(container, libs, {
           onStatus: (message) => {
             if (!disposed) setStatusMessage(message);
@@ -877,7 +876,7 @@ export default function ThreeViewer({ onReadyChange }: ThreeViewerProps) {
       })
       .catch((error) => {
         console.error('[ThreeViewer] three.js failed to load', error);
-        fail('3D viewer unavailable');
+        fail('3D viewer unavailable — ' + (error?.message || String(error)));
       });
 
     return () => {
