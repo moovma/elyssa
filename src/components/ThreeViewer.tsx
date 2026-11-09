@@ -32,7 +32,7 @@ const CONFIG = {
   dracoDecoderPath: '/draco/', // copy of node_modules/three/examples/jsm/libs/draco/gltf/ in /public/draco
   maxPixelRatio: 2,
   maxTilt: 0.35, // radians the user can tilt the board up/down with OrbitControls
-  pcbColor: 0x0b8a3e, // solder-mask green
+  pcbColor: 0x0dde3e, // solder-mask green
   pcbOpacity: 0.7, // 1 = solid, lower = traces more visible
   boxColor: 0xccff00, // colour of the selection box
   boxFillOpacity: 0.35, // 0 = lines only, 1 = solid fill
