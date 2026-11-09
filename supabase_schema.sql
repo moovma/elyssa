@@ -3,7 +3,10 @@
 -- Execute this script in your Supabase SQL Editor
 -- ==========================================================
 
--- 1. Create the preorders table
+-- 0. Enable pgcrypto extension for gen_random_uuid()
+create extension if not exists pgcrypto;
+
+-- 1. Create the preorders table (if not exists)
 create table if not exists public.preorders (
   id uuid default gen_random_uuid() primary key,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null,
@@ -20,7 +23,11 @@ create table if not exists public.preorders (
   notes text
 );
 
--- 2. Add an index for faster lookups by email and creation time
+-- 1b. Add college column if table already existed without it
+alter table public.preorders
+  add column if not exists college text default '' not null;
+
+-- 2. Add indexes for faster lookups
 create index if not exists preorders_email_idx on public.preorders (email);
 create index if not exists preorders_created_at_idx on public.preorders (created_at desc);
 
@@ -28,6 +35,8 @@ create index if not exists preorders_created_at_idx on public.preorders (created
 alter table public.preorders enable row level security;
 
 -- 4. Policies: Allow anonymous inserts (from website pre-order form)
+-- Postgres does not support CREATE POLICY IF NOT EXISTS, so drop first if exists
+drop policy if exists "Allow public anonymous preorders insertion" on public.preorders;
 create policy "Allow public anonymous preorders insertion"
   on public.preorders
   for insert
@@ -35,6 +44,7 @@ create policy "Allow public anonymous preorders insertion"
   with check (true);
 
 -- 5. Policies: Only authenticated service role can read/manage all orders
+drop policy if exists "Allow service role full access" on public.preorders;
 create policy "Allow service role full access"
   on public.preorders
   for all
@@ -50,5 +60,6 @@ comment on column public.preorders.age is 'Customer age';
 comment on column public.preorders.email is 'Customer email address for order notifications';
 comment on column public.preorders.phone is 'Customer phone number for confirmation call';
 comment on column public.preorders.is_student is 'Flag indicating if the customer is a student (selected via iOS switch)';
+comment on column public.preorders.college is 'Customer college or university (if student)';
 comment on column public.preorders.offered_price is 'The best price choice selected by the customer (80 to 150 DT)';
 comment on column public.preorders.actual_price is 'The revealed official price: 70 DT';
