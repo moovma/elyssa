@@ -17,7 +17,7 @@ drop view if exists public.preorders_summary;
 --    Postgres cannot reorder columns of an existing table, so we rebuild it.
 do $$
 declare
-  wanted text := 'id,created_at,first_name,family_name,age,email,phone,is_student,college,quantity,offered_price,actual_price,offered_price_dt,unit_price_dt,total_price_dt,amount_paid_dt,balance_due_dt,paid_percent,payment_status,payment_method,paid_at,status,notes';
+  wanted text := 'id,created_at,first_name,family_name,age,email,phone,is_student,college,quantity,offered_price_dt,unit_price_dt,total_price_dt,amount_paid_dt,balance_due_dt,paid_percent,payment_status,payment_method,paid_at,status,notes';
   have   text;
   extra  text;
 begin
@@ -39,7 +39,7 @@ begin
     into extra
     from information_schema.columns
    where table_schema = 'public' and table_name = 'preorders'
-     and column_name <> all (string_to_array(wanted, ',') || array['desired_vs_price_percent']);
+     and column_name <> all (string_to_array(wanted, ',') || array['desired_vs_price_percent', 'offered_price', 'actual_price']);
   if extra is not null then
     raise exception 'public.preorders has extra columns (%). Nothing was changed. Ask for them to be added to the script first.', extra;
   end if;
@@ -66,10 +66,8 @@ create table if not exists public.preorders (
   is_student    boolean not null default false,
   college       text default '' not null,
 
-  -- Order
+  -- Order (prices are numbers, see the money section below)
   quantity      integer not null default 1,
-  offered_price text not null,                                    -- desired price chosen by the customer, as text (e.g. '95 DT')
-  actual_price  text default '70 DT' not null,                    -- official price, as text
 
   -- Money, in Tunisian dinars (DT)
   offered_price_dt numeric(10,2),                                 -- desired price per board (number)
@@ -92,7 +90,6 @@ create table if not exists public.preorders (
 );
 
 -- 4. Automatic bookkeeping (created BEFORE the copy so old rows get the right payment status too)
---    * fills offered_price_dt from the text price when the website did not send it
 --    * keeps payment_status in sync with amount_paid_dt (set it to 'refunded' yourself when needed)
 --    * stamps paid_at the first time the order is fully paid
 create or replace function public.preorders_before_write()
@@ -102,10 +99,6 @@ as $$
 declare
   total numeric;
 begin
-  if new.offered_price_dt is null then
-    new.offered_price_dt := nullif(regexp_replace(coalesce(new.offered_price, ''), '[^0-9.]', '', 'g'), '')::numeric;
-  end if;
-
   total := new.unit_price_dt * new.quantity;
 
   if new.payment_status is distinct from 'refunded' then
@@ -140,7 +133,7 @@ begin
 
   insert into public.preorders (
     id, created_at, first_name, family_name, age, email, phone, is_student, college,
-    quantity, offered_price, actual_price,
+    quantity,
     offered_price_dt, unit_price_dt, amount_paid_dt, payment_status, payment_method, paid_at,
     status, notes
   )
@@ -148,9 +141,8 @@ begin
     o.id, o.created_at, o.first_name, o.family_name, o.age, o.email, o.phone, o.is_student,
     coalesce(o.college, ''),
     coalesce((to_jsonb(o) ->> 'quantity')::integer, 1),
-    o.offered_price, o.actual_price,
     coalesce((to_jsonb(o) ->> 'offered_price_dt')::numeric,
-             nullif(regexp_replace(o.offered_price, '[^0-9.]', '', 'g'), '')::numeric),
+             nullif(regexp_replace(coalesce(to_jsonb(o) ->> 'offered_price', ''), '[^0-9.]', '', 'g'), '')::numeric),
     coalesce((to_jsonb(o) ->> 'unit_price_dt')::numeric, 70),
     coalesce((to_jsonb(o) ->> 'amount_paid_dt')::numeric, 0),
     coalesce(to_jsonb(o) ->> 'payment_status', 'unpaid'),
@@ -215,8 +207,6 @@ comment on column public.preorders.phone       is 'Customer phone number for con
 comment on column public.preorders.is_student  is 'True if the customer is a student';
 comment on column public.preorders.college     is 'Customer college or university (if student)';
 comment on column public.preorders.quantity    is 'Number of Elyssa boards ordered (1 to 10)';
-comment on column public.preorders.offered_price     is 'Desired price chosen by the customer, as text (e.g. 95 DT)';
-comment on column public.preorders.actual_price      is 'Official price, as text (70 DT)';
 comment on column public.preorders.offered_price_dt  is 'Desired price per board in DT (number)';
 comment on column public.preorders.unit_price_dt     is 'Official price per board in DT';
 comment on column public.preorders.total_price_dt    is 'unit price x quantity (computed)';

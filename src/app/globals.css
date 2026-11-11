@@ -916,3 +916,28 @@ img, svg, video, canvas { max-width: 100%; }
 }
 @media (pointer: coarse), (max-width: 768px) { .footer-side a { padding-inline: 8px; } }
 .po-uiswitch::after { content: ''; position: absolute; inset: -7px -4px; } /* bigger tap area, same look */
+
+/* ---- final polish ---- */
+/* the Moovma logo is taller than the header: give it room so it is never cut at the top */
+.site-header { height: auto; min-height: 91px; padding: 14px 0 8px; }
+.preorder-top-nav { height: auto; min-height: 72px; padding: 14px 0 8px; }
+@media (max-width: 760px) { .site-header { min-height: 72px; padding: 12px 0 6px; } }
+
+/* the price pill on the confirmation page never breaks across two lines */
+.po-confirm-heading em { display: inline-block; white-space: nowrap; line-height: 1.12; padding: 6px 18px 8px; margin-top: 6px; }
+
+/* bigger 3D model: taller frame and less empty space around the board */
+.model-sticky { height: min(80vh, 720px); min-height: 520px; }
+@media (max-width: 900px) {
+  .model-sticky { height: 38vh; min-height: 280px; max-height: 440px; }
+}
+
+/* phones/tablets: the 3D canvas lives between the status line (top) and the hint + axis legend (bottom),
+   so the board can never touch any other element */
+@media (max-width: 900px) {
+  .model-sticky { height: 46vh; min-height: 340px; max-height: 500px; }
+  #board-viewer { inset: 40px 10px 54px 10px; }
+  .model-status { top: 14px; left: 16px; }
+  .model-hint { left: 16px; bottom: 16px; max-width: calc(100% - 130px); }
+  .axis-legend { right: 16px; bottom: 16px; }
+}

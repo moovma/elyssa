@@ -39,7 +39,7 @@ const CONFIG = {
   boxFillOpacity: 0.35, // 0 = lines only, 1 = solid fill
   clusterGap: 0.004, // parts closer than this share a box
   boxPadding: 0.012, // gap between part and box
-  zoomOut: 1.5, // 1.5 matches original moovma.github.io
+  zoomOut: 1.1, // how much room around the board (1 = touches the frame); lower = bigger model
   envIntensity: 0.7, // reflections on components
   hoverHeight: 0.012, // up/down float, fraction of board size
   swayAmount: 0.03, // tiny tilt while floating (radians)
@@ -645,7 +645,8 @@ function createViewer(container: HTMLDivElement, libs: ThreeLibs, cb: ViewerCall
     const width = container.clientWidth || 1;
     const height = container.clientHeight || 1;
     const aspect = width / height;
-    const half = Math.max(board.h / 2, board.w / 2 / aspect) * CONFIG.zoomOut;
+    const zoom = width < 700 ? CONFIG.zoomOut + 0.1 : CONFIG.zoomOut; // a little more air on phones
+    const half = Math.max(board.h / 2, board.w / 2 / aspect) * zoom;
     camera.left = -half * aspect;
     camera.right = half * aspect;
     camera.top = half;

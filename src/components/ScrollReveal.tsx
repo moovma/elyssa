@@ -35,7 +35,7 @@ export default function ScrollReveal() {
           }
         });
       },
-      { rootMargin: '-35% 0px -35% 0px', threshold: 0 }
+      { rootMargin: window.innerWidth <= 900 ? '-52% 0px -28% 0px' : '-35% 0px -35% 0px', threshold: 0 } // phones: the pinned model covers the top of the screen
     );
 
     // Observe each element once. Lazily-loaded components (the 3D viewer) insert their

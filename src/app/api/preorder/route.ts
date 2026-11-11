@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createServerClient, isSupabaseConfigured } from '@/lib/supabase';
+import { insertAdaptive } from '@/lib/preorder-insert';
 import fs from 'fs';
 import path from 'path';
 
@@ -36,44 +37,31 @@ export async function POST(request: Request) {
       created_at: new Date().toISOString(),
     };
 
+    // The row that goes to Supabase matches the current table (supabase_schema.sql): numeric prices only.
+    const { offered_price, actual_price, ...supabaseRecord } = newRecord;
+
     let supabaseSaved = false;
     let supabaseError: string | null = null;
 
-    // 1. Save to Supabase if configured
+    // 1. Save to Supabase if configured. insertAdaptive() copes with a table that differs from what we expect
+    //    (missing column -> value kept in `notes`; old required text price columns -> filled in automatically).
     if (isSupabaseConfigured) {
       const supabase = createServerClient();
-      const { error } = await supabase.from('preorders').insert([newRecord]);
-      if (!error) {
-        supabaseSaved = true;
-      } else {
-        console.error('Supabase insert error:', error.message);
-        supabaseError = error.message;
-
-        // The table may be missing the newer columns. Never lose that data: retry without the missing
-        // columns and keep their values in the `notes` column instead (run supabase_schema.sql to fix for good).
-        const { quantity, offered_price_dt, unit_price_dt, ...withCollege } = newRecord;
-        const { college, ...withoutCollege } = withCollege;
-        const notes = [
-          `Quantity: ${quantity}`,
-          `Desired price per board: ${offered_price_dt ?? '?'} DT`,
-          `Board price: ${unit_price_dt} DT`,
-        ].join(' | ');
-
-        const attempts = [
-          { ...withCollege, notes }, // table has the college column
-          { ...withoutCollege, notes: college ? `${notes} | College: ${college}` : notes }, // it does not
-        ];
-        for (const record of attempts) {
-          const retry = await supabase.from('preorders').insert([record]);
-          if (!retry.error) {
-            supabaseSaved = true;
-            supabaseError = `Saved with the new fields in "notes": run the migration in supabase_schema.sql (${error.message})`;
-            console.warn('Supabase: saved via fallback. Run supabase_schema.sql to add the new columns.');
-            break;
-          }
-          supabaseError = retry.error.message;
-          console.error('Supabase fallback insert error:', retry.error.message);
-        }
+      const result = await insertAdaptive(
+        async (row) => {
+          const { error } = await supabase.from('preorders').insert([row]);
+          return { error };
+        },
+        supabaseRecord,
+        { offered_price, actual_price } // only used if the table still has the old required text columns
+      );
+      supabaseSaved = result.saved;
+      if (result.saved && result.movedToNotes.length) {
+        supabaseError = `Saved, but the table has no column for: ${result.movedToNotes.map((m) => m.split(':')[0]).join(', ')} (kept in "notes"). Run supabase_schema.sql.`;
+        console.warn('Supabase: ' + supabaseError);
+      } else if (!result.saved) {
+        supabaseError = result.error;
+        console.error('Supabase insert FAILED (order kept in data/preorders.json):', result.error);
       }
     }
 
