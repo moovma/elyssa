@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Footer from '@/components/Footer';
+import { track } from '@/lib/track';
 
 const PRICE_OPTIONS = ['80 DT', '95 DT', '110 DT', '130 DT', '150 DT'];
 const UNIT_PRICE = 70; // DT, official price per board
@@ -50,6 +51,7 @@ export default function PreorderPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Submission failed.');
       setActualPrice(data.actualPrice || '70 DT');
+      track('preorder_submitted', { quantity, student: isStudent, desired_price: offeredPrice });
       setCovering(true); // black rises from the bottom; the confirmation appears when it ends
     } catch (err: any) {
       setError(err.message || 'Something went wrong.');

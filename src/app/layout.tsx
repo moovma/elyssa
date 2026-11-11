@@ -1,5 +1,8 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { Analytics } from '@vercel/analytics/next';
+import { SpeedInsights } from '@vercel/speed-insights/next';
+import AnalyticsEvents from '../components/AnalyticsEvents';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://github.com/moovma/Elyssa-dev-board'),
@@ -43,6 +46,9 @@ export default function RootLayout({
       </head>
       <body suppressHydrationWarning>
         {children}
+        <Analytics />
+        <SpeedInsights />
+        <AnalyticsEvents />
       </body>
     </html>
   );

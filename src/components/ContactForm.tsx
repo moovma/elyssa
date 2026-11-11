@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { CONTACT_EMAIL } from '../lib/elyssa-docs';
+import { track } from '../lib/track';
 
 /** Opens the visitor's mail app with a pre-filled message to Moovma (no server, no data stored). */
 export default function ContactForm({ id = 'contact' }: { id?: string }) {
@@ -14,6 +15,7 @@ export default function ContactForm({ id = 'contact' }: { id?: string }) {
     e.preventDefault();
     const subject = `[Elyssa] ${topic}`;
     const body = `${message}\n\n—\n${name}\n${email}`;
+    track('contact_form_submit', { topic });
     window.location.href = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   };
 
