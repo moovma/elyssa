@@ -89,7 +89,7 @@ export default function QuickStart() {
             <span className="quick-number">04</span>
             <div className="quick-body">
               <h3>Upload Blink and celebrate</h3>
-              <p>Open <strong>File → Examples → 01.Basics → Blink</strong> and click <strong>Upload</strong>. The on-board LED starts blinking: your first program is running on the first dev board made in Tunisia.</p>
+              <p>Open <strong>File → Examples → 01.Basics → Blink</strong> and click <strong>Upload</strong>. The on-board LED starts blinking: your first program is running on the first Tunisian dev board.</p>
               <div className="quick-note">
                 <span className="quick-note-label">If the upload fails</span>
                 <p>Hold <strong>BOOT</strong>, press and release <strong>RESET</strong>, then release <strong>BOOT</strong>. Select the port that appears and upload again. This is usually only needed once.</p>

@@ -9,8 +9,8 @@ import { CONTACT_EMAIL } from '../../lib/elyssa-docs';
 import Gfx, { CONTENT_RIGHT } from '../../components/Gfx';
 
 export const metadata: Metadata = {
-  title: 'Shop: Elyssa, the first dev board made in Tunisia',
-  description: 'Reserve Elyssa, the first dev board made in Tunisia. Wi-Fi, Bluetooth 5, motion sensing and LiPo charging on one open-source board. No payment now.',
+  title: 'Shop: Elyssa, the first Tunisian dev board',
+  description: 'Reserve Elyssa, the first Tunisian dev board. Wi-Fi, Bluetooth 5, motion sensing and LiPo charging on one open-source board. No payment now.',
 };
 
 const HIGHLIGHTS = [
@@ -54,10 +54,10 @@ export default function ShopPage() {
             <ShopGallery images={images} />
 
             <div className="shop-info">
-              <p className="eyebrow">The first dev board made in Tunisia · Batch 01</p>
+              <p className="eyebrow">The first Tunisian dev board · Batch 01</p>
               <h1>Elyssa</h1>
               <p className="shop-desc">
-                Elyssa is the first dev board made in Tunisia, and it is built for people like you: curious, hands-on and ready to create. Wi-Fi, Bluetooth, motion sensing and battery charging all come ready on one tiny board.
+                Elyssa is the first Tunisian dev board, and it is built for people like you: curious, hands-on and ready to create. Wi-Fi, Bluetooth, motion sensing and battery charging all come ready on one tiny board.
               </p>
 
               <ul className="shop-list">

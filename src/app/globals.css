@@ -1034,3 +1034,33 @@ img, svg, video, canvas { max-width: 100%; }
 .po-next p { font: 10px var(--mono); text-transform: uppercase; letter-spacing: .07em; color: #999; margin: 0 0 6px; }
 .po-next a { color: #fff; border-bottom: 1px solid #555; padding: 6px 0; font-size: 14px; transition: border-color .2s, color .2s; }
 .po-next a:hover { color: var(--acid); border-color: var(--acid); }
+
+/* docs: capability table, power rules, disclaimer */
+.docs-sub { font-size: clamp(26px, 2.8vw, 36px); margin: 64px 0 0; }
+.docs-lead-tight { margin: 12px 0 24px; }
+.docs-table-caps td { padding-top: 12px; padding-bottom: 12px; }
+.docs-table-caps td b { font-size: 18px; }
+.docs-table .dash { color: #bbb; }
+.docs-dark .docs-table .dash { color: #555; }
+
+.power-rules { list-style: none; margin: 40px 0 48px; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid #fff; }
+.power-rules li { display: flex; flex-direction: column; gap: 10px; padding: 22px 20px 26px 0; border-right: 1px solid #333; padding-left: 20px; }
+.power-rules li:first-child { padding-left: 0; }
+.power-rules li:last-child { border-right: 0; }
+.power-rules small { font: 10px var(--mono); letter-spacing: .07em; color: #999; }
+.power-rules strong { font-family: var(--serif); font-weight: 400; font-size: 22px; letter-spacing: -.02em; line-height: 1.15; }
+.power-rules span { color: #aaa; font-size: 13.5px; line-height: 1.7; }
+.power-rules li.is-warn { background: var(--acid); color: #000; padding: 22px 20px 26px 20px; border-right: 0; }
+.power-rules li.is-warn small { color: #000; }
+.power-rules li.is-warn span { color: #1a1a1a; }
+@media (max-width: 900px) {
+  .power-rules { grid-template-columns: 1fr 1fr; }
+  .power-rules li { border-right: 0; border-bottom: 1px solid #333; padding-left: 0; }
+  .power-rules li.is-warn { padding-left: 20px; }
+}
+@media (max-width: 520px) { .power-rules { grid-template-columns: 1fr; } }
+
+.docs-disclaimer { margin-top: 32px; padding: 18px 20px; border: 1px solid #333; display: grid; grid-template-columns: 110px 1fr; gap: 20px; align-items: start; }
+.docs-disclaimer span { font: 10px var(--mono); text-transform: uppercase; letter-spacing: .07em; color: var(--acid); padding-top: 3px; }
+.docs-disclaimer p { margin: 0; color: #bbb; font-size: 13.5px; line-height: 1.75; max-width: 760px; }
+@media (max-width: 640px) { .docs-disclaimer { grid-template-columns: 1fr; gap: 8px; } }

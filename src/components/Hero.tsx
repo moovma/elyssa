@@ -16,8 +16,8 @@ export default function Hero() {
         />
       </div>
       <div className="hero-copy section-wrap reveal delay-one">
-        <p className="eyebrow">Moovma presents · Made in Tunisia</p>
-        <h1>The first dev board<br />made in <em>Tunisia.</em></h1>
+        <p className="eyebrow">Moovma presents · Proudly Tunisian</p>
+        <h1>The first Tunisian<br /><em>dev board.</em></h1>
         <p className="hero-intro">
           Meet Elyssa. Wi-Fi, Bluetooth, motion sensing and battery charging on one tiny board, designed in Tunisia for the makers, students and engineers who will build what comes next. Plug it in, upload a sketch, and make something real today.</p>
         <div className="hero-actions">

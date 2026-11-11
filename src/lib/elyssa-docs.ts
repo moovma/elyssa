@@ -1,7 +1,6 @@
 /**
- * Technical data for Elyssa v5.
- * Source: https://github.com/moovma/Elyssa-dev-board (README.md, TIPS_AND_KNOWN_ISSUES.md,
- * platform/variants/elyssa/pins_arduino.h). Rows marked `chip` come from the ESP32-S3 datasheet.
+ * Technical data for Elyssa, taken from the board schematic and the open-source repository
+ * (https://github.com/moovma/Elyssa-dev-board: README, TIPS_AND_KNOWN_ISSUES, pins_arduino.h).
  */
 
 export const CONTACT_EMAIL = process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'moovma@gmail.com';
@@ -45,7 +44,7 @@ export const HEADER_PINS: HeaderPin[] = [
   { n: 19, label: 'CS', kind: 'comm', gpio: 34, detail: 'SPI SS' },
   { n: 20, label: 'SCL', kind: 'comm', gpio: 9, detail: 'I2C SCL · A9 · T9' },
   { n: 21, label: 'SDA', kind: 'comm', gpio: 8, detail: 'I2C SDA · A8 · T8' },
-  { n: 22, label: 'Vin', kind: 'power', detail: 'Supply input / output' },
+  { n: 22, label: 'Vin', kind: 'power', detail: '5 V, wired to USB (see the power rules)' },
 ];
 
 export type Safety = 'safe' | 'caution' | 'reserved';
@@ -74,7 +73,7 @@ export const PIN_SAFETY: PinSafety[] = [
     sketch: 'IO6 · A6 · T6 · BAT_SENSE',
     safety: 'caution',
     useFor: 'Analog, touch, digital, or battery sense',
-    note: 'Shared with BAT_SENSE. If solder jumper JP3 is bridged (open by default) do not use IO6 for anything else.',
+    note: 'Shared with BAT_SENSE. If solder jumper JP3 is bridged (open by default) the battery voltage is on this pin, so do not use IO6 for anything else.',
   },
   {
     pin: 'SDA / SCL',
@@ -82,7 +81,7 @@ export const PIN_SAFETY: PinSafety[] = [
     sketch: 'SDA · SCL (A8/A9, T8/T9)',
     safety: 'caution',
     useFor: 'I2C on the header and the Qwiic connector',
-    note: '4.7 kΩ pull-ups are already on the board. Avoid touch or other loads on these pins when I2C is in use.',
+    note: '4.7 kΩ pull-ups are already on the board. Avoid touch or other loads on these pins while I2C is in use.',
   },
   {
     pin: 'Tx / Rx',
@@ -90,7 +89,7 @@ export const PIN_SAFETY: PinSafety[] = [
     sketch: 'TX · RX',
     safety: 'safe',
     useFor: 'UART to external devices',
-    note: 'Serial Monitor uses native USB (USB CDC), so these header pins are free for a second UART.',
+    note: 'They also drive the TX and RX indicator LEDs (D16, D17) through 1.5 kΩ resistors, so you see data flowing. Serial Monitor uses native USB, so these pins are free for a second UART.',
   },
   {
     pin: 'CS / MOSI / CLK / MISO',
@@ -98,7 +97,7 @@ export const PIN_SAFETY: PinSafety[] = [
     sketch: 'SS(CS) · MOSI · SCK(CLK) · MISO',
     safety: 'safe',
     useFor: 'SPI on the header (default SPI bus)',
-    note: 'Separate from the microSD bus. The ESP32-S3FN8 has no PSRAM, so these GPIOs are free.',
+    note: 'Digital only: no analog input or touch on these pins. Separate from the microSD bus.',
   },
   {
     pin: 'PWM1',
@@ -106,7 +105,7 @@ export const PIN_SAFETY: PinSafety[] = [
     sketch: 'PWM1 · T10',
     safety: 'caution',
     useFor: 'PWM output, or touch',
-    note: 'PWM1 and T10 are the same pin: use it for touch or PWM, never both.',
+    note: 'PWM1 and T10 are the same pin: use it for touch or PWM, never both. Its analog input is on ADC2, which cannot be used while Wi-Fi is on.',
   },
   {
     pin: 'PWM2 / PWM3',
@@ -114,7 +113,7 @@ export const PIN_SAFETY: PinSafety[] = [
     sketch: 'PWM2 · PWM3',
     safety: 'safe',
     useFor: 'PWM, digital in/out',
-    note: 'Follow the silkscreen. Not yet checked against a board: tell Moovma if you find them swapped.',
+    note: 'Digital only: no analog input or touch on these pins.',
   },
   {
     pin: 'BOOT button',
@@ -122,7 +121,7 @@ export const PIN_SAFETY: PinSafety[] = [
     sketch: 'BOOT_BUTTON',
     safety: 'reserved',
     useFor: 'Reads LOW when pressed',
-    note: 'Strapping pin. Holding it low at reset enters download mode. Do not drive it externally at boot.',
+    note: 'Strapping pin. Held LOW during reset it enters download mode. After boot it works as a normal input, but do not drive it externally at boot.',
   },
   {
     pin: 'RGB LED red / green / blue',
@@ -154,38 +153,74 @@ export const PIN_SAFETY: PinSafety[] = [
     sketch: '(not exposed)',
     safety: 'reserved',
     useFor: 'Native USB-C',
-    note: 'Used by the USB port (chip fact). Not routed to the header.',
+    note: 'Used by the USB port. Not routed to the header.',
   },
 ];
+
 
 export interface PowerRow {
   item: string;
   value: string;
   note: string;
-  source: 'repo' | 'chip' | 'schematic';
 }
 
-export const POWER_ROWS: PowerRow[] = [
-  { item: 'Logic level', value: '3.3 V', note: 'ESP32-S3 pins are not 5 V tolerant. Level-shift any 5 V signal.', source: 'chip' },
-  { item: 'Current per GPIO', value: '< 20 mA recommended', note: 'The chip absolute maximum is 40 mA per pin. Use a transistor or driver for anything heavier.', source: 'chip' },
-  { item: 'Analog inputs', value: '0 – 3.3 V · 12-bit (0 – 4095)', note: 'Use analogReadMilliVolts() for a calibrated reading in mV. Only ADC1 pins (IO0–IO6) are on the header.', source: 'repo' },
-  { item: 'USB-C input', value: '5 V', note: 'Programming, serial monitor and power over one cable. Use a data cable.', source: 'repo' },
-  { item: 'LiPo charger', value: 'BQ24092', note: 'On-board charge and power-path management. No GPIO: the CHG output only drives the red charge LED.', source: 'repo' },
-  { item: 'Battery voltage sense', value: 'VBAT / 2 on GPIO7', note: 'Only with solder jumper JP3 bridged. vbat = analogReadMilliVolts(BAT_SENSE) × 2 / 1000.', source: 'repo' },
-  { item: 'RGB LED resistors', value: '330 Ω per channel', note: 'Green looks brighter than red and blue; balance mixes with setLedRGB().', source: 'repo' },
-  { item: 'I2C pull-ups', value: '4.7 kΩ to 3.3 V', note: 'Header + Qwiic share GPIO8 / GPIO9. IMU runs on its own bus at 400 kHz.', source: 'repo' },
-  { item: 'Wi-Fi transmit power', value: '11 dBm (default)', note: 'Set by the board package for reliable links. Above 12 dBm the connection can fail or slow down; above 14 dBm it fails on every router tested.', source: 'repo' },
-  { item: 'Bluetooth LE', value: '−12 to +20 dBm', note: 'Advertising power range tested on Elyssa.', source: 'repo' },
-  { item: 'Vin pin range · buck output · charge current', value: 'See schematic', note: 'These values are not listed in the public repo. Check the schematic PDF before feeding Vin from an external supply.', source: 'schematic' },
+/** The four rules worth reading before you plug anything in. */
+export const POWER_RULES = [
+  {
+    n: '01',
+    title: 'One power source on Vin',
+    text: 'The USB line is wired to the Vin pin. Never connect USB and an external supply to Vin at the same time: it can backfeed and damage your setup or your computer.',
+    warn: true,
+  },
+  {
+    n: '02',
+    title: '3.3 V logic only',
+    text: 'Every GPIO works at 3.3 V and is not 5 V tolerant. Use a level shifter for 5 V signals.',
+  },
+  {
+    n: '03',
+    title: 'Go easy on the pins',
+    text: 'Keep each GPIO under about 20 mA. For motors, relays and strips of LEDs, switch them with a transistor or driver.',
+  },
+  {
+    n: '04',
+    title: 'Single-cell batteries only',
+    text: 'The charger is made for one 3.7 V Li-Ion or Li-Po cell, charged to 4.2 V. Never connect two cells or any other battery type.',
+  },
 ];
 
-export const NOT_TESTED = [
-  'microSD with a card',
-  'Battery charging and BAT_SENSE',
-  'External I2C devices (header and Qwiic)',
-  'PWM2 / PWM3 against the silkscreen',
-  'Deep-sleep current',
+export const POWER_ROWS: PowerRow[] = [
+  { item: 'Main 3.3 V rail', value: 'Up to 2 A', note: 'A TLV62569DBVR step-down (buck) regulator with a 2.2 µH inductor drives the 3.3 V rail: efficient, steady, and plenty of headroom for sensors and modules.' },
+  { item: 'USB-C input', value: '5 V', note: 'Programming, serial monitor and power over one cable. Use a data cable.' },
+  { item: 'Vin pin', value: '5 V, wired to USB', note: 'Take 5 V out of this pin, or power the board from it when USB is unplugged. Never feed Vin while USB is connected.' },
+  { item: 'Input protection', value: 'PMOS + Schottky diode', note: 'A power-OR stage protects the input and stops current flowing back between power sources.' },
+  { item: 'LiPo charger', value: 'BQ24092 · about 540 mA', note: 'Charges one cell from the 5 V USB input. The 1 kΩ ISET resistor sets the current. There is no GPIO for it: the CHG output only drives the red charge LED.' },
+  { item: 'Battery', value: '1S Li-Ion / Li-Po, 3.7 V', note: 'Charged to 4.2 V. A 1500 to 2000 mAh cell is a good balance between charging time and battery stress.' },
+  { item: 'Charger temperature', value: 'Warm, up to about 125 °C', note: 'The charger chip can get noticeably warm. Around 125 °C its thermal regulation lowers the charging current automatically.' },
+  { item: 'Battery voltage reading', value: 'VBAT / 2 on IO6 (GPIO7)', note: 'Only after bridging solder jumper JP3. In a sketch: vbat = analogReadMilliVolts(BAT_SENSE) × 2 / 1000.' },
+  { item: 'Logic level', value: '3.3 V', note: 'GPIOs are not 5 V tolerant.' },
+  { item: 'Current per GPIO', value: 'Under 20 mA', note: 'Use a transistor or driver for anything heavier.' },
+  { item: 'Analog inputs', value: '0 – 3.3 V, 12-bit (0 – 4095)', note: 'ADC1 pins (IO0 to IO6, SDA, SCL) work with Wi-Fi on. PWM1 is on ADC2, which cannot be used while Wi-Fi is on. Use analogReadMilliVolts() for a calibrated reading.' },
+  { item: 'RGB LED', value: '330 Ω per channel', note: 'Green looks brighter than red and blue. Balance mixed colours with setLedRGB().' },
+  { item: 'I2C', value: '4.7 kΩ pull-ups to 3.3 V', note: 'The header and Qwiic share GPIO8 / GPIO9. The IMU runs on its own bus at 400 kHz.' },
+  { item: 'Wi-Fi transmit power', value: '11 dBm by default', note: 'Set by the board package for a reliable link. Above 12 dBm the connection can fail or slow down.' },
+  { item: 'Bluetooth LE', value: '−12 to +20 dBm', note: 'Advertising power range available on Elyssa.' },
 ];
+
+/** Shown at the bottom of the docs page. */
+export const DISCLAIMER =
+  'Elyssa is an open-source development board, provided “as is”. Moovma is not responsible for any damage, loss or malfunction caused by using it, by connecting it incorrectly, or by going beyond the limits on this page. Always double-check your wiring and power before you plug anything in.';
+
+/** What each header pin can do (from the schematic). Every digital pin can also do PWM, UART, SPI, I2C and I2S. */
+export interface PinCap { pin: string; gpio: number; adc: string; touch: string }
+const TOUCH: Record<number, string> = { 1: 'T0', 2: 'T1', 3: 'T2', 4: 'T3', 5: 'T4', 6: 'T5', 7: 'T6', 8: 'T8', 9: 'T9', 14: 'T10' };
+const adcOf = (g: number) => (g >= 1 && g <= 9 ? 'ADC1' : g === 14 ? 'ADC2' : '');
+export const PIN_CAPS: PinCap[] = HEADER_PINS.filter((p) => p.gpio !== undefined).map((p) => ({
+  pin: p.label,
+  gpio: p.gpio as number,
+  adc: adcOf(p.gpio as number),
+  touch: TOUCH[p.gpio as number] ?? '',
+}));
 
 export const REPO_LINKS = [
   { label: 'README: pinout, IDE setup, examples', href: `${REPO_BLOB}/README.md` },

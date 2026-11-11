@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 };
 
 const WORDS = ['board', 'idea', 'project', 'maker', 'invention'];
-const MARQUEE = ['Innovation', 'Hardware', 'PCB design', 'Open source', 'Made in Tunisia', 'The future', 'Community'];
+const MARQUEE = ['Innovation', 'Hardware', 'PCB design', 'Open source', 'Proudly Tunisian', 'The future', 'Community'];
 
 export default async function MoovmaHome() {
   const [gh, work] = await Promise.all([getGithub(), Promise.resolve(getWork())]);
@@ -47,13 +47,13 @@ export default async function MoovmaHome() {
       <section className="mv-hero" id="top">
       <Gfx shape="pinwheel" color="acid" size={190} right={CONTENT_RIGHT} bottom={112} spin />
         <div className="section-wrap">
-          <p className="eyebrow mv-fade" style={{ ['--d' as string]: '0s' }}>Moovma · Made in {BRAND.country}</p>
+          <p className="eyebrow mv-fade" style={{ ['--d' as string]: '0s' }}>Moovma · Proudly {BRAND.country === 'Tunisia' ? 'Tunisian' : BRAND.country}</p>
           <h1 className="mv-fade" style={{ ['--d' as string]: '.08s' }}>
             We create the future<br />
             of <em>Tunisia</em>, one <HeroWords words={WORDS} /> at a time.
           </h1>
           <p className="hero-intro mv-fade" style={{ ['--d' as string]: '.16s' }}>
-            Moovma is a Tunisian hardware company and community. We design, build and open-source electronics, from the first dev board made in Tunisia to smart power controllers, so makers, students and engineers can stop importing ideas and start inventing them.
+            Moovma is a Tunisian hardware company and community. We design, build and open-source electronics, from the first Tunisian dev board to smart power controllers, so makers, students and engineers can stop importing ideas and start inventing them.
           </p>
           <div className="hero-actions mv-fade" style={{ ['--d' as string]: '.24s' }}>
             <Link className="button button-acid" href="/shop">Shop Elyssa</Link>
@@ -96,7 +96,7 @@ export default async function MoovmaHome() {
             <div className="reveal">
               <h2>A movement,<br /><em>not just a startup.</em></h2>
               <p className="mv-lead">
-                Moovma is a Tunisian hardware company and community on a simple mission: put real, open, world-class electronics in the hands of Tunisian makers, students and engineers. From Elyssa, the first dev board made in Tunisia, to smart power controllers and motor drivers, we design it here and share it with everyone. Our goal: the largest hardware community in Tunisia.
+                Moovma is a Tunisian hardware company and community on a simple mission: put real, open, world-class electronics in the hands of Tunisian makers, students and engineers. From Elyssa, the first Tunisian dev board, to smart power controllers and motor drivers, we design it here and share it with everyone. Our goal: the largest hardware community in Tunisia.
               </p>
               <p className="mv-lead">We believe Tunisia can create, not just consume. And we are proving it, one board at a time.</p>
               <div className="mv-founder">
@@ -155,14 +155,14 @@ export default async function MoovmaHome() {
       <Gfx shape="wave" color="d2" size={190} right={CONTENT_RIGHT} top={110} />
         <div className="section-wrap">
           <div className="section-label reveal"><span>03</span><span>Products</span></div>
-          <h2 className="reveal">Real boards.<br /><em>Made in Tunisia.</em></h2>
+          <h2 className="reveal">Real boards.<br /><em>Proudly Tunisian.</em></h2>
 
           <article className="mv-featured reveal">
             <div className={`mv-featured-img${featuredPhoto.kind === 'cutout' ? '' : ' is-photo'}`}>
               <img src={featuredPhoto.src} alt={featuredPhoto.alt} loading="lazy" />
             </div>
             <div className="mv-featured-copy">
-              <small>The first dev board made in Tunisia</small>
+              <small>The first Tunisian dev board</small>
               <h3>{featured.name}</h3>
               <p>{featured.tagline}</p>
               <ul className="mv-chips">

@@ -22,7 +22,7 @@ export default function Features() {
         <div className="intro-copy reveal delay-one">
           <p>
             We believe the future of Tunisia is made by people who dare to invent. Elyssa is our first step: the first
-            dev board made in Tunisia, designed so anyone with curiosity can go from an idea to a working prototype
+            Tunisian dev board, designed so anyone with curiosity can go from an idea to a working prototype
             in an afternoon.
           </p>
           <p>

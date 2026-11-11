@@ -43,7 +43,7 @@ export default function PreorderSection() {
           <div className="preorder-banner-copy reveal">
             <h2>Be among the first<br />to build with <em>Elyssa.</em></h2>
             <p>
-              The first production batch is being prepared in Tunisia. Reserve your board today, with no payment now.
+              The first production batch is being prepared. Reserve your board today, with no payment now.
               We will contact you before any charge. The future is built by people who start early.
             </p>
             <ul className="preorder-features-list">

@@ -131,7 +131,7 @@ export default function PreorderPage() {
             <div className="po-form-card">
               <p className="po-eyebrow">Batch 01 — Reservation</p>
               <h1 className="po-form-heading">Reserve your <em>Elyssa</em></h1>
-              <p className="po-form-sub">Be one of the first to build with Elyssa, the first dev board made in Tunisia. It takes about a minute and costs nothing today.</p>
+              <p className="po-form-sub">Be one of the first to build with Elyssa, the first Tunisian dev board. It takes about a minute and costs nothing today.</p>
 
               {error && <div className="form-error-banner">{error}</div>}
 

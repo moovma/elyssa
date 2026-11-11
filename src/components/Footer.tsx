@@ -9,7 +9,7 @@ export default function Footer() {
       <div className="footer-inner section-wrap">
         <div className="footer-row">
           <div className="footer-side footer-left">
-            <span>Made in Tunisia, open to the world · <a href="/shop">Shop</a></span>
+            <span>Proudly Tunisian, open to the world · <a href="/shop">Shop</a></span>
           </div>
           <div className="footer-brand">
             <img src="/PNG/Moovma White@2x.png" alt="Moovma" />

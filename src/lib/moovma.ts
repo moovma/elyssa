@@ -86,7 +86,7 @@ export const PRODUCTS: Product[] = [
   {
     id: 'elyssa',
     name: 'Elyssa',
-    tagline: 'The first dev board made in Tunisia: Wi-Fi, Bluetooth 5, motion sensing and LiPo charging on one tiny, open-source board that works with Arduino.',
+    tagline: 'The first Tunisian dev board: Wi-Fi, Bluetooth 5, motion sensing and LiPo charging on one tiny, open-source board that works with Arduino.',
     specs: ['ESP32-S3FN8', '240 MHz dual-core', 'USB-C', 'Qwiic'],
     href: '/elyssa',
     featured: true,

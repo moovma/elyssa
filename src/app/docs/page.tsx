@@ -10,9 +10,11 @@ import {
   BOARD_TOP_IMG,
   CONTACT_EMAIL,
   HEADER_PINS,
-  NOT_TESTED,
+  DISCLAIMER,
+  PIN_CAPS,
   PIN_SAFETY,
   POWER_ROWS,
+  POWER_RULES,
   REPO_LINKS,
   SCHEMATIC_PDF,
 } from '../../lib/elyssa-docs';
@@ -24,7 +26,6 @@ export const metadata: Metadata = {
 };
 
 const SAFETY_LABEL = { safe: 'Safe', caution: 'Caution', reserved: 'Reserved' } as const;
-const SOURCE_LABEL = { repo: 'Repo', chip: 'ESP32-S3 datasheet', schematic: 'Schematic' } as const;
 
 export default function DocsPage() {
   return (
@@ -59,7 +60,7 @@ export default function DocsPage() {
             <a className="docs-dl-card docs-dl-acid" href={SCHEMATIC_PDF} download="elyssa-schematic.pdf">
               <small>PDF</small>
               <strong>Elyssa schematic</strong>
-              <span>Full circuit: power, charger, ESP32-S3, IMU, microSD</span>
+              <span>The full circuit and design notes: power, charger, ESP32-S3, IMU, microSD</span>
               <b>↓</b>
             </a>
             <a className="docs-dl-card" href={BOARD_TOP_IMG} download="elyssa-pinout-top.png">
@@ -141,6 +142,29 @@ export default function DocsPage() {
               </tbody>
             </table>
           </div>
+
+          <h3 className="docs-sub">What each pin can do</h3>
+          <p className="docs-lead docs-lead-tight">
+            Every digital pin can also be PWM, UART, SPI, I2C or I2S, because the ESP32-S3 lets you route them freely.
+            Analog input and touch are the only things tied to specific pins.
+          </p>
+          <div className="docs-table-wrap">
+            <table className="docs-table docs-table-caps">
+              <thead>
+                <tr><th>Header pin</th><th>GPIO</th><th>Analog input</th><th>Touch</th></tr>
+              </thead>
+              <tbody>
+                {PIN_CAPS.map((c) => (
+                  <tr key={c.pin + c.gpio}>
+                    <td data-label="Header pin"><b>{c.pin}</b></td>
+                    <td data-label="GPIO">{c.gpio}</td>
+                    <td data-label="Analog input">{c.adc || <span className="dash">–</span>}</td>
+                    <td data-label="Touch">{c.touch || <span className="dash">–</span>}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </section>
 
@@ -149,11 +173,22 @@ export default function DocsPage() {
         <div className="section-wrap">
           <div className="section-label"><span>04</span><span>Power &amp; safe ranges</span></div>
           <h2>Power, regulation <em>and limits.</em></h2>
-          <p className="docs-lead">Values from the repository and the ESP32-S3 datasheet. Check the schematic for the rest.</p>
+          <p className="docs-lead">Four rules to read before you plug anything in, then every number that matters.</p>
+
+          <ol className="power-rules">
+            {POWER_RULES.map((r) => (
+              <li key={r.n} className={r.warn ? 'is-warn' : ''}>
+                <small>{r.n}</small>
+                <strong>{r.title}</strong>
+                <span>{r.text}</span>
+              </li>
+            ))}
+          </ol>
+
           <div className="docs-table-wrap">
             <table className="docs-table">
               <thead>
-                <tr><th>Item</th><th>Value</th><th>Notes</th><th>Source</th></tr>
+                <tr><th>Item</th><th>Value</th><th>Notes</th></tr>
               </thead>
               <tbody>
                 {POWER_ROWS.map((r) => (
@@ -161,15 +196,15 @@ export default function DocsPage() {
                     <td data-label="Item"><b>{r.item}</b></td>
                     <td data-label="Value">{r.value}</td>
                     <td data-label="Notes">{r.note}</td>
-                    <td data-label="Source"><span className="source-tag">{SOURCE_LABEL[r.source]}</span></td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          <div className="docs-callout">
-            <span>Not tested on a board yet</span>
-            <p>{NOT_TESTED.join(' · ')}.</p>
+
+          <div className="docs-disclaimer">
+            <span>Disclaimer</span>
+            <p>{DISCLAIMER}</p>
           </div>
         </div>
       </section>
