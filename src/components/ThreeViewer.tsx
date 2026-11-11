@@ -30,10 +30,11 @@ let T!: ThreeModule;
 const CONFIG = {
   modelUrl: '/elyssa_3d/elyssa-compressed.glb', // Draco-compressed GLB: the ONLY model this page loads
   dracoDecoderPath: '/draco/', // local copy of three.js Draco decoder in /public/draco
-  maxPixelRatio: 2,
+  maxPixelRatio: 2.5,
+  minPixelRatio: 1.75, // supersample on 1x screens so edges and silkscreen text stay crisp
   maxTilt: 0.35, // radians the user can tilt the board up/down with OrbitControls
-  pcbColor: 0x0dde3e, // solder-mask green
-  pcbOpacity: 0.7, // 1 = solid, lower = traces more visible
+  pcbColor: 0x08c63a, // solder-mask green
+  pcbOpacity: 0.96, // 1 = solid, lower = traces more visible
   boxColor: 0xccff00, // colour of the selection box
   boxFillOpacity: 0.35, // 0 = lines only, 1 = solid fill
   clusterGap: 0.004, // parts closer than this share a box
@@ -257,12 +258,36 @@ function stylePcb(mat: StdMat) {
   mat.map = null;
   mat.vertexColors = false;
   mat.color.set(CONFIG.pcbColor);
-  mat.roughness = 0.38;
+  mat.roughness = 0.5;
   mat.metalness = 0;
-  mat.envMapIntensity = CONFIG.envIntensity;
+  mat.envMapIntensity = 0.25;
+  mat.emissive.set(0x04a82c);
+  mat.emissiveIntensity = 0.45;
   mat.transparent = true;
   mat.opacity = CONFIG.pcbOpacity;
   mat.depthWrite = false;
+  mat.needsUpdate = true;
+}
+
+/** Push the baked olive soldermask colour towards a vivid PCB green (shader-side, keeps copper/silk untouched). */
+function tintPcbGreen(mat: StdMat) {
+  if (!mat.map) return;
+  mat.onBeforeCompile = (shader) => {
+    shader.fragmentShader = shader.fragmentShader.replace(
+      '#include <map_fragment>',
+      `#include <map_fragment>
+      {
+        float mx = max(diffuseColor.r, max(diffuseColor.g, diffuseColor.b));
+        bool olive = mx > 0.03 && mx < 0.45 && diffuseColor.g >= diffuseColor.r * 0.95 && diffuseColor.g > diffuseColor.b * 1.12;
+        if (olive) {
+          // real Elyssa solder mask is a deep emerald (about #00763A); keep the texture shading on top of it
+          vec3 green = vec3(0.0, 0.181, 0.041) * clamp(mx / 0.15, 0.55, 1.3);
+          diffuseColor.rgb = mix(diffuseColor.rgb, green, 0.92);
+        }
+      }`
+    );
+  };
+  mat.customProgramCacheKey = () => 'elyssa-pcb-green';
   mat.needsUpdate = true;
 }
 
@@ -402,83 +427,56 @@ function prepareModel(
 }
 
 /* ------------------------------------------------------------------ */
-/*  Selection boxes (acid yellow/green bounding boxes from moovma)    */
+/*  Selection boxes: explicit per-part boxes measured on the board art  */
 /* ------------------------------------------------------------------ */
-function splitByDistance(meshes: THREE.Mesh[], board: Board): THREE.Mesh[][] {
-  const gap = board.max * CONFIG.clusterGap;
-  const boxes = meshes.map((m) => (m.userData.box as THREE.Box3).clone().expandByScalar(gap));
-  const parent = meshes.map((_, i) => i);
-  const find = (i: number): number => (parent[i] === i ? i : (parent[i] = find(parent[i])));
-  for (let i = 0; i < meshes.length; i++) {
-    for (let j = i + 1; j < meshes.length; j++) {
-      if (boxes[i].intersectsBox(boxes[j])) parent[find(i)] = find(j);
-    }
-  }
-  const clusters = new Map<number, THREE.Mesh[]>();
-  meshes.forEach((mesh, i) => {
-    const r = find(i);
-    if (!clusters.has(r)) clusters.set(r, []);
-    clusters.get(r)!.push(mesh);
-  });
-  return Array.from(clusters.values());
-}
+// Pixel boxes [x0, y0, x1, y1] on /elyssa_images/elyssa_top.png (1358x2576 view) and
+// elyssa_buttom.png (869x2069 view). The board frame inside each image is given below;
+// the bottom image is mirrored because the board is flipped around its Y axis.
+const TOP_FRAME = { x: 70, y: 10, w: 1218, h: 2560 };
+const BOTTOM_FRAME = { x: 35, y: 5, w: 800, h: 2055 };
 
-function groupsFor(
-  key: string,
-  modelRoot: THREE.Object3D,
-  componentMeshes: Record<string, THREE.Mesh[]>,
-  board: Board
-): THREE.Mesh[][] {
-  const names = CONFIG.partNames[key] || [];
-  const groups: THREE.Mesh[][] = [];
-  names.forEach((n) => {
-    const set = new Set<THREE.Mesh>();
-    modelRoot.traverse((node) => {
-      const hit = n instanceof RegExp ? n.test(node.name) : n.toLowerCase() === node.name.toLowerCase();
-      if (hit) {
-        node.traverse((c) => {
-          if ((c as THREE.Mesh).isMesh && isPartRole(c as THREE.Mesh)) set.add(c as THREE.Mesh);
-        });
-      }
-    });
-    if (set.size) groups.push(Array.from(set));
-  });
-  if (!groups.length && (componentMeshes[key] || []).length) groups.push(componentMeshes[key]);
-  return groups.flatMap((meshes) => splitByDistance(meshes, board));
-}
+const PART_BOXES: Record<string, { side: 1 | -1; px: [number, number, number, number][] }> = {
+  mcu: { side: 1, px: [[525, 470, 820, 760]] },
+  imu: { side: 1, px: [[730, 1205, 865, 1340]] },
+  bms: { side: 1, px: [[670, 1730, 835, 1860]] },
+  buck: { side: 1, px: [[270, 1790, 560, 1945]] },
+  rgb: {
+    side: 1,
+    px: [
+      [1160, 1270, 1288, 1440],
+      [118, 390, 242, 845],
+    ],
+  },
+  sd: { side: -1, px: [[205, 1320, 620, 2005]] },
+};
 
-function createSelectionBox(
-  component: string,
-  modelRoot: THREE.Object3D,
-  componentMeshes: Record<string, THREE.Mesh[]>,
-  board: Board
-): THREE.Group {
-  modelRoot.updateWorldMatrix(true, true);
-  const inv = new T.Matrix4().copy(modelRoot.matrixWorld).invert();
-  const m = new T.Matrix4();
-  const tmp = new T.Box3();
-  const pad = board.max * CONFIG.boxPadding * 2;
+function createSelectionBox(component: string, board: Board): THREE.Group {
   const selectionGroup = new T.Group();
+  const def = PART_BOXES[component];
+  if (!def) return selectionGroup;
 
-  groupsFor(component, modelRoot, componentMeshes, board).forEach((meshes) => {
-    const box = new T.Box3();
-    meshes.forEach((mesh) => {
-      if (!mesh.geometry.boundingBox) mesh.geometry.computeBoundingBox();
-      m.multiplyMatrices(inv, mesh.matrixWorld);
-      tmp.copy(mesh.geometry.boundingBox!).applyMatrix4(m);
-      box.union(tmp);
-    });
-    if (box.isEmpty()) return;
-    const size = box.getSize(new T.Vector3()).addScalar(pad);
-    const center = box.getCenter(new T.Vector3());
-    const cube = new T.BoxGeometry(size.x, size.y, size.z);
+  const frame = def.side === 1 ? TOP_FRAME : BOTTOM_FRAME;
+  const pad = board.max * CONFIG.boxPadding;
+  const depth = board.d * 0.55;
+
+  def.px.forEach(([x0, y0, x1, y1]) => {
+    // pixel -> normalised board coordinates (-0.5..0.5), +y up, mirrored on the back side
+    const nx = (x: number) => ((x - frame.x) / frame.w) * (def.side === 1 ? 1 : -1) + (def.side === 1 ? -0.5 : 0.5);
+    const ny = (y: number) => 0.5 - (y - frame.y) / frame.h;
+    const ax = nx(x0);
+    const bx = nx(x1);
+    const cx = ((ax + bx) / 2) * board.w;
+    const cy = ((ny(y0) + ny(y1)) / 2) * board.h;
+    const sx = Math.abs(bx - ax) * board.w + pad * 2;
+    const sy = Math.abs(ny(y1) - ny(y0)) * board.h + pad * 2;
+    const cube = new T.BoxGeometry(sx, sy, depth);
 
     const fill = new T.Mesh(
       cube,
       new T.MeshBasicMaterial({
         color: CONFIG.boxColor,
         transparent: true,
-        opacity: CONFIG.boxFillOpacity,
+        opacity: 0,
         depthTest: false,
         depthWrite: false,
         toneMapped: false,
@@ -486,16 +484,12 @@ function createSelectionBox(
     );
     const edges = new T.LineSegments(
       new T.EdgesGeometry(cube),
-      new T.LineBasicMaterial({
-        color: CONFIG.boxColor,
-        depthTest: false,
-        toneMapped: false,
-      })
+      new T.LineBasicMaterial({ color: CONFIG.boxColor, depthTest: false, toneMapped: false })
     );
     [fill, edges].forEach((o) => {
-      o.position.copy(center);
+      o.position.set(cx, cy, def.side * board.d * 0.2);
       o.renderOrder = 10;
-      o.userData.isSelection = true;
+      o.scale.setScalar(0.6);
       selectionGroup.add(o);
     });
   });
@@ -544,6 +538,9 @@ function getOrLoadModel(libs: ThreeLibs): Promise<LoadedData> {
 
       const prepared = prepareModel(model, board);
       cachedModelData = { model, board, componentMeshes: prepared.componentMeshes };
+      model.traverse((o) => {
+        if ((o as THREE.Mesh).isMesh) matsOf(o as THREE.Mesh).forEach(tintPcbGreen);
+      });
       return cachedModelData;
     } catch (error) {
       cachedModelPromise = null; // allow a retry on the next mount
@@ -580,6 +577,7 @@ function createViewer(container: HTMLDivElement, libs: ThreeLibs, cb: ViewerCall
   let componentMeshesMap: Record<string, THREE.Mesh[]> = {};
   let selectionBox: THREE.Group | null = null;
   let targetFlip = 0;
+  let selectionBorn = 0;
 
   /* Renderer matching moovma.github.io */
   let renderer: THREE.WebGLRenderer;
@@ -590,7 +588,7 @@ function createViewer(container: HTMLDivElement, libs: ThreeLibs, cb: ViewerCall
     cb.onError('3D preview needs WebGL');
     return { focusComponent: () => {}, dispose: () => {} };
   }
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, CONFIG.maxPixelRatio));
+  renderer.setPixelRatio(Math.min(Math.max(window.devicePixelRatio || 1, CONFIG.minPixelRatio), CONFIG.maxPixelRatio));
   renderer.outputColorSpace = T.SRGBColorSpace;
   renderer.toneMapping = T.NoToneMapping;
   renderer.setSize(container.clientWidth || 600, container.clientHeight || 520);
@@ -657,8 +655,8 @@ function createViewer(container: HTMLDivElement, libs: ThreeLibs, cb: ViewerCall
   };
 
   const clearHighlight = () => {
-    if (selectionBox && modelRoot) {
-      modelRoot.remove(selectionBox);
+    if (selectionBox) {
+      flipGroup.remove(selectionBox);
       selectionBox.traverse((o) => {
         const m = o as THREE.Mesh;
         if (m.geometry) m.geometry.dispose();
@@ -672,8 +670,9 @@ function createViewer(container: HTMLDivElement, libs: ThreeLibs, cb: ViewerCall
     if (!modelRoot) return;
     targetFlip = componentView[key]?.flip ?? 0;
     clearHighlight();
-    selectionBox = createSelectionBox(key, modelRoot, componentMeshesMap, board);
-    modelRoot.add(selectionBox);
+    selectionBox = createSelectionBox(key, board);
+    selectionBorn = clock.elapsedTime;
+    flipGroup.add(selectionBox);
   };
 
   /* Mount the (cached) model into our scene */
@@ -687,11 +686,19 @@ function createViewer(container: HTMLDivElement, libs: ThreeLibs, cb: ViewerCall
     scene.updateMatrixWorld(true);
 
     const distance = board.max * 4;
-    camera.position.set(0, 0, distance);
+    // Start looking at the board from slightly below and to the side
+    const elev = -0.3;
+    const azim = -0.38;
+    camera.position.set(
+      distance * Math.sin(azim) * Math.cos(elev),
+      distance * Math.sin(elev),
+      distance * Math.cos(azim) * Math.cos(elev)
+    );
     camera.near = distance - board.max * 2;
     camera.far = distance + board.max * 2;
     camera.lookAt(0, 0, 0);
 
+    flipGroup.rotation.y = -1.1; // swing in to the resting position
     resize();
     controls.update();
     cb.onStatus('3D model ready');
@@ -717,6 +724,19 @@ function createViewer(container: HTMLDivElement, libs: ThreeLibs, cb: ViewerCall
         Math.sin(t * 0.7) * CONFIG.swayAmount * 1.3,
         0
       );
+    }
+    if (selectionBox) {
+      const age = t - selectionBorn;
+      const pop = Math.min(age / 0.45, 1);
+      const eased = 1 - Math.pow(1 - pop, 3);
+      const wave = Math.sin(age * 3.2);
+      selectionBox.children.forEach((o) => {
+        const mesh = o as THREE.Mesh;
+        o.scale.setScalar((0.6 + 0.4 * eased) * (1 + wave * 0.025));
+        if (mesh.isMesh) {
+          (mesh.material as THREE.Material).opacity = CONFIG.boxFillOpacity * eased * (0.75 + 0.25 * wave);
+        }
+      });
     }
     controls.update(); // required for damping
     renderer.render(scene, camera);
@@ -904,7 +924,7 @@ export default function ThreeViewer({ onReadyChange }: ThreeViewerProps) {
           </p>
         </div>
         <div className="anatomy-layout anatomy-scroll">
-          <div className="model-frame model-sticky reveal">
+          <div className="model-frame model-sticky">
             <div className="model-status" role="status">
               <span className={`status-dot${ready ? ' is-ready' : ' is-loading'}`}></span>
               <span>{statusMessage}</span>

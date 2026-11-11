@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic';
 const ThreeViewer = dynamic(() => import('./ThreeViewer'), {
   ssr: false,
   loading: () => (
-    <div className="model-frame model-sticky reveal" style={{ minHeight: '420px' }}>
+    <div className="model-frame model-sticky" style={{ minHeight: '420px' }}>
       <div className="model-placeholder-loader">
         <div className="viewer-radar-loader">
           <div className="radar-ring" />

@@ -5,6 +5,8 @@ import Link from 'next/link';
 import Footer from '@/components/Footer';
 
 const PRICE_OPTIONS = ['80 DT', '95 DT', '110 DT', '130 DT', '150 DT'];
+const UNIT_PRICE = 70; // DT, official price per board
+const MAX_QTY = 10;
 
 export default function PreorderPage() {
   const [mounted, setMounted]         = useState(false);
@@ -16,6 +18,8 @@ export default function PreorderPage() {
   const [isStudent, setIsStudent]     = useState(true);
   const [college, setCollege]         = useState('');
   const [offeredPrice, setOfferedPrice] = useState('95 DT');
+  const [quantity, setQuantity]       = useState(1);
+  const [covering, setCovering]       = useState(false); // black wipe is running
   const [loading, setLoading]         = useState(false);
   const [error, setError]             = useState<string | null>(null);
   const [submitted, setSubmitted]     = useState(false);
@@ -41,12 +45,12 @@ export default function PreorderPage() {
       const res = await fetch('/api/preorder', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ firstName, familyName, age: parseInt(age) || 0, email, phone, isStudent, college, offeredPrice }),
+        body: JSON.stringify({ firstName, familyName, age: parseInt(age) || 0, email, phone, isStudent, college, offeredPrice, quantity }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Submission failed.');
       setActualPrice(data.actualPrice || '70 DT');
-      setSubmitted(true);
+      setCovering(true); // black rises from the bottom; the confirmation appears when it ends
     } catch (err: any) {
       setError(err.message || 'Something went wrong.');
     } finally {
@@ -54,16 +58,26 @@ export default function PreorderPage() {
     }
   };
 
+  const finishWipe = () => {
+    window.scrollTo(0, 0);
+    setSubmitted(true);
+    setCovering(false);
+  };
+
+  const total = UNIT_PRICE * quantity;
+
   return (
-    <div className="preorder-page-wrapper" suppressHydrationWarning>
+    <div className={`preorder-page-wrapper${submitted ? ' is-inverted' : ''}`} suppressHydrationWarning>
+
+      {covering && <div className="po-wipe" onAnimationEnd={finishWipe} aria-hidden="true" />}
 
       {/* ── Top nav ── */}
       <div className="preorder-top-nav">
         <div className="section-wrap po-nav-inner">
           <Link href="/" className="brand" aria-label="Moovma home">
-            <img src="/PNG/Moovma Black@2x.png" alt="Moovma" />
+            <img src={submitted ? '/PNG/Moovma White@2x.png' : '/PNG/Moovma Black@2x.png'} alt="Moovma" />
           </Link>
-          <Link href="/" className="text-link">&larr; Overview</Link>
+          <Link href="/elyssa" className="text-link">&larr; Overview</Link>
         </div>
       </div>
 
@@ -89,13 +103,17 @@ export default function PreorderPage() {
                   <span className="po-price-val">{actualPrice}</span>
                 </div>
               </div>
+              <div className="po-total-row">
+                <span>{quantity} × Elyssa</span>
+                <strong>{total} DT</strong>
+              </div>
               <p className="po-confirm-body">
                 {firstName} {familyName}{isStudent && college ? ` (${college})` : ''}, your reservation is in. Elyssa is priced at <strong>70 DT</strong> — built to stay accessible for makers and students across Tunisia.
               </p>
               <div className="po-notice">
                 You will receive a confirmation call at <strong>{phone}</strong> or an email at <strong>{email}</strong>.
               </div>
-              <Link href="/" className="button button-dark" style={{ marginTop: 28, display: 'inline-flex' }}>
+              <Link href="/elyssa" className="button button-dark" style={{ marginTop: 28, display: 'inline-flex' }}>
                 Back to overview
               </Link>
             </div>
@@ -180,6 +198,18 @@ export default function PreorderPage() {
                     />
                   </div>
                 )}
+
+                {/* Quantity */}
+                <div className="po-field">
+                  <label htmlFor="quantity">How many Elyssas?</label>
+                  <div className="po-qty" role="group" aria-label="Quantity">
+                    <button type="button" aria-label="Fewer" disabled={quantity <= 1}
+                      onClick={() => setQuantity(q => Math.max(1, q - 1))}>−</button>
+                    <output id="quantity" aria-live="polite">{quantity}</output>
+                    <button type="button" aria-label="More" disabled={quantity >= MAX_QTY}
+                      onClick={() => setQuantity(q => Math.min(MAX_QTY, q + 1))}>+</button>
+                  </div>
+                </div>
 
                 {/* Price picker */}
                 <div className="po-field">
