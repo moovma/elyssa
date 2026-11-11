@@ -3,9 +3,7 @@ import './globals.css';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import AnalyticsEvents from '../components/AnalyticsEvents';
-
-// The public address of the site. Set NEXT_PUBLIC_SITE_URL in Vercel if the domain ever changes.
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://moovma.vercel.app';
+import { SITE_URL } from '../lib/site';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
