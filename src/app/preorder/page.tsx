@@ -90,7 +90,7 @@ export default function PreorderPage() {
           {submitted ? (
             /* ── Confirmation screen ── */
             <div className="po-confirm">
-              <p className="po-eyebrow">Pre-order registered</p>
+              <p className="po-eyebrow">You are in</p>
               <h1 className="po-confirm-heading">
                 The board costs <em>{actualPrice}</em>
               </h1>
@@ -110,10 +110,16 @@ export default function PreorderPage() {
                 <strong>{total} DT</strong>
               </div>
               <p className="po-confirm-body">
-                {firstName} {familyName}{isStudent && college ? ` (${college})` : ''}, your reservation is in. Elyssa is priced at <strong>70 DT</strong> — built to stay accessible for makers and students across Tunisia.
+                Thank you, {firstName}{isStudent && college ? ` (${college})` : ''}! Your reservation is in, and you are officially part of the first batch of builders. Elyssa costs just <strong>70 DT</strong>, a price set to keep real hardware within reach of makers and students across Tunisia.
               </p>
               <div className="po-notice">
                 You will receive a confirmation call at <strong>{phone}</strong> or an email at <strong>{email}</strong>.
+              </div>
+              <div className="po-next">
+                <p>While you wait</p>
+                <Link href="/elyssa#quickstart">Read the four-step quick start →</Link>
+                <Link href="/docs">Browse the technical docs →</Link>
+                <a href="https://github.com/moovma/Elyssa-dev-board" target="_blank" rel="noreferrer">Explore the code on GitHub ↗</a>
               </div>
               <Link href="/elyssa" className="button button-dark" style={{ marginTop: 28, display: 'inline-flex' }}>
                 Back to overview
@@ -125,7 +131,7 @@ export default function PreorderPage() {
             <div className="po-form-card">
               <p className="po-eyebrow">Batch 01 — Reservation</p>
               <h1 className="po-form-heading">Reserve your <em>Elyssa</em></h1>
-              <p className="po-form-sub">Fill in your details to secure a unit from the first run.</p>
+              <p className="po-form-sub">Be one of the first to build with Elyssa, the first dev board made in Tunisia. It takes about a minute and costs nothing today.</p>
 
               {error && <div className="form-error-banner">{error}</div>}
 

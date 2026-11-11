@@ -6,20 +6,27 @@ import ShopGallery from '../../components/ShopGallery';
 import ScrollReveal from '../../components/ScrollReveal';
 import { getProductImages } from '../../lib/moovma';
 import { CONTACT_EMAIL } from '../../lib/elyssa-docs';
+import Gfx, { CONTENT_RIGHT } from '../../components/Gfx';
 
 export const metadata: Metadata = {
-  title: 'Moovma shop: Elyssa dev board',
-  description: 'Buy the Elyssa ESP32-S3 development board from Moovma. Pre-order the first production batch from Tunisia.',
+  title: 'Shop: Elyssa, the first dev board made in Tunisia',
+  description: 'Reserve Elyssa, the first dev board made in Tunisia. Wi-Fi, Bluetooth 5, motion sensing and LiPo charging on one open-source board. No payment now.',
 };
 
 const HIGHLIGHTS = [
-  'ESP32-S3FN8: dual-core 240 MHz, Wi-Fi and Bluetooth LE 5, 8 MB flash',
-  'Native USB-C: program and debug over one cable',
-  '6-axis IMU (LSM6DS3TR-C) on its own I2C bus',
-  'microSD slot on a dedicated SPI bus',
-  'RGB LED, BOOT button, Qwiic connector',
-  'LiPo charger (BQ24092) with optional battery sense',
-  'Arduino IDE support with built-in LED and IMU functions',
+  'Wi-Fi and Bluetooth LE 5: connect to the cloud, your phone or your own network',
+  'Dual-core 240 MHz ESP32-S3 with 8 MB flash: fast enough for real projects',
+  'Built-in motion sensor: tap, tilt, shake and step detection out of the box',
+  'LiPo charger on board: run from a battery and charge over USB-C',
+  'microSD slot and Qwiic connector: store data and add sensors without soldering',
+  'Works with Arduino IDE 2, with LED and motion functions already built in',
+  'Open source: the schematic, code and docs are yours to read and remix',
+];
+
+const STEPS = [
+  { n: '1', title: 'Reserve', text: 'Fill in the short form and pick how many boards you want. It takes about a minute.' },
+  { n: '2', title: 'We get in touch', text: 'You pay nothing now. We contact you before any charge to confirm your order.' },
+  { n: '3', title: 'Start building', text: 'Your Elyssa arrives ready for the Arduino IDE, with a four-step quick start waiting for you.' },
 ];
 
 const INCLUDED = [
@@ -47,11 +54,10 @@ export default function ShopPage() {
             <ShopGallery images={images} />
 
             <div className="shop-info">
-              <p className="eyebrow">Dev board · Batch 01</p>
+              <p className="eyebrow">The first dev board made in Tunisia · Batch 01</p>
               <h1>Elyssa</h1>
               <p className="shop-desc">
-                The first Tunisian ESP32-S3 development board by Moovma. Motion sensing, wireless connectivity and a
-                documentation-first workflow, built for curious makers.
+                Elyssa is the first dev board made in Tunisia, and it is built for people like you: curious, hands-on and ready to create. Wi-Fi, Bluetooth, motion sensing and battery charging all come ready on one tiny board.
               </p>
 
               <ul className="shop-list">
@@ -59,14 +65,23 @@ export default function ShopPage() {
               </ul>
 
               <div className="shop-links">
-                <Link href="/preorder" className="button button-acid">Pre-order Elyssa</Link>
-                <Link href="/elyssa" className="button button-dark">Overview</Link>
+                <Link href="/preorder" className="button button-acid">Reserve your Elyssa</Link>
+                <Link href="/elyssa" className="button button-dark">Discover Elyssa</Link>
               </div>
 
+              <ol className="shop-steps" aria-label="How pre-ordering works">
+                {STEPS.map((s) => (
+                  <li key={s.n}>
+                    <b>{s.n}</b>
+                    <span><strong>{s.title}</strong>{s.text}</span>
+                  </li>
+                ))}
+              </ol>
+
               <div className="shop-sublinks">
-                <Link href="/elyssa" className="text-link">Overview: 3D anatomy, specs, quick start →</Link>
-                <Link href="/preorder" className="text-link">Pre-order: reserve your board →</Link>
-                <Link href="/docs" className="text-link">Technical docs: schematic, pinout, power →</Link>
+                <Link href="/elyssa" className="text-link">Overview: explore it in 3D, see the specs, follow the quick start →</Link>
+                <Link href="/preorder" className="text-link">Reserve: secure your board in a minute →</Link>
+                <Link href="/docs" className="text-link">Technical docs: schematic, pinout and safe power ranges →</Link>
               </div>
             </div>
           </article>
@@ -74,9 +89,10 @@ export default function ShopPage() {
       </section>
 
       <section className="mv-band mv-dark shop-included">
+      <Gfx shape="wave" color="d2" size={170} right={CONTENT_RIGHT} top={110} />
         <div className="section-wrap">
           <div className="section-label reveal"><span>In the box</span><span>Batch 01</span></div>
-          <h2 className="reveal">Everything to <em>start building.</em></h2>
+          <h2 className="reveal">Open the box.<br /><em>Start building.</em></h2>
           <ul className="spec-list shop-incl-list reveal">
             {INCLUDED.map((x, i) => (
               <li key={x} className="shop-incl-row"><small>{String(i + 1).padStart(2, '0')}</small><span>{x}</span></li>

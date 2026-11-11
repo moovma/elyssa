@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 
 const BOARD_URL =
-  'https://raw.githubusercontent.com/yassinechouk/Elyssa-dev-board/main/elyssa-arduino/package_moovma_elyssa_index.json';
+  'https://raw.githubusercontent.com/moovma/Elyssa-dev-board/main/elyssa-arduino/package_moovma_elyssa_index.json';
 
 export default function QuickStart() {
   const [copied, setCopied] = useState(false);
@@ -31,10 +31,9 @@ export default function QuickStart() {
       </div>
       <div className="quick-grid">
         <div className="quick-intro reveal">
-          <h2>Blink in<br />four <em>steps.</em></h2>
+          <h2>From box to blink<br />in four <em>steps.</em></h2>
           <p>
-            Elyssa works with the Arduino IDE. Install the board package once, plug in the board, and upload your first sketch in a few minutes.
-          </p>
+            No ESP32 experience needed. If you have ever used Arduino, you already know the way. Four steps and the on-board LED is yours.</p>
           <a
             className="text-link"
             href="https://github.com/moovma/Elyssa-dev-board#getting-started-arduino-ide"
@@ -49,7 +48,7 @@ export default function QuickStart() {
           <li className="quick-step reveal">
             <span className="quick-number">01</span>
             <div className="quick-body">
-              <h3>Install Arduino IDE 2</h3>
+              <h3>Get Arduino IDE 2</h3>
               <p>Download and install the latest Arduino IDE 2 for your system. On Linux and macOS you also need Python 3.</p>
               <a className="button button-dark" href="https://www.arduino.cc/en/software" target="_blank" rel="noreferrer">
                 Download Arduino IDE <span>↗</span>
@@ -60,7 +59,7 @@ export default function QuickStart() {
           <li className="quick-step reveal">
             <span className="quick-number">02</span>
             <div className="quick-body">
-              <h3>Add the Elyssa board package</h3>
+              <h3>Add the Elyssa package</h3>
               <p>Open <strong>File → Preferences</strong> and paste this link in <strong>Additional boards manager URLs</strong>:</p>
               <div className="code-block">
                 <code>{BOARD_URL}</code>
@@ -79,7 +78,7 @@ export default function QuickStart() {
           <li className="quick-step reveal">
             <span className="quick-number">03</span>
             <div className="quick-body">
-              <h3>Connect the board</h3>
+              <h3>Plug in and select</h3>
               <p>
                 Plug Elyssa in with a USB-C <strong>data</strong> cable. Select <strong>Tools → Board → Moovma → Elyssa</strong>, then <strong>Tools → Port</strong> and pick the port labelled <strong>Elyssa</strong>. Leave the other Tools options at their defaults.
               </p>
@@ -89,8 +88,8 @@ export default function QuickStart() {
           <li className="quick-step reveal">
             <span className="quick-number">04</span>
             <div className="quick-body">
-              <h3>Upload your first sketch</h3>
-              <p>Open <strong>File → Examples → 01.Basics → Blink</strong> and click <strong>Upload</strong>. The on-board LED starts blinking.</p>
+              <h3>Upload Blink and celebrate</h3>
+              <p>Open <strong>File → Examples → 01.Basics → Blink</strong> and click <strong>Upload</strong>. The on-board LED starts blinking: your first program is running on the first dev board made in Tunisia.</p>
               <div className="quick-note">
                 <span className="quick-note-label">If the upload fails</span>
                 <p>Hold <strong>BOOT</strong>, press and release <strong>RESET</strong>, then release <strong>BOOT</strong>. Select the port that appears and upload again. This is usually only needed once.</p>

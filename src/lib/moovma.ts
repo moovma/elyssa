@@ -50,22 +50,22 @@ export const SERVICES = [
   {
     n: '01',
     title: 'Hardware & PCB design',
-    text: 'Schematics, multi-layer PCB layout and 3D-checked boards, from dev boards to mains-powered controllers.',
+    text: 'Got an idea? We turn it into schematics, a clean multi-layer layout and a 3D-checked board that works the first time, from dev boards to mains-powered controllers.',
   },
   {
     n: '02',
     title: 'Embedded firmware',
-    text: 'ESP32, STM32 and more: Arduino board packages, drivers and libraries so a board works on day one.',
+    text: 'ESP32, STM32 and more. We write the drivers, libraries and Arduino board packages, so your board does something useful on day one.',
   },
   {
     n: '03',
-    title: 'Prototyping to small batch',
-    text: 'Design for manufacture with partners such as NextPCB, using parts that are available in Tunisia.',
+    title: 'From prototype to small batch',
+    text: 'We design for manufacture with partners such as NextPCB, and choose parts you can actually buy in Tunisia, so going from one board to fifty is smooth.',
   },
   {
     n: '04',
     title: 'Open knowledge & community',
-    text: 'Everything we can is open source. Docs, videos and exhibitions to grow the hardware community in Tunisia.',
+    text: 'We open-source what we can and explain how it works through docs, videos and exhibitions, so more Tunisians can build, not just buy.',
   },
 ];
 
@@ -86,7 +86,7 @@ export const PRODUCTS: Product[] = [
   {
     id: 'elyssa',
     name: 'Elyssa',
-    tagline: 'The first Tunisian ESP32-S3 dev board: Wi-Fi, BLE 5, 6-axis IMU, LiPo charging, microSD.',
+    tagline: 'The first dev board made in Tunisia: Wi-Fi, Bluetooth 5, motion sensing and LiPo charging on one tiny, open-source board that works with Arduino.',
     specs: ['ESP32-S3FN8', '240 MHz dual-core', 'USB-C', 'Qwiic'],
     href: '/elyssa',
     featured: true,

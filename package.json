@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "images": "node scripts/optimize-images.mjs"
+    "images": "node scripts/optimize-images.mjs",
+    "graphics": "node scripts/remake-graphics.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.119.0",

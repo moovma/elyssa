@@ -4,6 +4,7 @@ import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import ContactForm from '../../components/ContactForm';
 import PinTableDownload from '../../components/PinTableDownload';
+import Gfx, { CONTENT_RIGHT } from '../../components/Gfx';
 import {
   BOARD_BOTTOM_IMG,
   BOARD_TOP_IMG,
@@ -32,14 +33,14 @@ export default function DocsPage() {
 
       {/* white */}
       <header className="docs-hero section-wrap">
+      <Gfx shape="clover" color="g2" size={150} right={0} top={36} spin />
         <p className="eyebrow">Technical documentation · Elyssa</p>
         <h1>
           Everything you need<br />
           to <em>wire it up.</em>
         </h1>
         <p className="hero-intro">
-          Schematic, pinout, which pins are safe for what, and the power and voltage limits. Data comes from the board
-          files and the open-source repository.
+          Do not guess, check. The schematic, the pinout, which pins are safe for what, and the power limits, straight from the board files and the open-source repository. Built to save you hours (and a few chips).
         </p>
         <nav className="docs-jump" aria-label="On this page">
           <a href="#downloads">Downloads</a>

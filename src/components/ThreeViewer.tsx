@@ -104,42 +104,42 @@ const COMPONENTS: ComponentInfo[] = [
     id: 'mcu',
     num: '01',
     title: 'ESP32-S3FN8 MCU',
-    description: "The board's main computer: dual-core 240 MHz processing with Wi-Fi and Bluetooth LE 5 for connected builds.",
+    description: 'The brain of Elyssa: two cores running at 240 MHz, with Wi-Fi and Bluetooth LE 5 built right in. Fast enough for real projects.',
     flip: 0,
   },
   {
     id: 'imu',
     num: '02',
     title: '6-axis IMU',
-    description: 'The LSM6DS3TR-C reads acceleration, rotation and temperature on its own I2C bus, ready for gestures and orientation.',
+    description: 'Feel every tilt, tap and shake. The LSM6DS3TR-C reads acceleration, rotation and temperature on its own private bus, so gestures just work.',
     flip: 0,
   },
   {
     id: 'bms',
     num: '03',
     title: 'LiPo / BMS',
-    description: 'The onboard BQ24092 handles battery charging and power-path management for portable prototypes.',
+    description: 'Take your project anywhere. The BQ24092 charges a LiPo battery and manages power for you, so Elyssa runs from USB or from the battery.',
     flip: 0,
   },
   {
     id: 'buck',
     num: '04',
     title: 'Buck converter',
-    description: 'A dedicated power rail keeps the board supplied efficiently when your project is drawing current.',
+    description: 'A dedicated power converter keeps the board steady and efficient, even when your project starts drawing serious current.',
     flip: 0,
   },
   {
     id: 'rgb',
     num: '05',
     title: 'RGB LED array',
-    description: 'Three independent channels give your firmware an immediate visual signal: red, green, blue or any mix.',
+    description: 'Instant feedback for your code. Three independent channels give you red, green, blue or any colour you can mix.',
     flip: 0,
   },
   {
     id: 'sd',
     num: '06',
     title: 'microSD socket',
-    description: 'Local storage on a dedicated SPI bus. Selecting this step turns the board to reveal the socket on the back.',
+    description: 'Store photos, logs and data on a card, on its own SPI bus. Selecting this step flips the board to show the socket on the back.',
     flip: Math.PI,
   },
 ];
@@ -918,10 +918,10 @@ export default function ThreeViewer({ onReadyChange }: ThreeViewerProps) {
         </div>
         <div className="anatomy-heading">
           <h2 className="reveal">
-            Meet the parts<br />that make <em>Elyssa.</em>
+            Spin it.<br />Tap a part. <em>See inside.</em>
           </h2>
           <p className="reveal delay-one">
-            Rotate the board and inspect the components that matter. Passive parts stay quiet so the real architecture can come forward.
+            Elyssa is a real board, so we show it like one. Drag to rotate, then tap a part to see what it does. The chips that matter light up, and the rest stays out of your way.
           </p>
         </div>
         <div className="anatomy-layout anatomy-scroll">

@@ -941,3 +941,96 @@ img, svg, video, canvas { max-width: 100%; }
   .model-hint { left: 16px; bottom: 16px; max-width: calc(100% - 130px); }
   .axis-legend { right: 16px; bottom: 16px; }
 }
+
+/* ============================
+   GRAPHIC ELEMENTS (public/graphics/shapes): a few quiet decorative shapes
+   Pure vector masks, recoloured with CSS. Grayscale only (plus the brand acid on the home hero).
+   They only show on wide screens, where there is free space beside the content.
+   ============================ */
+.hero, .intro, .spec-section, .quick-section, .anatomy-section, .preorder-section, .docs-teaser,
+.mv-hero, .mv-band, .docs-hero, .docs-band, .shop-hero, .preorder-main-container { position: relative; overflow: clip; }
+.section-wrap, .hero-copy, .hero-logo-wrap, .po-content-wrap { position: relative; z-index: 1; }
+
+.gfx { display: none; position: absolute; z-index: 0; width: var(--w, 160px); pointer-events: none; user-select: none; rotate: var(--rot, 0deg); }
+@media (min-width: 1000px) { .gfx { display: block; animation: gfx-in 1s ease both; } }
+.gfx-shape { display: block; width: 100%; aspect-ratio: var(--ar, 1); background-color: var(--c, #e6e6e6); -webkit-mask: var(--mask) center / contain no-repeat; mask: var(--mask) center / contain no-repeat; }
+.gfx-clover   { --mask: url('/graphics/shapes/clover.svg');   --ar: 1; }
+.gfx-blocks   { --mask: url('/graphics/shapes/blocks.svg');   --ar: 1.12; }
+.gfx-gem      { --mask: url('/graphics/shapes/gem.svg');      --ar: 1.0695; }
+.gfx-pinwheel { --mask: url('/graphics/shapes/pinwheel.svg'); --ar: 1; }
+.gfx-wave     { --mask: url('/graphics/shapes/wave.svg');     --ar: 2.37; }
+
+/* black to white, light steps: g1 is the lightest, g5 the darkest */
+.gfx-c-acid { --c: #ccff00; }
+.gfx-c-ink  { --c: #000; }
+.gfx-c-white { --c: #fff; }
+.gfx-c-g1 { --c: #f2f2f2; } .gfx-c-g2 { --c: #e6e6e6; } .gfx-c-g3 { --c: #d4d4d4; }
+.gfx-c-d1 { --c: #1c1c1c; } .gfx-c-d2 { --c: #262626; } .gfx-c-d3 { --c: #333; }
+
+.gfx-spin-slow { animation: gfx-spin 60s linear infinite; }
+@keyframes gfx-spin { to { rotate: 360deg; } }
+@keyframes gfx-in { from { opacity: 0; } to { opacity: var(--o, 1); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .gfx, .gfx-shape { animation: none !important; }
+}
+
+/* small proof chips under the hero buttons */
+.hero-proof { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; padding: 0; margin: 30px 0 0; }
+.hero-proof li { font: 10px var(--mono); text-transform: uppercase; letter-spacing: .07em; border: 1px solid var(--line); border-radius: 9999px; padding: 7px 13px; color: #444; }
+
+/* "What will you build?" ideas strip */
+.ideas { margin-top: 72px; border-top: 1px solid var(--ink); padding-top: 36px; }
+.ideas-head { display: flex; justify-content: space-between; align-items: baseline; gap: 24px; flex-wrap: wrap; margin-bottom: 28px; }
+.ideas-head h3 { font-size: clamp(30px, 3.4vw, 46px); }
+.ideas-head h3 em { font-style: italic; }
+.ideas-head p { color: var(--muted); margin: 0; max-width: 340px; font-size: 14px; line-height: 1.65; }
+.ideas-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; border-top: 1px solid var(--line); }
+.ideas-list li { display: flex; flex-direction: column; gap: 10px; padding: 22px 18px 26px 0; border-right: 1px solid var(--line); padding-left: 18px; }
+.ideas-list li:first-child { padding-left: 0; }
+.ideas-list li:last-child { border-right: 0; }
+.ideas-list small { font: 10px var(--mono); color: var(--muted); letter-spacing: .07em; }
+.ideas-list strong { font-family: var(--serif); font-weight: 400; font-size: 21px; letter-spacing: -.02em; line-height: 1.15; }
+.ideas-list span { color: var(--muted); font-size: 13px; line-height: 1.65; }
+@media (max-width: 900px) { .ideas-list { grid-template-columns: 1fr 1fr; } .ideas-list li { border-right: 0; border-bottom: 1px solid var(--line); padding-left: 0; } }
+@media (max-width: 520px) { .ideas-list { grid-template-columns: 1fr; } }
+
+/* FAQ (native <details>, works without JavaScript) */
+.faq { margin-top: 88px; display: grid; grid-template-columns: .8fr 1.2fr; gap: 56px; align-items: start; border-top: 1px solid var(--ink); padding-top: 40px; }
+.faq-head h3 { font-size: clamp(32px, 3.6vw, 48px); }
+.faq-head h3 em { font-style: italic; }
+.faq-head p { color: var(--muted); margin: 16px 0 0; font-size: 14px; line-height: 1.65; }
+.faq-list { border-top: 1px solid var(--line); }
+.faq-item { border-bottom: 1px solid var(--line); }
+.faq-item summary { list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 22px 0; font-family: var(--serif); font-size: 22px; letter-spacing: -.02em; min-height: 44px; }
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item summary::after { content: '+'; font: 400 22px var(--mono); transition: transform .25s; flex-shrink: 0; }
+.faq-item[open] summary::after { transform: rotate(45deg); }
+.faq-item summary:hover { color: var(--muted); }
+.faq-item p { margin: 0 0 22px; max-width: 560px; color: var(--muted); font-size: 14.5px; line-height: 1.75; animation: faq-in .3s ease; }
+@keyframes faq-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+@media (max-width: 900px) { .faq { grid-template-columns: 1fr; gap: 28px; margin-top: 64px; } .faq-item summary { font-size: 19px; } }
+
+/* "Where to start" cards on the Moovma home page */
+.mv-start { padding: 40px 0 44px; background: #fff; }
+.mv-start-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.mv-start-card { position: relative; display: flex; flex-direction: column; gap: 8px; border: 1px solid var(--line); padding: 20px 56px 20px 22px; transition: border-color .2s, background .2s, transform .2s; }
+.mv-start-card:hover { border-color: var(--ink); background: var(--acid); transform: translateY(-2px); }
+.mv-start-card small { font: 10px var(--mono); text-transform: uppercase; letter-spacing: .07em; color: var(--muted); }
+.mv-start-card:hover small { color: var(--ink); }
+.mv-start-card strong { font-family: var(--serif); font-weight: 400; font-size: 22px; letter-spacing: -.02em; line-height: 1.15; }
+.mv-start-card b { position: absolute; right: 22px; top: 50%; transform: translateY(-50%); font: 400 20px var(--sans); }
+@media (max-width: 760px) { .mv-start-grid { grid-template-columns: 1fr; } }
+
+/* shop: how pre-ordering works */
+.shop-steps { list-style: none; margin: 32px 0 0; padding: 0; border-top: 1px solid var(--ink); }
+.shop-steps li { display: grid; grid-template-columns: 34px 1fr; gap: 14px; align-items: start; padding: 16px 0; border-bottom: 1px solid var(--line); }
+.shop-steps b { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--acid); font: 500 12px var(--mono); }
+.shop-steps span { display: flex; flex-direction: column; gap: 2px; font-size: 13.5px; line-height: 1.6; color: var(--muted); }
+.shop-steps strong { font-family: var(--serif); font-weight: 400; font-size: 20px; letter-spacing: -.02em; color: var(--ink); }
+
+/* pre-order confirmation: what to do while waiting */
+.po-next { margin-top: 24px; display: flex; flex-direction: column; gap: 4px; align-items: flex-start; text-align: left; }
+.po-next p { font: 10px var(--mono); text-transform: uppercase; letter-spacing: .07em; color: #999; margin: 0 0 6px; }
+.po-next a { color: #fff; border-bottom: 1px solid #555; padding: 6px 0; font-size: 14px; transition: border-color .2s, color .2s; }
+.po-next a:hover { color: var(--acid); border-color: var(--acid); }

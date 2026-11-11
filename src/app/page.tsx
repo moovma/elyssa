@@ -10,6 +10,7 @@ import CountUp from '../components/CountUp';
 import WorkGallery from '../components/WorkGallery';
 import { BRAND, PRODUCTS, SERVICES, SOCIALS, getGithub, getProductImages, getWork } from '../lib/moovma';
 import { CONTACT_EMAIL } from '../lib/elyssa-docs';
+import Gfx, { CONTENT_RIGHT } from '../components/Gfx';
 
 export const revalidate = 3600; // refresh the live GitHub numbers at most once an hour
 
@@ -19,8 +20,8 @@ export const metadata: Metadata = {
     'Moovma designs and open-sources electronics in Tunisia: the Elyssa ESP32-S3 dev board, smart power controllers, motor drivers and more. Founded by Bejaoui Hamza.',
 };
 
-const WORDS = ['hardware', 'PCBs', 'firmware', 'open source', 'community'];
-const MARQUEE = ['Hardware', 'PCB design', 'Embedded', 'Open source', 'Made in Tunisia', 'Community'];
+const WORDS = ['board', 'idea', 'project', 'maker', 'invention'];
+const MARQUEE = ['Innovation', 'Hardware', 'PCB design', 'Open source', 'Made in Tunisia', 'The future', 'Community'];
 
 export default async function MoovmaHome() {
   const [gh, work] = await Promise.all([getGithub(), Promise.resolve(getWork())]);
@@ -44,20 +45,20 @@ export default async function MoovmaHome() {
 
       {/* ───────── HERO (white) ───────── */}
       <section className="mv-hero" id="top">
+      <Gfx shape="pinwheel" color="acid" size={190} right={CONTENT_RIGHT} bottom={112} spin />
         <div className="section-wrap">
-          <p className="eyebrow mv-fade" style={{ ['--d' as string]: '0s' }}>Moovma · {BRAND.country}</p>
+          <p className="eyebrow mv-fade" style={{ ['--d' as string]: '0s' }}>Moovma · Made in {BRAND.country}</p>
           <h1 className="mv-fade" style={{ ['--d' as string]: '.08s' }}>
-            We make <HeroWords words={WORDS} /><br />
-            for people who <em>build things.</em>
+            We create the future<br />
+            of <em>Tunisia</em>, one <HeroWords words={WORDS} /> at a time.
           </h1>
           <p className="hero-intro mv-fade" style={{ ['--d' as string]: '.16s' }}>
-            Moovma is a Tunisian hardware company and community. We design, ship and open-source electronics so makers,
-            students and engineers can create, not just consume.
+            Moovma is a Tunisian hardware company and community. We design, build and open-source electronics, from the first dev board made in Tunisia to smart power controllers, so makers, students and engineers can stop importing ideas and start inventing them.
           </p>
           <div className="hero-actions mv-fade" style={{ ['--d' as string]: '.24s' }}>
-            <Link className="button button-acid" href="/shop">Visit the shop</Link>
-            <a className="button button-dark" href="#work">See our work</a>
-            <a className="text-link" href="#about">What is Moovma? <span>↓</span></a>
+            <Link className="button button-acid" href="/shop">Shop Elyssa</Link>
+            <a className="button button-dark" href="#products">See what we build</a>
+            <a className="text-link" href="#about">Our story <span>↓</span></a>
           </div>
           <ul className="mv-social-row mv-fade" style={{ ['--d' as string]: '.32s' }} aria-label="Moovma on social media">
             {SOCIALS.map((s) => (
@@ -78,6 +79,15 @@ export default async function MoovmaHome() {
         </div>
       </section>
 
+      {/* ───────── START HERE (white) ───────── */}
+      <section className="mv-start" aria-label="Where to start">
+        <div className="section-wrap mv-start-grid">
+          <Link href="/shop" className="mv-start-card"><small>I want a board</small><strong>Get your hands on Elyssa</strong><b>→</b></Link>
+          <Link href="/elyssa#quickstart" className="mv-start-card"><small>I want to learn</small><strong>Blink an LED in four steps</strong><b>→</b></Link>
+          <a href="#contact" className="mv-start-card"><small>I have an idea</small><strong>Tell us what you are building</strong><b>↓</b></a>
+        </div>
+      </section>
+
       {/* ───────── ABOUT (black) ───────── */}
       <section className="mv-band mv-dark" id="about">
         <div className="section-wrap">
@@ -86,10 +96,9 @@ export default async function MoovmaHome() {
             <div className="reveal">
               <h2>A movement,<br /><em>not just a startup.</em></h2>
               <p className="mv-lead">
-                Moovma designs and open-sources electronics in Tunisia: from the Elyssa ESP32-S3 dev board to smart
-                power controllers and motor drivers. {BRAND.githubTagline.replace('Creating', 'Our goal is creating')}.
+                Moovma is a Tunisian hardware company and community on a simple mission: put real, open, world-class electronics in the hands of Tunisian makers, students and engineers. From Elyssa, the first dev board made in Tunisia, to smart power controllers and motor drivers, we design it here and share it with everyone. Our goal: the largest hardware community in Tunisia.
               </p>
-              <p className="mv-lead">{BRAND.youtubeTagline}</p>
+              <p className="mv-lead">We believe Tunisia can create, not just consume. And we are proving it, one board at a time.</p>
               <div className="mv-founder">
                 <small>Founded by</small>
                 <strong>{BRAND.founder}</strong>
@@ -125,9 +134,10 @@ export default async function MoovmaHome() {
 
       {/* ───────── SERVICES (white) ───────── */}
       <section className="mv-band" id="services">
+      <Gfx shape="blocks" color="g2" size={130} right={CONTENT_RIGHT} top={104} />
         <div className="section-wrap">
           <div className="section-label reveal"><span>02</span><span>Services</span></div>
-          <h2 className="reveal">What we <em>do for you.</em></h2>
+          <h2 className="reveal">How we help <em>you build.</em></h2>
           <div className="mv-services reveal">
             {SERVICES.map((s) => (
               <article key={s.n} className="mv-service">
@@ -142,24 +152,25 @@ export default async function MoovmaHome() {
 
       {/* ───────── PRODUCTS (black) ───────── */}
       <section className="mv-band mv-dark" id="products">
+      <Gfx shape="wave" color="d2" size={190} right={CONTENT_RIGHT} top={110} />
         <div className="section-wrap">
           <div className="section-label reveal"><span>03</span><span>Products</span></div>
-          <h2 className="reveal">Boards we <em>made.</em></h2>
+          <h2 className="reveal">Real boards.<br /><em>Made in Tunisia.</em></h2>
 
           <article className="mv-featured reveal">
             <div className={`mv-featured-img${featuredPhoto.kind === 'cutout' ? '' : ' is-photo'}`}>
               <img src={featuredPhoto.src} alt={featuredPhoto.alt} loading="lazy" />
             </div>
             <div className="mv-featured-copy">
-              <small>Featured · Dev board</small>
+              <small>The first dev board made in Tunisia</small>
               <h3>{featured.name}</h3>
               <p>{featured.tagline}</p>
               <ul className="mv-chips">
                 {featured.specs.map((s) => <li key={s}>{s}</li>)}
               </ul>
               <div className="mv-featured-actions">
-                <Link href="/elyssa" className="button button-acid">Overview</Link>
-                <Link href="/preorder" className="button button-dark">Pre-order</Link>
+                <Link href="/elyssa" className="button button-acid">Discover Elyssa</Link>
+                <Link href="/preorder" className="button button-dark">Reserve yours</Link>
                 <Link href="/shop" className="text-link">In the shop →</Link>
               </div>
             </div>
@@ -188,10 +199,11 @@ export default async function MoovmaHome() {
 
       {/* ───────── OUR WORK (white) ───────── */}
       <section className="mv-band" id="work">
+      <Gfx shape="pinwheel" color="g2" size={112} right={CONTENT_RIGHT} top={104} spin />
         <div className="section-wrap">
           <div className="section-label reveal"><span>04</span><span>Our work</span></div>
-          <h2 className="reveal">Projects, <em>in posters.</em></h2>
-          <p className="mv-lead mv-lead-light reveal">Tap a poster to see it full size. Every design is open source.</p>
+          <h2 className="reveal">Our work, <em>out loud.</em></h2>
+          <p className="mv-lead mv-lead-light reveal">Tap a poster to see it up close. Most of our designs are open source, so you can learn from them, build them or make them better.</p>
           <WorkGallery
             items={work.map(({ src, full, width, height, title, tag, blurb }) => ({ src, full, width, height, title, tag, blurb }))}
           />
@@ -200,9 +212,11 @@ export default async function MoovmaHome() {
 
       {/* ───────── COMMUNITY (black) ───────── */}
       <section className="mv-band mv-dark" id="community">
+      <Gfx shape="clover" color="d2" size={92} right={CONTENT_RIGHT} top={100} />
         <div className="section-wrap">
           <div className="section-label reveal"><span>05</span><span>Follow the build</span></div>
-          <h2 className="reveal">Find us <em>everywhere.</em></h2>
+          <h2 className="reveal">Join the <em>movement.</em></h2>
+          <p className="mv-lead reveal">Follow the builds, borrow the schematics and ask us anything. This community grows with every maker who joins, and there is room for you.</p>
           <div className="mv-socials reveal">
             {SOCIALS.map((s) => (
               <a key={s.id} className="mv-social" href={s.url} target="_blank" rel="noreferrer">
@@ -241,10 +255,9 @@ export default async function MoovmaHome() {
           <div className="docs-cta-grid">
             <div>
               <div className="section-label reveal"><span>06</span><span>Contact us</span></div>
-              <h2 className="reveal">Let’s build <em>something.</em></h2>
+              <h2 className="reveal">Got an idea?<br /><em>Let’s build it.</em></h2>
               <p className="mv-lead mv-lead-light reveal">
-                A question about a board, a custom design, a collaboration or a workshop? Write to us and your mail app
-                opens with the message ready to send to{' '}
+                Tell us what you are working on. A question about a board, a custom design, a collaboration or a workshop: write to us and your mail app opens with the message ready to send to{' '}
                 <a className="text-link" href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
               </p>
               <ul className="mv-contact-links reveal">

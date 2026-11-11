@@ -14,27 +14,26 @@ export default function DocsTeaser() {
         <div className="docs-teaser-grid">
           <div className="reveal">
             <h2>
-              Going deeper?<br />
-              <em>Read the technical docs.</em>
+              Want the full picture?<br />
+              <em>It is all open.</em>
             </h2>
             <p>
-              The full schematic, the pinout, a table of which pins are safe for what, and the power regulation with
-              safe operating ranges. All in one place.
+              The complete schematic, a pinout you can trust, which pins are safe for what, and the power limits. Nothing about your board is a guess, and nothing is hidden.
             </p>
             <div className="docs-teaser-actions">
-              <Link href="/docs" className="button button-acid">Open technical docs</Link>
+              <Link href="/docs" className="button button-acid">Open the technical docs</Link>
               <a className="button button-dark" href={SCHEMATIC_PDF} download="elyssa-schematic.pdf">
                 Download schematic (PDF) <span>↓</span>
               </a>
             </div>
           </div>
           <ul className="docs-teaser-list reveal delay-one">
-            <li><Link href="/docs#pinout"><small>01</small>Pinout of header J12<b>→</b></Link></li>
-            <li><Link href="/docs#pin-safety"><small>02</small>Which pin is safe for what<b>→</b></Link></li>
-            <li><Link href="/docs#power"><small>03</small>Power regulation &amp; safe ranges<b>→</b></Link></li>
+            <li><Link href="/docs#pinout"><small>01</small>See every pin on the header<b>→</b></Link></li>
+            <li><Link href="/docs#pin-safety"><small>02</small>Find out which pin is safe for what<b>→</b></Link></li>
+            <li><Link href="/docs#power"><small>03</small>Check the power and safe ranges<b>→</b></Link></li>
             <li>
               <a href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent('[Elyssa] Question')}`}>
-                <small>04</small>Ask us a question by email<b>↗</b>
+                <small>04</small>Still stuck? Ask us by email<b>↗</b>
               </a>
             </li>
           </ul>

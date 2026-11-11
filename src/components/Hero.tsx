@@ -2,10 +2,12 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Gfx from './Gfx';
 
 export default function Hero() {
   return (
     <section className="hero" id="top">
+      <Gfx shape="gem" color="g2" size={200} right={90} bottom={64} />
       <div className="hero-logo-wrap reveal">
         <img
           src="/graphics/logo2.svg"
@@ -14,14 +16,13 @@ export default function Hero() {
         />
       </div>
       <div className="hero-copy section-wrap reveal delay-one">
-        <p className="eyebrow">Moovma presents</p>
-        <h1>Elyssa is a dev board<br />for <em>building things.</em></h1>
+        <p className="eyebrow">Moovma presents · Made in Tunisia</p>
+        <h1>The first dev board<br />made in <em>Tunisia.</em></h1>
         <p className="hero-intro">
-          An ESP32-S3 board with motion sensing, wireless connectivity, and a documentation-first workflow for curious makers.
-        </p>
+          Meet Elyssa. Wi-Fi, Bluetooth, motion sensing and battery charging on one tiny board, designed in Tunisia for the makers, students and engineers who will build what comes next. Plug it in, upload a sketch, and make something real today.</p>
         <div className="hero-actions">
           <Link className="button button-acid" href="/preorder">
-            Pre-order Elyssa
+            Reserve your Elyssa
           </Link>
           <a
             className="button button-dark"
@@ -29,12 +30,18 @@ export default function Hero() {
             target="_blank"
             rel="noreferrer"
           >
-            Read the docs <span>↗</span>
+            Explore the docs <span>↗</span>
           </a>
           <a className="text-link" href="#inside">
-            Scroll to explore <span>↓</span>
+            See what it can do <span>↓</span>
           </a>
         </div>
+        <ul className="hero-proof" aria-label="Why Elyssa">
+          <li>Open source</li>
+          <li>Arduino ready</li>
+          <li>USB-C</li>
+          <li>Wi-Fi + Bluetooth 5</li>
+        </ul>
       </div>
     </section>
   );
