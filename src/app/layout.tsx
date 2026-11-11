@@ -4,24 +4,28 @@ import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import AnalyticsEvents from '../components/AnalyticsEvents';
 
+// The public address of the site. Set NEXT_PUBLIC_SITE_URL in Vercel if the domain ever changes.
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://moovma.vercel.app';
+
 export const metadata: Metadata = {
-  metadataBase: new URL('https://github.com/moovma/Elyssa-dev-board'),
-  title: 'Elyssa — dev board by Moovma',
-  description: 'Elyssa is Moovma\'s open ESP32-S3 development board for makers, sensors, and connected things. Featuring 6-axis IMU, Wi-Fi 4, BLE 5, and LiPo charging.',
+  metadataBase: new URL(SITE_URL),
+  title: 'Moovma: open hardware from Tunisia',
+  description:
+    'Moovma designs and open-sources electronics in Tunisia: the Elyssa ESP32-S3 dev board, smart power controllers, motor drivers and more.',
   icons: {
     icon: '/PNG/ICON@2x.png',
   },
   openGraph: {
-    title: 'Elyssa — ESP32-S3 Dev Board',
-    description: 'Hardware for makers, built for building things.',
-    url: 'https://github.com/moovma/Elyssa-dev-board',
-    siteName: 'Elyssa Dev Board',
+    title: 'Moovma: open hardware from Tunisia',
+    description: 'Hardware for makers, built for building things. Home of the Elyssa ESP32-S3 dev board.',
+    url: '/',
+    siteName: 'Moovma',
     images: [
       {
-        url: '/elyssa_images/elyssa_top.png',
-        width: 1200,
-        height: 630,
-        alt: 'Elyssa ESP32-S3 Development Board',
+        url: '/product_images/_opt/front_elyssa.webp',
+        width: 1400,
+        height: 1400,
+        alt: 'Elyssa ESP32-S3 development board by Moovma',
       },
     ],
     locale: 'en_US',
