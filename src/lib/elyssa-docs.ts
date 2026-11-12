@@ -3,7 +3,7 @@
  * (https://github.com/moovma/Elyssa-dev-board: README, TIPS_AND_KNOWN_ISSUES, pins_arduino.h).
  */
 
-export const CONTACT_EMAIL = process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'moovma@gmail.com';
+export const CONTACT_EMAIL = process.env.NEXT_PUBLIC_CONTACT_EMAIL || 'moovmabh@gmail.com';
 export const REPO_URL = 'https://github.com/moovma/Elyssa-dev-board';
 export const REPO_BLOB = `${REPO_URL}/blob/main`;
 
