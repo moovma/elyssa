@@ -50,7 +50,7 @@ src/lib/elyssa-docs.ts  Elyssa technical data: header pins, pin safety, pin capa
 src/lib/site.ts         public site URL (env NEXT_PUBLIC_SITE_URL)
 src/lib/supabase.ts     Supabase clients;  src/lib/preorder-insert.ts  adaptive insert (see §6)
 src/lib/track.ts        analytics helper; src/components/AnalyticsEvents.tsx global click tracking
-public/elyssa_3d/       elyssa-compressed.glb (the ONLY model the site loads) + elyssa.glb (source, not served to users)
+public/elyssa_3d/       elyssa-compressed.glb (the ONLY model the site loads; the uncompressed source elyssa.glb is kept outside the repo)
 public/draco/           local Draco decoder for the GLB
 public/elyssa_images/   board renders + elyssa_schematic.pdf (repaired + branded, see §9)
 public/product_images/  real Elyssa photos: originals in _web/, served copies in _opt/ (generated)
