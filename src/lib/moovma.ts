@@ -304,13 +304,12 @@ export interface GithubData {
 const FALLBACK_GITHUB: GithubData = {
   live: false,
   followers: 0,
-  repoCount: 4,
+  repoCount: 3,
   stars: 0,
   repos: [
     { name: 'Elyssa-dev-board', description: 'The first Tunisian dev board', url: 'https://github.com/moovma/Elyssa-dev-board', stars: 0, language: 'C', updated: '' },
     { name: 'smart-switch', description: 'A compact smart-load controller designed for prototyping and home automation', url: 'https://github.com/moovma/smart-switch', stars: 0, language: 'C++', updated: '' },
     { name: 'nlim-smart-power-controller', description: '12-channel smart power controller', url: 'https://github.com/moovma/nlim-smart-power-controller', stars: 0, language: null, updated: '' },
-    { name: 'elyssa', description: 'This website', url: 'https://github.com/moovma/elyssa', stars: 0, language: 'TypeScript', updated: '' },
   ],
 };
 
