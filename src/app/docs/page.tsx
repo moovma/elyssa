@@ -21,6 +21,7 @@ import {
 
 export const metadata: Metadata = {
   title: 'Elyssa technical docs: schematic, pinout, pin safety, power',
+  alternates: { canonical: '/docs' },
   description:
     'Download the Elyssa schematic (PDF), the pinout, and check which pins are safe to use, plus power regulation and safe operating ranges.',
 };

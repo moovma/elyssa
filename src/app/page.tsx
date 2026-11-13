@@ -15,7 +15,8 @@ import Gfx, { CONTENT_RIGHT } from '../components/Gfx';
 export const revalidate = 3600; // refresh the live GitHub numbers at most once an hour
 
 export const metadata: Metadata = {
-  title: 'Moovma: open hardware from Tunisia',
+  title: { absolute: 'Moovma: open hardware from Tunisia | Elyssa, the first Tunisian dev board' },
+  alternates: { canonical: '/' },
   description:
     'Moovma designs and open-sources electronics in Tunisia: the Elyssa ESP32-S3 dev board, smart power controllers, motor drivers and more. Founded by Bejaoui Hamza.',
 };

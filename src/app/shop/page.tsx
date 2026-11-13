@@ -10,6 +10,7 @@ import Gfx, { CONTENT_RIGHT } from '../../components/Gfx';
 
 export const metadata: Metadata = {
   title: 'Shop: Elyssa, the first Tunisian dev board',
+  alternates: { canonical: '/shop' },
   description: 'Reserve Elyssa, the first Tunisian dev board. Wi-Fi, Bluetooth 5, motion sensing and LiPo charging on one open-source board. No payment now.',
 };
 
