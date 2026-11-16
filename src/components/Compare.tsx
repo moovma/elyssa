@@ -1,100 +1,209 @@
-import React from 'react';
+'use client';
 
-/**
- * Elyssa vs. two popular boards. Elyssa facts come from the schematic / src/lib/elyssa-docs.ts.
- * The other two columns use the public specs of the official Espressif ESP32-S3-DevKitC-1 and the Arduino Uno R3.
- * `null` = not on the board (shown as a dash).
- */
-type Cell = string | null;
-interface Row { name: string; elyssa: Cell; devkit: Cell; uno: Cell }
+import React, { useEffect, useRef, useState } from 'react';
+import dynamic from 'next/dynamic';
+import { BicepsFlexed, Brain, Snail } from 'lucide-react';
+import {
+  COMPARE_BOARDS,
+  FEATURES,
+  PROJECTS,
+  SPEC_ROWS,
+  addOnName,
+  missingFor,
+  type BoardKey,
+} from '../lib/compare';
+import { track } from '../lib/track';
 
-const BOARDS = [
-  { key: 'elyssa', name: 'Elyssa' },
-  { key: 'devkit', name: 'ESP32-S3 DevKit' },
-  { key: 'uno', name: 'Arduino Uno R3' },
-] as const;
+const CompareBoard3D = dynamic(() => import('./CompareBoard3D'), { ssr: false });
 
-const ROWS: Row[] = [
-  { name: 'Brain', elyssa: 'ESP32-S3, dual-core 240 MHz', devkit: 'ESP32-S3, dual-core 240 MHz', uno: 'ATmega328P, 8-bit 16 MHz' },
-  { name: 'Memory', elyssa: '8 MB flash', devkit: '8 – 32 MB flash, PSRAM on some versions', uno: '32 KB flash, 2 KB RAM' },
-  { name: 'Wireless', elyssa: 'Wi-Fi 2.4 GHz + BLE 5', devkit: 'Wi-Fi 2.4 GHz + BLE 5', uno: null },
-  { name: 'Motion sensor', elyssa: '6-axis IMU built in', devkit: null, uno: null },
-  { name: 'Battery', elyssa: 'LiPo charger built in', devkit: null, uno: null },
-  { name: 'microSD', elyssa: 'Slot on the back', devkit: null, uno: null },
-  { name: 'Qwiic (plug-in sensors)', elyssa: 'Yes', devkit: null, uno: null },
-  { name: 'Built-in light', elyssa: 'RGB LED + status LEDs', devkit: 'Addressable RGB LED', uno: 'One LED + status LEDs' },
-  { name: 'Pins', elyssa: '22-pin header + Qwiic', devkit: '2 × 22-pin headers', uno: '14 digital + 6 analog' },
-  { name: 'Analog inputs', elyssa: '12-bit', devkit: '12-bit', uno: '10-bit' },
-  { name: 'Touch pins', elyssa: '10', devkit: 'Yes', uno: null },
-  { name: 'Logic level', elyssa: '3.3 V', devkit: '3.3 V', uno: '5 V' },
-  { name: 'Arduino IDE', elyssa: 'Yes, with LED and motion helpers', devkit: 'Yes', uno: 'Yes' },
-];
+const ICONS: Record<BoardKey, React.ReactNode> = {
+  uno: <Snail size={16} strokeWidth={1.6} />,
+  devkit: <Brain size={16} strokeWidth={1.6} />,
+  elyssa: (
+    <>
+      <Brain size={16} strokeWidth={1.6} />
+      <BicepsFlexed size={16} strokeWidth={1.6} />
+    </>
+  ),
+};
 
-const PICKS = [
-  { board: 'Arduino Uno R3', text: 'Great for 5 V classics and a first blink. No wireless.' },
-  { board: 'ESP32-S3 DevKit', text: 'The most pins and memory options. Sensors, battery and storage are up to you.' },
-  { board: 'Elyssa', text: 'Wireless, motion, battery and microSD already on the board. Plug in and build.' },
-];
-
-function Value({ v }: { v: Cell }) {
-  if (v === null) return <span className="cmp-no" aria-label="Not on the board">—</span>;
-  return <>{v}</>;
-}
+const plural = (n: number) => `${n} extra part${n === 1 ? '' : 's'}`;
 
 export default function Compare() {
+  const [projectKey, setProjectKey] = useState(PROJECTS[0].key);
+  const project = PROJECTS.find((p) => p.key === projectKey) ?? PROJECTS[0];
+  const sectionRef = useRef<HTMLElement>(null);
+  const [near, setNear] = useState(false);
+
+  // Only download three.js when the section is close to the screen.
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el || typeof IntersectionObserver === 'undefined') {
+      setNear(true);
+      return;
+    }
+    const io = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) {
+        setNear(true);
+        io.disconnect();
+      }
+    }, { rootMargin: '600px' });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  const pick = (key: string) => {
+    if (key === projectKey) return;
+    setProjectKey(key);
+    track('compare_project', { project: key });
+  };
+
+  const missing = Object.fromEntries(COMPARE_BOARDS.map((b) => [b.key, missingFor(b, project)])) as Record<BoardKey, ReturnType<typeof missingFor>>;
+  const others = COMPARE_BOARDS.filter((b) => b.key !== 'elyssa')
+    .map((b) => (missing[b.key].length ? `the ${b.name} needs ${plural(missing[b.key].length)}` : `the ${b.name} is ready too`))
+    .reverse();
+
   return (
-    <section className="compare-section" id="compare">
+    <section className="compare-section" id="compare" ref={sectionRef}>
       <div className="section-wrap">
         <div className="section-label reveal">
           <span>03</span>
           <span>How it compares</span>
         </div>
         <div className="spec-heading compare-heading">
-          <h2 className="reveal">Same power.<br /><em>More on board.</em></h2>
+          <h2 className="reveal">Smart is good.<br /><em>Smart and strong wins.</em></h2>
           <p className="reveal delay-one">
-            Elyssa runs on the same ESP32-S3 chip as Espressif’s DevKit, and the same Arduino IDE as the Uno. The
-            difference is what’s already on the board, so you wire less and build more.
+            Picture three teammates for your next project. One is slow. One is clever but shows up empty-handed. One
+            brings the brains <em>and</em> the muscle. Pick a project and see who is ready.
           </p>
         </div>
 
-        <div className="cmp-wrap reveal delay-two">
-          <table className="cmp-table">
-            <caption className="sr-only">Elyssa compared with the ESP32-S3 DevKit and the Arduino Uno R3</caption>
-            <thead>
-              <tr>
-                <th scope="col"><span className="sr-only">Feature</span></th>
-                {BOARDS.map((b) => (
-                  <th key={b.key} scope="col" className={b.key === 'elyssa' ? 'cmp-elyssa' : undefined}>{b.name}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {ROWS.map((r) => (
-                <tr key={r.name}>
-                  <th scope="row">{r.name}</th>
-                  {BOARDS.map((b) => (
-                    <td key={b.key} data-label={b.name} className={b.key === 'elyssa' ? 'cmp-elyssa' : undefined}>
-                      <Value v={r[b.key]} />
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="cmp-picker reveal">
+          <span className="cmp-picker-label">Pick a project</span>
+          <div className="cmp-chips" role="group" aria-label="Pick a project">
+            {PROJECTS.map((p) => (
+              <button
+                key={p.key}
+                type="button"
+                className={`cmp-chip${p.key === projectKey ? ' is-on' : ''}`}
+                aria-pressed={p.key === projectKey}
+                onClick={() => pick(p.key)}
+              >
+                {p.name}
+              </button>
+            ))}
+          </div>
+          <p className="cmp-summary" aria-live="polite">
+            <strong>{project.name}:</strong> Elyssa is ready out of the box. {others.join(', ').replace(/^t/, 'T')}.
+          </p>
         </div>
 
-        <ul className="cmp-picks reveal">
-          {PICKS.map((p) => (
-            <li key={p.board} className={p.board === 'Elyssa' ? 'is-elyssa' : undefined}>
-              <span className="cmp-pick-label">Pick {p.board}</span>
-              <p>{p.text}</p>
-            </li>
-          ))}
-        </ul>
+        <div className="cmp-cards">
+          {COMPARE_BOARDS.map((b, i) => {
+            const miss = missing[b.key];
+            const hero = b.key === 'elyssa';
+            return (
+              <article key={b.key} className={`cmp-card${hero ? ' is-hero' : ''} reveal${i ? ` delay-${i === 1 ? 'one' : 'two'}` : ''}`}>
+                <div className="cmp-stage">
+                  {near && <CompareBoard3D kind={b.key} extras={miss.length} pulse={projectKey} />}
+                  <span className={`cmp-badge${miss.length ? '' : ' is-ready'}`}>
+                    {miss.length ? `+${miss.length} to add` : 'Ready'}
+                  </span>
+                  {b.key !== 'elyssa' && <span className="cmp-stage-note">Illustration</span>}
+                </div>
+
+                <div className="cmp-card-body">
+                  <span className="cmp-persona">
+                    <span className="cmp-icons" aria-hidden="true">{ICONS[b.key]}</span>
+                    {b.persona}
+                  </span>
+                  <h3>{b.name}</h3>
+                  <p className="cmp-verdict">{b.verdict}.</p>
+                  <p className="cmp-story">{b.story}</p>
+
+                  <div className="cmp-meter">
+                    <div className="cmp-meter-head">
+                      <span>Brain</span>
+                      <span>{b.brain}</span>
+                    </div>
+                    <div className="cmp-bar" role="img" aria-label={`Processing: ${b.brain}`}>
+                      <i style={{ width: `${Math.max(4, b.brainScore * 100)}%` }} />
+                    </div>
+                    <span className="cmp-meter-sub">{b.memory}</span>
+                  </div>
+
+                  <div className="cmp-meter">
+                    <div className="cmp-meter-head">
+                      <span>Muscle (built in)</span>
+                      <span>{b.builtIn.length} / {FEATURES.length}</span>
+                    </div>
+                    <ul className="cmp-feats">
+                      {FEATURES.map((f) => {
+                        const has = b.builtIn.includes(f.key);
+                        const needed = project.needs.includes(f.key);
+                        const state = has ? 'has' : needed ? 'missing' : 'off';
+                        return (
+                          <li key={f.key} className={`is-${state}${needed ? ' is-needed' : ''}`}>
+                            {state === 'missing' ? '+ ' : ''}{f.name}
+                            <span className="sr-only">{has ? ' (on the board)' : needed ? ' (missing for this project)' : ' (not on the board)'}</span>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+
+                  <div className={`cmp-result${miss.length ? '' : ' is-ready'}`} key={projectKey}>
+                    {miss.length ? (
+                      <>
+                        <strong>+{plural(miss.length)} to buy and wire</strong>
+                        <span>{miss.map(addOnName).join(' · ')}</span>
+                      </>
+                    ) : (
+                      <>
+                        <strong>Ready out of the box</strong>
+                        <span>{hero ? 'Plug in USB-C and start coding.' : 'Everything this project needs is on the board.'}</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </article>
+            );
+          })}
+        </div>
+
+        <details className="cmp-details">
+          <summary>See every spec side by side</summary>
+          <div className="cmp-wrap">
+            <table className="cmp-table">
+              <caption className="sr-only">Elyssa compared with the ESP32-S3 DevKit and the Arduino Uno R3</caption>
+              <thead>
+                <tr>
+                  <th scope="col"><span className="sr-only">Feature</span></th>
+                  <th scope="col" className="cmp-elyssa">Elyssa</th>
+                  <th scope="col">ESP32-S3 DevKit</th>
+                  <th scope="col">Arduino Uno R3</th>
+                </tr>
+              </thead>
+              <tbody>
+                {SPEC_ROWS.map((r) => (
+                  <tr key={r.name}>
+                    <th scope="row">{r.name}</th>
+                    {(['elyssa', 'devkit', 'uno'] as const).map((k) => (
+                      <td key={k} data-label={k === 'elyssa' ? 'Elyssa' : k === 'devkit' ? 'ESP32-S3 DevKit' : 'Arduino Uno R3'} className={k === 'elyssa' ? 'cmp-elyssa' : undefined}>
+                        {r[k] ?? <span className="cmp-no" aria-label="Not on the board">—</span>}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </details>
 
         <p className="cmp-note">
           Based on the public specs of the official Espressif ESP32-S3-DevKitC-1 and the Arduino Uno R3. Other versions
-          and clones can differ. Full Elyssa details are in the <a href="/docs">docs</a>.
+          and clones can differ. The Uno and DevKit models are simplified illustrations, not to scale. Drag a board to
+          turn it. Full Elyssa details are in the <a href="/docs">docs</a>.
         </p>
       </div>
     </section>

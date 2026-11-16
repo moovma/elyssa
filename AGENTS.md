@@ -33,7 +33,7 @@ Deploy = push to `main` on GitHub; Vercel builds automatically.
 | Route | File | What it is |
 |---|---|---|
 | `/` | `src/app/page.tsx` | **Moovma home** (the main page): hero, "where to start" cards, about (founder, slogan, live GitHub stats), services, products, poster gallery ("our work"), community/socials, contact form |
-| `/elyssa` | `src/app/elyssa/page.tsx` | **Elyssa overview**: hero, interactive 3D board, features + build ideas, specs, quick start, docs teaser, pre-order banner + FAQ |
+| `/elyssa` | `src/app/elyssa/page.tsx` | **Elyssa overview**: hero, interactive 3D board, features + build ideas, specs, "how it compares" (Uno vs ESP32-S3 DevKit vs Elyssa, see §9), quick start, docs teaser, pre-order banner + FAQ |
 | `/shop` | `src/app/shop/page.tsx` | Elyssa product page: photo gallery, benefits, how pre-ordering works, links to Overview / Pre-order / Docs. **No price shown here** (owner decision) |
 | `/preorder` | `src/app/preorder/page.tsx` | Pre-order form (quantity 1–10, desired price pills, student switch) → black "wipe" transition → inverted confirmation that reveals the price (70 DT) |
 | `/docs` | `src/app/docs/page.tsx` | Technical docs: downloads, pinout, pin safety table, "what each pin can do", power rules + table, disclaimer, contact |
@@ -123,12 +123,16 @@ Poster captions are in `WORK_META` (`src/lib/moovma.ts`), keyed by file name.
 - Schematic PDF: KiCad export → copy to `public/elyssa_images/elyssa_schematic.pdf` → `npm run schematic`.
   This (1) merges the hundreds of thousands of tiny text triangles that caused white seams, (2) adds the Moovma
   logo + "Designed & revised by Bejaoui Hamza" in the title block. Safe to run twice.
+- Compare section (`Compare.tsx` + `CompareBoard3D.tsx`, data in `src/lib/compare.ts`): analogy Uno = "weak and slow",
+  ESP32-S3 DevKit = "smart, but weak", Elyssa = "smart and strong". Pick a project → each board shows the extra modules it
+  needs (they float around its 3D model). Elyssa uses the real GLB; the Uno and DevKit are grayscale box "clay" models
+  built in code (illustrations, not to scale). Only facts from public specs: keep the source note under the section.
 
 ## 10. Analytics, SEO, domain
 
 - `<Analytics/>` and `<SpeedInsights/>` in `layout.tsx` (enable both in the Vercel dashboard). Custom events:
   `preorder_submitted`, `contact_form_submit`, `click_preorder`, `click_shop`, `click_docs`, `click_elyssa_overview`,
-  `download`, `click_email`, `click_social`, `click_external`. Never send personal data.
+  `download`, `click_email`, `click_social`, `click_external`, `compare_project`. Never send personal data.
 - Domain: `moovma.vercel.app` was **not attached** and `www.moovma.tn` did not resolve (Nov 2026). When a domain
   works, set `NEXT_PUBLIC_SITE_URL` in Vercel and redeploy. Submit `/sitemap.xml` in Google Search Console.
 

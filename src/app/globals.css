@@ -1066,44 +1066,116 @@ img, svg, video, canvas { max-width: 100%; }
 @media (max-width: 640px) { .docs-disclaimer { grid-template-columns: 1fr; gap: 8px; } }
 
 /* ============================
-   COMPARE (/elyssa): Elyssa vs ESP32-S3 DevKit vs Arduino Uno R3
+   COMPARE (/elyssa): Uno (weak) vs ESP32-S3 DevKit (smart) vs Elyssa (smart + strong)
    ============================ */
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 .compare-section { padding: 96px 0 100px; font-family: var(--sans); position: relative; overflow: clip; }
 .compare-section + .quick-section { border-top: 1px solid var(--line); }
+.compare-heading { margin-bottom: 44px; }
+
+.cmp-picker { border-top: 1px solid var(--ink); padding-top: 22px; margin-bottom: 28px; }
+.cmp-picker-label, .cmp-persona, .cmp-meter-head, .cmp-badge, .cmp-stage-note, .cmp-details summary { font: 10px var(--mono); text-transform: uppercase; letter-spacing: .07em; }
+.cmp-picker-label { color: var(--muted); display: block; margin-bottom: 12px; }
+.cmp-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.cmp-chip { font: 600 13px var(--sans); min-height: 40px; padding: 9px 16px; border-radius: 9999px; border: 1px solid var(--line); background: #fff; color: var(--ink); cursor: pointer; transition: background .2s, border-color .2s, color .2s; }
+.cmp-chip:hover { border-color: var(--ink); }
+.cmp-chip.is-on { background: var(--ink); border-color: var(--ink); color: #fff; }
+.cmp-chip:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.cmp-summary { margin: 16px 0 0; font-size: 15px; line-height: 1.6; color: var(--muted); }
+.cmp-summary strong { color: var(--ink); }
+
+.cmp-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border: 1px solid var(--line); }
+.cmp-card { display: flex; flex-direction: column; min-width: 0; }
+.cmp-card + .cmp-card { border-left: 1px solid var(--line); }
+.cmp-card.is-hero { background: #0d0d0d; color: #fff; outline: 1px solid #000; }
+.cmp-stage { position: relative; aspect-ratio: 4 / 3; background: #f4f4f4; overflow: hidden; }
+.cmp-card.is-hero .cmp-stage { background: radial-gradient(circle at 50% 60%, #1c1c1c 0%, #000 70%); }
+.cmp-canvas { position: absolute; inset: 0; touch-action: pan-y; cursor: grab; opacity: 0; transition: opacity .6s ease; }
+.cmp-canvas.is-ready { opacity: 1; }
+.cmp-canvas:active { cursor: grabbing; }
+.cmp-canvas canvas { display: block; width: 100% !important; height: 100% !important; }
+.cmp-badge { position: absolute; top: 14px; left: 14px; padding: 6px 10px; border-radius: 9999px; background: #fff; color: var(--ink); border: 1px solid var(--line); pointer-events: none; }
+.cmp-badge.is-ready { background: var(--acid); border-color: var(--acid); color: #000; }
+.cmp-stage-note { position: absolute; right: 14px; bottom: 12px; color: #9a9a9a; pointer-events: none; }
+
+.cmp-card-body { padding: 24px 24px 26px; display: flex; flex-direction: column; flex: 1; }
+.cmp-persona { display: flex; align-items: center; gap: 8px; color: var(--muted); }
+.cmp-icons { display: inline-flex; gap: 2px; }
+.cmp-card.is-hero .cmp-persona { color: var(--acid); }
+.cmp-card h3 { font-size: clamp(26px, 2.4vw, 34px); margin: 12px 0 2px; }
+.cmp-verdict { font: italic 400 21px/1.2 var(--serif); margin: 0 0 12px; color: var(--muted); }
+.cmp-card.is-hero .cmp-verdict { color: var(--acid); }
+.cmp-story { font-size: 14px; line-height: 1.65; color: var(--muted); margin: 0 0 20px; }
+.cmp-card.is-hero .cmp-story { color: #bdbdbd; }
+
+.cmp-meter { margin-bottom: 18px; }
+.cmp-meter-head { display: flex; justify-content: space-between; gap: 10px; color: var(--muted); margin-bottom: 8px; }
+.cmp-card.is-hero .cmp-meter-head { color: #9a9a9a; }
+.cmp-meter-head span:last-child { color: var(--ink); text-align: right; }
+.cmp-card.is-hero .cmp-meter-head span:last-child { color: #fff; }
+.cmp-bar { height: 8px; background: #e9e9e9; border-radius: 9999px; overflow: hidden; }
+.cmp-card.is-hero .cmp-bar { background: #2a2a2a; }
+.cmp-bar i { display: block; height: 100%; background: var(--ink); border-radius: inherit; }
+.cmp-card.is-hero .cmp-bar i { background: var(--acid); }
+.cmp-meter-sub { display: block; margin-top: 6px; font-size: 12px; color: var(--muted); }
+.cmp-card.is-hero .cmp-meter-sub { color: #9a9a9a; }
+
+.cmp-feats { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.cmp-feats li { font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 9999px; border: 1px solid transparent; transition: all .3s ease; }
+.cmp-feats li.is-has { background: var(--ink); color: #fff; }
+.cmp-feats li.is-has.is-needed { box-shadow: 0 0 0 2px #fff, 0 0 0 3px var(--ink); }
+.cmp-feats li.is-missing { border: 1px dashed var(--ink); color: var(--ink); background: #fff; }
+.cmp-feats li.is-off { color: #b9b9b9; border-color: #e6e6e6; }
+.cmp-card.is-hero .cmp-feats li.is-has { background: #fff; color: #000; }
+.cmp-card.is-hero .cmp-feats li.is-has.is-needed { background: var(--acid); box-shadow: none; }
+
+.cmp-result { margin-top: auto; padding-top: 16px; border-top: 1px solid var(--line); display: grid; gap: 4px; animation: cmp-in .45s ease both; }
+.cmp-card.is-hero .cmp-result { border-top-color: #333; }
+.cmp-result strong { font: 400 22px/1.2 var(--serif); }
+.cmp-result span { font-size: 13px; line-height: 1.5; color: var(--muted); }
+.cmp-card.is-hero .cmp-result span { color: #bdbdbd; }
+.cmp-card.is-hero .cmp-result.is-ready strong { color: var(--acid); }
+@keyframes cmp-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+.cmp-details { margin-top: 40px; border-top: 1px solid var(--line); }
+.cmp-details summary { cursor: pointer; list-style: none; padding: 18px 0; min-height: 44px; display: flex; align-items: center; gap: 10px; color: var(--ink); }
+.cmp-details summary::-webkit-details-marker { display: none; }
+.cmp-details summary::before { content: '+'; font: 16px var(--mono); width: 14px; }
+.cmp-details[open] summary::before { content: '−'; }
 .cmp-wrap { border-top: 1px solid var(--ink); }
 .cmp-table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 14px; }
 .cmp-table th, .cmp-table td { text-align: left; vertical-align: middle; padding: 16px 18px; border-bottom: 1px solid var(--line); line-height: 1.45; }
 .cmp-table th:first-child { padding-left: 0; width: 22%; }
 .cmp-table thead th { font: 10px var(--mono); text-transform: uppercase; letter-spacing: .07em; color: var(--muted); padding-top: 18px; padding-bottom: 18px; }
 .cmp-table thead th.cmp-elyssa { background: var(--ink); color: #fff; }
-.cmp-table thead th.cmp-elyssa::before { content: ''; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--acid); margin-right: 8px; vertical-align: 1px; }
 .cmp-table tbody th { font: 10px var(--mono); text-transform: uppercase; letter-spacing: .07em; color: var(--muted); font-weight: 400; }
 .cmp-table td { color: var(--muted); }
 .cmp-table td.cmp-elyssa { background: #f4f4f4; color: var(--ink); font-weight: 700; }
 .cmp-no { color: #b5b5b5; }
-.cmp-picks { list-style: none; margin: 48px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); }
-.cmp-picks li { padding: 24px 24px 8px 0; }
-.cmp-picks li + li { padding-left: 24px; border-left: 1px solid var(--line); }
-.cmp-pick-label { font: 10px var(--mono); text-transform: uppercase; letter-spacing: .07em; color: var(--muted); }
-.cmp-picks li.is-elyssa .cmp-pick-label { color: var(--ink); }
-.cmp-picks p { margin: 10px 0 0; font-size: 15px; line-height: 1.6; }
-.cmp-note { margin: 32px 0 0; max-width: 640px; color: var(--muted); font-size: 12px; line-height: 1.6; }
+.cmp-note { margin: 28px 0 0; max-width: 680px; color: var(--muted); font-size: 12px; line-height: 1.6; }
 .cmp-note a { color: var(--ink); }
 
+@media (max-width: 960px) {
+  .cmp-cards { grid-template-columns: 1fr; }
+  .cmp-card + .cmp-card { border-left: 0; border-top: 1px solid var(--line); }
+  .cmp-stage { aspect-ratio: 16 / 10; max-height: 340px; width: 100%; }
+}
 @media (max-width: 900px) {
   .compare-section { padding: 64px 0; }
   .cmp-table th, .cmp-table td { padding: 14px 10px; }
-  .cmp-picks { grid-template-columns: 1fr; }
-  .cmp-picks li, .cmp-picks li + li { padding: 20px 0 4px; border-left: 0; }
-  .cmp-picks li + li { border-top: 1px solid var(--line); }
 }
-/* Phones: each feature becomes a small card listing the three boards. */
 @media (max-width: 640px) {
+  .cmp-stage { aspect-ratio: 4 / 3; }
+  .cmp-card-body { padding: 20px 16px 22px; }
+  .cmp-chip { font-size: 13px; padding: 8px 14px; }
   .cmp-table, .cmp-table tbody, .cmp-table tr, .cmp-table th, .cmp-table td { display: block; width: 100%; }
   .cmp-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
   .cmp-table tr { padding: 14px 0 10px; border-bottom: 1px solid var(--line); }
   .cmp-table tbody th, .cmp-table th:first-child { padding: 0 0 8px; border: 0; width: 100%; }
   .cmp-table td { display: grid; grid-template-columns: 112px 1fr; gap: 12px; padding: 7px 10px; border: 0; font-size: 14px; }
   .cmp-table td::before { content: attr(data-label); font: 10px var(--mono); text-transform: uppercase; letter-spacing: .07em; color: var(--muted); padding-top: 3px; font-weight: 400; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cmp-result { animation: none; }
+  .cmp-canvas, .cmp-feats li, .cmp-chip { transition: none; }
 }
