@@ -26,7 +26,7 @@ export default function QuickStart() {
   return (
     <section className="quick-section section-wrap" id="quickstart">
       <div className="section-label reveal">
-        <span>03</span>
+        <span>04</span>
         <span>Quick start</span>
       </div>
       <div className="quick-grid">

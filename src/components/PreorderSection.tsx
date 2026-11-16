@@ -36,7 +36,7 @@ export default function PreorderSection() {
     <section className="preorder-section" id="preorder">
       <div className="section-wrap">
         <div className="section-label reveal">
-          <span>04</span>
+          <span>05</span>
           <span>Pre-order</span>
         </div>
         <div className="preorder-banner-grid">

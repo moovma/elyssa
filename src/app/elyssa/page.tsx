@@ -3,6 +3,7 @@ import Navbar from '../../components/Navbar';
 import Hero from '../../components/Hero';
 import Features from '../../components/Features';
 import Specs from '../../components/Specs';
+import Compare from '../../components/Compare';
 import QuickStart from '../../components/QuickStart';
 import DocsTeaser from '../../components/DocsTeaser';
 import PreorderSection from '../../components/PreorderSection';
@@ -44,6 +45,7 @@ export default function Home() {
       </div>
       <Features />
       <Specs />
+      <Compare />
       <QuickStart />
       <DocsTeaser />
       <PreorderSection />
