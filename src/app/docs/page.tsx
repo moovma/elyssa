@@ -4,6 +4,7 @@ import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import ContactForm from '../../components/ContactForm';
 import PinTableDownload from '../../components/PinTableDownload';
+import PinFinder from '../../components/PinFinder';
 import Gfx, { CONTENT_RIGHT } from '../../components/Gfx';
 import {
   BOARD_BOTTOM_IMG,
@@ -11,8 +12,6 @@ import {
   CONTACT_EMAIL,
   HEADER_PINS,
   DISCLAIMER,
-  PIN_CAPS,
-  PIN_SAFETY,
   POWER_ROWS,
   POWER_RULES,
   REPO_LINKS,
@@ -25,8 +24,6 @@ export const metadata: Metadata = {
   description:
     'Download the Elyssa schematic (PDF), the pinout, and check which pins are safe to use, plus power regulation and safe operating ranges.',
 };
-
-const SAFETY_LABEL = { safe: 'Safe', caution: 'Caution', reserved: 'Reserved' } as const;
 
 export default function DocsPage() {
   return (
@@ -120,52 +117,12 @@ export default function DocsPage() {
       <section className="docs-band" id="pin-safety">
         <div className="section-wrap">
           <div className="section-label"><span>03</span><span>Which pin is safe for what</span></div>
-          <h2>Pin <em>safety table.</em></h2>
+          <h2>Is this pin <em>safe?</em></h2>
           <p className="docs-lead">
-            <b>Safe</b>: use freely. <b>Caution</b>: shared or has a catch, read the note. <b>Reserved</b>: wired to
-            something on the board, not on the header.
+            Type the name printed next to a pin to see what it does and whether it is safe to use. Want everything at once?
+            Open the full table.
           </p>
-          <div className="docs-table-wrap">
-            <table className="docs-table">
-              <thead>
-                <tr><th>Pin</th><th>GPIO</th><th>Status</th><th>Use it for</th><th>Notes</th></tr>
-              </thead>
-              <tbody>
-                {PIN_SAFETY.map((p) => (
-                  <tr key={p.pin}>
-                    <td data-label="Pin"><b>{p.pin}</b><code>{p.sketch}</code></td>
-                    <td data-label="GPIO">{p.gpio}</td>
-                    <td data-label="Status"><span className={`badge badge-${p.safety}`}>{SAFETY_LABEL[p.safety]}</span></td>
-                    <td data-label="Use it for">{p.useFor}</td>
-                    <td data-label="Notes">{p.note}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <h3 className="docs-sub">What each pin can do</h3>
-          <p className="docs-lead docs-lead-tight">
-            Every digital pin can also be PWM, UART, SPI, I2C or I2S, because the ESP32-S3 lets you route them freely.
-            Analog input and touch are the only things tied to specific pins.
-          </p>
-          <div className="docs-table-wrap">
-            <table className="docs-table docs-table-caps">
-              <thead>
-                <tr><th>Header pin</th><th>GPIO</th><th>Analog input</th><th>Touch</th></tr>
-              </thead>
-              <tbody>
-                {PIN_CAPS.map((c) => (
-                  <tr key={c.pin + c.gpio}>
-                    <td data-label="Header pin"><b>{c.pin}</b></td>
-                    <td data-label="GPIO">{c.gpio}</td>
-                    <td data-label="Analog input">{c.adc || <span className="dash">–</span>}</td>
-                    <td data-label="Touch">{c.touch || <span className="dash">–</span>}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <PinFinder />
         </div>
       </section>
 

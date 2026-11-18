@@ -9,7 +9,7 @@ const LINKS: Record<Variant, { href: string; label: string; internal?: boolean }
   elyssa: [
     { href: '/elyssa#inside', label: 'Inside' },
     { href: '/elyssa#anatomy', label: '3D Anatomy' },
-    { href: '/elyssa#specs', label: 'Specs' },
+    { href: '/elyssa#compare', label: 'Compare' },
     { href: '/elyssa#quickstart', label: 'Quick Start' },
     { href: '/docs', label: 'Tech docs', internal: true },
   ],

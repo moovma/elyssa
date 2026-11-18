@@ -33,10 +33,10 @@ Deploy = push to `main` on GitHub; Vercel builds automatically.
 | Route | File | What it is |
 |---|---|---|
 | `/` | `src/app/page.tsx` | **Moovma home** (the main page): hero, "where to start" cards, about (founder, slogan, live GitHub stats), services, products, poster gallery ("our work"), community/socials, contact form |
-| `/elyssa` | `src/app/elyssa/page.tsx` | **Elyssa overview**: hero, interactive 3D board, features + build ideas, specs, quick start, docs teaser, pre-order banner + FAQ |
+| `/elyssa` | `src/app/elyssa/page.tsx` | **Elyssa overview**: hero, interactive 3D board, the idea (mission), **comparison** with ESP32-S3-DevKitC-1 and Arduino Uno R3 (the only spec list on the page, see §9), quick start, docs teaser, pre-order banner + FAQ |
 | `/shop` | `src/app/shop/page.tsx` | Elyssa product page: photo gallery, benefits, how pre-ordering works, links to Overview / Pre-order / Docs. **No price shown here** (owner decision) |
 | `/preorder` | `src/app/preorder/page.tsx` | Pre-order form (quantity 1–10, desired price pills, student switch) → black "wipe" transition → inverted confirmation that reveals the price (70 DT) |
-| `/docs` | `src/app/docs/page.tsx` | Technical docs: downloads, pinout, pin safety table, "what each pin can do", power rules + table, disclaimer, contact |
+| `/docs` | `src/app/docs/page.tsx` | Technical docs: downloads, pinout, **pin finder** (`PinFinder.tsx`: type a pin name to see all its data; the pin safety and "what each pin can do" tables open in a pop-up via "Show full table"), power rules + table, disclaimer, contact |
 | `/api/preorder` | `src/app/api/preorder/route.ts` | Saves a pre-order to Supabase (+ local JSON backup) |
 | `/sitemap.xml`, `/robots.txt` | `src/app/sitemap.ts`, `robots.ts` | SEO, built from `SITE_URL` |
 
@@ -46,6 +46,7 @@ Deploy = push to `main` on GitHub; Vercel builds automatically.
 src/app/            routes (see table) + globals.css (ALL styles live here) + layout.tsx (fonts, metadata, analytics)
 src/components/     UI pieces (Navbar has two variants: 'moovma' for /, /shop and 'elyssa' for the Elyssa pages)
 src/lib/moovma.ts       Moovma content: brand facts, socials, services, products, poster captions, image loaders, live GitHub fetch
+src/lib/compare.ts      comparison data (boards, needs, add-ons, presets, spec rows): facts from official docs only
 src/lib/elyssa-docs.ts  Elyssa technical data: header pins, pin safety, pin capabilities, power rules/rows, disclaimer
 src/lib/site.ts         public site URL (env NEXT_PUBLIC_SITE_URL)
 src/lib/supabase.ts     Supabase clients;  src/lib/preorder-insert.ts  adaptive insert (see §6)
@@ -81,6 +82,8 @@ data/preorders.json     LOCAL backup of orders (git-ignored, contains personal d
 - Colours: black `#000`, white `#fff`, acid green `#ccff00` (accent, used sparingly: main buttons, highlights),
   muted text `#6b6b6b`, lines `#dedede`. Dark surfaces: `#0d0d0d`, borders on black `#333`.
   Decorative extras are **grayscale only** (black → white). No other colours.
+  One owner-approved exception: in the /elyssa comparison, the big "extra parts" number is green when it is 0
+  (acid on Elyssa's black card, #2e8b00 on white) and red #e0301e when it is above 0.
 - Fonts: **DM Serif Display** (headings, tight letter-spacing −0.04em, italic `<em>` for emphasis),
   **Manrope** (body), **DM Mono** (10–11 px UPPERCASE labels, letter-spacing .07em).
 - Layout: full-width bands alternating **white / black**; content width 1180 px; square cards with 1 px lines;
@@ -120,6 +123,11 @@ Poster captions are in `WORK_META` (`src/lib/moovma.ts`), keyed by file name.
   shader to the real solder-mask green `#00763A`. Part highlight boxes = `PART_BOXES` (pixel boxes measured on
   `elyssa_images/elyssa_top.png` / `elyssa_buttom.png`). Camera starts slightly from below. `CONFIG.zoomOut`
   sets model size. On phones the canvas sits between the status line and the hint/legend (no overlap).
+- Comparison section (`Compare.tsx`, data in `src/lib/compare.ts`): no 3D, only animated bars and checklists,
+  written so a 7-year-old understands it (plain words first, technical name second). Keep it fair: no prices,
+  every board shows a real strength. Step 3 "Spec by spec" (`SpecScroll.tsx`) grows each row as it reaches the
+  middle of the screen. Owner rule: **no duplicate information on /elyssa** (each fact appears once: built-in parts in
+  the 3D anatomy + step 2, numbers in step 3).
 - Schematic PDF: KiCad export → copy to `public/elyssa_images/elyssa_schematic.pdf` → `npm run schematic`.
   This (1) merges the hundreds of thousands of tiny text triangles that caused white seams, (2) adds the Moovma
   logo + "Designed & revised by Bejaoui Hamza" in the title block. Safe to run twice.
@@ -128,7 +136,7 @@ Poster captions are in `WORK_META` (`src/lib/moovma.ts`), keyed by file name.
 
 - `<Analytics/>` and `<SpeedInsights/>` in `layout.tsx` (enable both in the Vercel dashboard). Custom events:
   `preorder_submitted`, `contact_form_submit`, `click_preorder`, `click_shop`, `click_docs`, `click_elyssa_overview`,
-  `download`, `click_email`, `click_social`, `click_external`. Never send personal data.
+  `download`, `compare_preset`, `click_email`, `click_social`, `click_external`. Never send personal data.
 - Domain: `moovma.vercel.app` was **not attached** and `www.moovma.tn` did not resolve (Nov 2026). When a domain
   works, set `NEXT_PUBLIC_SITE_URL` in Vercel and redeploy. Submit `/sitemap.xml` in Google Search Console.
 

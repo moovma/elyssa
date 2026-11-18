@@ -25,10 +25,6 @@ const FAQ = [
     q: 'What does it cost?',
     a: 'You will see the official price as soon as you reserve your board. Nothing is charged until we have spoken to you.',
   },
-  {
-    q: 'Can it run on a battery?',
-    a: 'Yes. A LiPo charger is built in, so Elyssa can run on a battery and charge it over USB-C. Your projects can leave the desk.',
-  },
 ];
 
 export default function PreorderSection() {
