@@ -156,7 +156,10 @@ Poster captions are in `WORK_META` (`src/lib/moovma.ts`), keyed by file name.
 - Domain: **`www.moovma.tn`** (primary) + `moovma.tn` (also Production), both attached in Vercel > Domains. DNS at the
   registrar: `A @ 216.198.79.1` and `CNAME www a535e32cae538514.vercel-dns-017.com.` (values shown in Vercel),
   set in Ooredoo host > Mes domaines > moovma.tn > Gestion DNS (keep Ooredoo name servers; mail/ftp/MX untouched).
-  `NEXT_PUBLIC_SITE_URL=https://www.moovma.tn` in Vercel. Submit `/sitemap.xml` in Google Search Console.
+  `NEXT_PUBLIC_SITE_URL=https://www.moovma.tn` in Vercel.
+- **Google Search Console**: Domain property `moovma.tn`, owner moovmabh@gmail.com, verified by a DNS TXT record
+  (`google-site-verification=...`) at Ooredoo: **never delete it**. Sitemap `https://www.moovma.tn/sitemap.xml` submitted
+  (5 pages). After a big content change, use URL Inspection > "Demander une indexation" on that page.
 
 ## 11. Environment variables (`.env.local`, and the same in Vercel)
 
