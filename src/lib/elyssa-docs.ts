@@ -8,8 +8,6 @@ export const REPO_URL = 'https://github.com/moovma/Elyssa-dev-board';
 export const REPO_BLOB = `${REPO_URL}/blob/main`;
 
 export const SCHEMATIC_PDF = '/elyssa_images/elyssa_schematic.pdf';
-export const BOARD_TOP_IMG = '/elyssa_images/elyssa_top.png';
-export const BOARD_BOTTOM_IMG = '/elyssa_images/elyssa_buttom.png';
 
 export type PinKind = 'power' | 'gpio' | 'comm' | 'pwm';
 
@@ -230,13 +228,3 @@ export const REPO_LINKS = [
   { label: 'pins_arduino.h (pin constants)', href: `${REPO_BLOB}/platform/variants/elyssa/pins_arduino.h` },
   { label: 'Changelog', href: `${REPO_BLOB}/CHANGELOG.md` },
 ];
-
-/** CSV of the full pin table, built in the browser for download. */
-export function pinTableCsv(): string {
-  const q = (s: string) => `"${s.replace(/"/g, '""')}"`;
-  const header = ['Pin', 'GPIO', 'Sketch names', 'Status', 'Use for', 'Notes'].map(q).join(',');
-  const rows = PIN_SAFETY.map((p) =>
-    [p.pin, p.gpio, p.sketch, p.safety, p.useFor, p.note].map(q).join(',')
-  );
-  return [header, ...rows].join('\r\n');
-}

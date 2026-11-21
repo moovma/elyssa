@@ -3,12 +3,9 @@ import Link from 'next/link';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
 import ContactForm from '../../components/ContactForm';
-import PinTableDownload from '../../components/PinTableDownload';
 import PinFinder from '../../components/PinFinder';
 import Gfx, { CONTENT_RIGHT } from '../../components/Gfx';
 import {
-  BOARD_BOTTOM_IMG,
-  BOARD_TOP_IMG,
   CONTACT_EMAIL,
   HEADER_PINS,
   DISCLAIMER,
@@ -73,19 +70,6 @@ export default function DocsPage() {
               <span>The same card as an image: keep it on your phone or next to your code</span>
               <b>↓</b>
             </a>
-            <a className="docs-dl-card" href={BOARD_TOP_IMG} download="elyssa-pinout-top.png">
-              <small>PNG</small>
-              <strong>Pinout: top side</strong>
-              <span>Header labels, USB-C, RGB LED, buttons</span>
-              <b>↓</b>
-            </a>
-            <a className="docs-dl-card" href={BOARD_BOTTOM_IMG} download="elyssa-pinout-bottom.png">
-              <small>PNG</small>
-              <strong>Pinout: back side</strong>
-              <span>Mirrored header labels and the microSD socket</span>
-              <b>↓</b>
-            </a>
-            <PinTableDownload />
           </div>
         </div>
       </section>
