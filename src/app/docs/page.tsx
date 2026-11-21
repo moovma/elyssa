@@ -89,7 +89,7 @@ export default function DocsPage() {
           </p>
           <div className="pinout-layout">
             <div className="pinout-board">
-              <img src={BOARD_TOP_IMG} alt="Elyssa board, top view, with header labels" />
+              <img src="/elyssa_images/elyssa_top.webp" width={1100} height={2087} loading="lazy" alt="Elyssa board, top view, with header labels" />
             </div>
             <div>
               <ol className="pin-chart" aria-label="Header pin list">

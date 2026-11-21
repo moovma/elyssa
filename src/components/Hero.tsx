@@ -10,7 +10,10 @@ export default function Hero() {
       <Gfx shape="gem" color="g2" size={200} right={90} bottom={64} />
       <div className="hero-logo-wrap reveal">
         <img
-          src="/graphics/logo2.svg"
+          src="/graphics/logo2.webp"
+          width={1960}
+          height={621}
+          fetchPriority="high"
           alt="Elyssa logo"
           className="hero-logo-img"
         />

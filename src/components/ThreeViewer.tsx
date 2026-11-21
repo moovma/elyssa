@@ -944,7 +944,7 @@ export default function ThreeViewer({ onReadyChange }: ThreeViewerProps) {
             {loadFailed && (
               <div className="model-placeholder-loader model-fallback">
                 <img
-                  src="/elyssa_images/elyssa_top.png"
+                  src="/elyssa_images/elyssa_top.webp"
                   alt="Elyssa board (3D model unavailable)"
                   style={{
                     width: '100%',

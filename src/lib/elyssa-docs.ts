@@ -193,6 +193,7 @@ export const POWER_ROWS: PowerRow[] = [
   { item: 'Main 3.3 V rail', value: 'Up to 2 A', note: 'A TLV62569DBVR step-down (buck) regulator with a 2.2 µH inductor drives the 3.3 V rail: efficient, steady, and plenty of headroom for sensors and modules.' },
   { item: 'USB-C input', value: '5 V', note: 'Programming, serial monitor and power over one cable. Use a data cable.' },
   { item: 'Vin pin', value: '5 V, wired to USB', note: 'Take 5 V out of this pin, or power the board from it when USB is unplugged. Never feed Vin while USB is connected.' },
+  { item: 'Higher voltages (9 V, 12 V)', value: 'Not directly', note: 'The 3.3 V regulator accepts at most 5.5 V, so 9 V or 12 V on Vin damages the board. Use a step-down (buck) module set to 5 V, into Vin and Gnd, with USB unplugged.' },
   { item: 'Input protection', value: 'PMOS + Schottky diode', note: 'A power-OR stage protects the input and stops current flowing back between power sources.' },
   { item: 'LiPo charger', value: 'BQ24092 · about 540 mA', note: 'Charges one cell from the 5 V USB input. The 1 kΩ ISET resistor sets the current. There is no GPIO for it: the CHG output only drives the red charge LED.' },
   { item: 'Battery', value: '1S Li-Ion / Li-Po, 3.7 V', note: 'Charged to 4.2 V. A 1500 to 2000 mAh cell is a good balance between charging time and battery stress.' },

@@ -273,8 +273,8 @@ export function getProductImages(): ProductImage[] {
 
   if (!found.length) {
     return [
-      { src: '/elyssa_images/elyssa_top.png', alt: 'Elyssa board, top side', kind: 'front' },
-      { src: '/elyssa_images/elyssa_buttom.png', alt: 'Elyssa board, back side with microSD socket', kind: 'back' },
+      { src: '/elyssa_images/elyssa_top.webp', alt: 'Elyssa board, top side', kind: 'front' },
+      { src: '/elyssa_images/elyssa_buttom.webp', alt: 'Elyssa board, back side with microSD socket', kind: 'back' },
     ];
   }
   const order = { front: 0, back: 1, detail: 2, cutout: 3, other: 4 } as const;

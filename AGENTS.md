@@ -160,6 +160,12 @@ Poster captions are in `WORK_META` (`src/lib/moovma.ts`), keyed by file name.
 - **Google Search Console**: Domain property `moovma.tn`, owner moovmabh@gmail.com, verified by a DNS TXT record
   (`google-site-verification=...`) at Ooredoo: **never delete it**. Sitemap `https://www.moovma.tn/sitemap.xml` submitted
   (5 pages). After a big content change, use URL Inspection > "Demander une indexation" on that page.
+- **Bing Webmaster Tools** (also feeds ChatGPT search, Copilot, Yahoo, DuckDuckGo): site imported from Search Console
+  with moovmabh@gmail.com, sitemap submitted.
+- **AI assistants**: `public/llms.txt` = short verified facts + best links; the /elyssa FAQ (`PreorderSection.tsx`) is also
+  emitted as schema.org `FAQPage` JSON-LD. Keep both in sync with `elyssa-docs.ts` when facts change.
+- Favicon: `src/app/favicon.ico`, `icon.png`, `apple-icon.png` (square, white logo on black). Heavy art is served as WebP
+  (`graphics/logo2.webp`, `elyssa_images/*.webp`); the PNGs stay only for the docs download buttons.
 
 ## 11. Environment variables (`.env.local`, and the same in Vercel)
 

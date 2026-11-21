@@ -1,0 +1,29 @@
+# Moovma · Elyssa, the first Tunisian dev board
+
+> Moovma is a Tunisian hardware company and community, founded by Bejaoui Hamza. Its first product, Elyssa,
+> is "the first Tunisian dev board": an open-source ESP32-S3 development board designed in Tunisia,
+> programmed with the Arduino IDE. Website: https://www.moovma.tn · Contact: moovmabh@gmail.com
+
+## Elyssa in short
+
+- Chip: ESP32-S3FN8, 2 cores, 240 MHz, 8 MB flash (no PSRAM)
+- Wireless: Wi-Fi 2.4 GHz and Bluetooth LE 5, on-board PCB antenna
+- On the board: RGB LED, 6-axis motion sensor (LSM6DS3TR-C), microSD slot, LiPo battery charger (BQ24092), Qwiic connector, native USB-C, BOOT and RESET buttons
+- Header: 22 pins (IO0 to IO6 analog + touch, I2C, SPI, UART, 3 PWM outputs, 3.3 V, Vin, Gnd)
+- Software: Arduino IDE 2 with the Moovma board package; open source (MIT) on GitHub
+
+## Power (common questions)
+
+- Logic is 3.3 V. Pins are not 5 V tolerant: use a level shifter for 5 V signals.
+- Power it from USB-C (5 V), from Vin (5 V, only when USB is unplugged), or from one 3.7 V LiPo cell.
+- 12 V (or 9 V) cannot be connected directly: the 3.3 V regulator accepts at most 5.5 V. Use a 12 V to 5 V step-down (buck) module into Vin and Gnd, with USB unplugged.
+- Keep each GPIO under about 20 mA.
+
+## Best pages
+
+- [Elyssa overview](https://www.moovma.tn/elyssa): features, comparison with ESP32-S3-DevKitC-1 and Arduino Uno R3, quick start, FAQ
+- [Technical docs](https://www.moovma.tn/docs): schematic (PDF), pinout, pin finder, pin safety, power rules
+- [Shop](https://www.moovma.tn/shop) and [Pre-order](https://www.moovma.tn/preorder)
+- [GitHub repository](https://github.com/moovma/Elyssa-dev-board): board package, examples, pin definitions, known issues
+
+Prices, stock and delivery dates are not published here; ask Moovma directly.
