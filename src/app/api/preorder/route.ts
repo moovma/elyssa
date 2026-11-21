@@ -9,12 +9,17 @@ import path from 'path';
 // Official price per board in DT (also the default of unit_price_dt in supabase_schema.sql)
 const UNIT_PRICE_DT = 70;
 
-async function notifyOwner(record: PreorderRow) {
-  if (!isEmailConfigured) return;
+/**
+ * Emails the owner about a new pre-order. Returns a short status code (no secrets, no details)
+ * that the API response includes as `ownerEmail`, so a test order shows whether the email went out:
+ * sent | off (switched off in Supabase) | not_configured (RESEND_API_KEY missing) | failed | error
+ */
+async function notifyOwner(record: PreorderRow): Promise<string> {
+  if (!isEmailConfigured) return 'not_configured';
   try {
     const supabase = isSupabaseConfigured ? createServerClient() : null;
     const settings = await getEmailSettings(supabase);
-    if (!settings.notify_each_preorder) return;
+    if (!settings.notify_each_preorder) return 'off';
 
     // How many pre-orders so far today (Tunis time), this one included
     let todaySoFar = 1;
@@ -30,8 +35,10 @@ async function notifyOwner(record: PreorderRow) {
     const mail = buildNewPreorderEmail(record, todaySoFar);
     const res = await sendEmail({ to: settings.send_to, ...mail });
     if (!res.sent) console.error('Pre-order email not sent:', res.error);
+    return res.sent ? 'sent' : 'failed';
   } catch (e) {
     console.error('Pre-order email error:', e);
+    return 'error';
   }
 }
 
@@ -116,7 +123,7 @@ export async function POST(request: Request) {
 
     // 3. Email the owner so they can call the customer (switch: email_settings.notify_each_preorder in Supabase).
     //    Never blocks or breaks the order: any failure is only logged.
-    await notifyOwner(supabaseRecord);
+    const ownerEmail = await notifyOwner(supabaseRecord);
 
     return NextResponse.json({
       success: true,
@@ -124,6 +131,7 @@ export async function POST(request: Request) {
       quantity: newRecord.quantity,
       supabaseSaved,
       supabaseError,
+      ownerEmail,
       message: 'Pre-order recorded successfully.',
     });
   } catch (err: any) {
