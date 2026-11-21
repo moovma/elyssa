@@ -154,6 +154,13 @@ h2 { font-size: clamp(36px, 4.6vw, 64px); }
 .quick-body p { max-width: 520px; color: var(--muted); font-size: 14px; line-height: 1.7; margin: 0 0 14px; }
 .quick-body p strong { color: var(--ink); font-weight: 700; }
 .quick-body .button { margin-top: 6px; }
+/* Arduino IDE screenshots (public/quickstart). Green boxes are drawn into the images. */
+.quick-shot { display: block; width: fit-content; max-width: 100%; margin: 6px 0 16px; border: 1px solid var(--ink); background: #1b2229; line-height: 0; cursor: zoom-in; transition: transform .2s; }
+.quick-shot:hover { transform: translateY(-2px); }
+.quick-shot img { display: block; max-width: 100%; height: auto; }
+.quick-shot:focus-visible { outline: 3px solid var(--acid); outline-offset: 2px; }
+.quick-tip { font-size: 13px !important; }
+@media (prefers-reduced-motion: reduce) { .quick-shot, .quick-shot:hover { transition: none; transform: none; } }
 .code-block { position: relative; background: var(--ink); color: var(--acid); padding: 16px 86px 16px 16px; margin: 4px 0 18px; }
 .code-block code { display: block; font: 12px/1.6 var(--mono); word-break: break-all; }
 .copy-button { position: absolute; top: 12px; right: 12px; cursor: pointer; border: 1px solid var(--acid); background: transparent; color: var(--acid); padding: 6px 10px; font: 10px var(--mono); text-transform: uppercase; letter-spacing: .06em; transition: background .2s, color .2s; }

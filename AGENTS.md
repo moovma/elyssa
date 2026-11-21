@@ -57,6 +57,7 @@ public/elyssa_images/   board renders + elyssa_schematic.pdf (repaired + branded
 public/product_images/  real Elyssa photos: originals in _web/, served copies in _opt/ (generated)
 public/our_work/        project posters: originals + _web/ (generated)
 public/graphics/        logo2.svg (hero logo), original "graphic element*.svg", shapes/ (clean vectors used by the site)
+public/quickstart/      Arduino IDE screenshots for the quick start (cropped, private areas blurred, green boxes drawn in)
 public/PNG/             Moovma logos (black, white) + favicon ICON
 scripts/                maintenance scripts (images, graphics, schematic, resync, QA audit)
 supabase_schema.sql     full database script (idempotent, see §6)
