@@ -499,7 +499,7 @@ h2 { font-size: clamp(36px, 4.6vw, 64px); }
 .docs-dark .docs-lead code, .docs-dark .docs-table code { background: #1c1c1c; color: #ddd; }
 
 /* download cards = feature cards */
-.docs-dl-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 36px; }
+.docs-dl-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 36px; }
 .docs-dl-card { position: relative; display: flex; flex-direction: column; gap: 10px; min-height: 260px; text-align: left; font: inherit; color: var(--ink); background: #fff; border: 1px solid var(--line); padding: 24px; cursor: pointer; transition: border-color .2s, transform .2s; }
 .docs-dl-card:hover { border-color: var(--ink); transform: translateY(-2px); }
 .docs-dl-acid { background: var(--acid); border-color: var(--acid); }
