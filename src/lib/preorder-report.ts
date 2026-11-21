@@ -28,7 +28,7 @@ export interface PreorderRow {
 /** Tunisia is UTC+1 all year (no daylight saving). */
 const TZ_OFFSET_MIN = 60;
 const UNIT_PRICE_DT = 70;
-const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://moovma-git-main-moovma.vercel.app';
+const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.moovma.tn';
 
 const num = (v: unknown) => {
   const n = typeof v === 'number' ? v : Number.parseFloat(String(v ?? ''));
