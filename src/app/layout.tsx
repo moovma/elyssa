@@ -12,7 +12,7 @@ const ORGANIZATION = {
   '@type': 'Organization',
   name: 'Moovma',
   url: SITE_URL,
-  logo: `${SITE_URL}/PNG/ICON@2x.png`,
+  logo: `${SITE_URL}/icon.png`,
   description: 'Moovma designs and open-sources electronics in Tunisia: the Elyssa ESP32-S3 dev board, smart power controllers and more.',
   founder: { '@type': 'Person', name: 'Bejaoui Hamza' },
   email: 'moovmabh@gmail.com',
@@ -37,9 +37,8 @@ export const metadata: Metadata = {
   authors: [{ name: 'Moovma', url: SITE_URL }],
   robots: { index: true, follow: true },
   twitter: { card: 'summary_large_image', title: 'Moovma: open hardware from Tunisia', description: 'Home of Elyssa, the first Tunisian dev board (ESP32-S3).', images: ['/product_images/_opt/front_elyssa.webp'] },
-  icons: {
-    icon: '/PNG/ICON@2x.png',
-  },
+  // Icons come from src/app/favicon.ico, icon.png (512, square) and apple-icon.png (180):
+  // white Moovma logo on black, square, as Google needs for the search-result favicon.
   openGraph: {
     title: 'Moovma: open hardware from Tunisia',
     description: 'Hardware for makers, built for building things. Home of the Elyssa ESP32-S3 dev board.',
