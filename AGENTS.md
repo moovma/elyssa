@@ -75,7 +75,9 @@ data/preorders.json     LOCAL backup of orders (git-ignored, contains personal d
    (`github.com/moovma/Elyssa-dev-board`) or `src/lib/elyssa-docs.ts`.
 5. The docs page has **no "Source" column** and ends with the **disclaimer** (Moovma is not responsible for damage
    from use/misuse). Do not add "not tested" lists back.
-6. No phone number on the site. Contact = e-mail form (`mailto:`), no backend.
+6. No phone number on the site. Contact form sends through `/api/contact` (Resend) to `email_settings.send_to`,
+   Reply-To = the visitor, nothing stored; honeypot + minimum fill time against bots; mailto link kept as backup
+   (owner decision, Nov 2026: the old mailto-only form lost messages when visitors had no mail app).
 7. The shop must not show the price; the price is revealed after pre-ordering.
 
 ## 5. Design system (also the identity of the mobile app)
@@ -114,6 +116,7 @@ data/preorders.json     LOCAL backup of orders (git-ignored, contains personal d
 - Env: `RESEND_API_KEY`, `CRON_SECRET` (both in Vercel). Without a verified domain Resend only sends from
   `onboarding@resend.dev` to the Resend account's own address, so that account must be moovmabh@gmail.com.
   An email failure never blocks or breaks a pre-order.
+- **Contact form** (`ContactForm.tsx` → `/api/contact`) uses the same Resend key and `send_to` address.
 
 ## 7. Images
 
@@ -169,5 +172,4 @@ See `.env.example`. Never commit `.env.local`. Never expose `SUPABASE_SERVICE_RO
 
 - Attach a working domain (`moovma.vercel.app` or `moovma.tn`) and set `NEXT_PUBLIC_SITE_URL`.
 - Add a "Moovma Athir app — coming soon" section on `/` and `/elyssa` once the app has a store link.
-- Optional: real e-mail sending for the contact form (today it opens the visitor's mail app).
 - Optional: an admin view of pre-orders (today: Supabase dashboard + the daily report email).

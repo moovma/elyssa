@@ -258,7 +258,7 @@ export default async function MoovmaHome() {
               <div className="section-label reveal"><span>06</span><span>Contact us</span></div>
               <h2 className="reveal">Got an idea?<br /><em>Let’s build it.</em></h2>
               <p className="mv-lead mv-lead-light reveal">
-                Tell us what you are working on. A question about a board, a custom design, a collaboration or a workshop: write to us and your mail app opens with the message ready to send to{' '}
+                Tell us what you are working on. A question about a board, a custom design, a collaboration or a workshop: send the form and it lands straight in our inbox. You can also write to{' '}
                 <a className="text-link" href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
               </p>
               <ul className="mv-contact-links reveal">

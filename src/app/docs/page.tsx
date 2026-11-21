@@ -175,7 +175,7 @@ export default function DocsPage() {
               <div className="section-label"><span>05</span><span>Questions &amp; pre-order</span></div>
               <h2>Still have <em>a question?</em></h2>
               <p className="docs-lead">
-                Ask about pins, power or the pre-order. Your mail app opens with the message ready to send to{' '}
+                Ask about pins, power or the pre-order. Send the form and we reply by email, or write to{' '}
                 <a className="text-link" href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
               </p>
               <Link href="/preorder" className="button button-acid">Pre-order Elyssa</Link>
