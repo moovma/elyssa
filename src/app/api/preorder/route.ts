@@ -1,11 +1,39 @@
 import { NextResponse } from 'next/server';
 import { createServerClient, isSupabaseConfigured } from '@/lib/supabase';
 import { insertAdaptive } from '@/lib/preorder-insert';
+import { getEmailSettings, isEmailConfigured, sendEmail } from '@/lib/email';
+import { buildNewPreorderEmail, tunisDay, type PreorderRow } from '@/lib/preorder-report';
 import fs from 'fs';
 import path from 'path';
 
 // Official price per board in DT (also the default of unit_price_dt in supabase_schema.sql)
 const UNIT_PRICE_DT = 70;
+
+async function notifyOwner(record: PreorderRow) {
+  if (!isEmailConfigured) return;
+  try {
+    const supabase = isSupabaseConfigured ? createServerClient() : null;
+    const settings = await getEmailSettings(supabase);
+    if (!settings.notify_each_preorder) return;
+
+    // How many pre-orders so far today (Tunis time), this one included
+    let todaySoFar = 1;
+    if (supabase) {
+      const { data } = await supabase
+        .from('preorders')
+        .select('created_at')
+        .gte('created_at', new Date(Date.now() - 36 * 3600000).toISOString());
+      const today = tunisDay(new Date());
+      if (data) todaySoFar = Math.max(1, data.filter((r) => tunisDay(new Date(r.created_at)) === today).length);
+    }
+
+    const mail = buildNewPreorderEmail(record, todaySoFar);
+    const res = await sendEmail({ to: settings.send_to, ...mail });
+    if (!res.sent) console.error('Pre-order email not sent:', res.error);
+  } catch (e) {
+    console.error('Pre-order email error:', e);
+  }
+}
 
 export async function POST(request: Request) {
   try {
@@ -85,6 +113,10 @@ export async function POST(request: Request) {
     } catch (fsErr) {
       console.warn('Local backup write error:', fsErr);
     }
+
+    // 3. Email the owner so they can call the customer (switch: email_settings.notify_each_preorder in Supabase).
+    //    Never blocks or breaks the order: any failure is only logged.
+    await notifyOwner(supabaseRecord);
 
     return NextResponse.json({
       success: true,

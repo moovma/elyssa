@@ -103,6 +103,18 @@ data/preorders.json     LOCAL backup of orders (git-ignored, contains personal d
 - `data/preorders.json` is a local backup only; on Vercel it cannot persist (read-only disk). Supabase is the truth.
 - If orders are missing in Supabase: `node scripts/resync-preorders.mjs` (dry run) then `--apply`.
 
+### Owner emails (Resend)
+- **After each pre-order**: `/api/preorder` emails the owner (name, phone with a call button, email, age, college,
+  boards, total, desired price). Built in `src/lib/preorder-report.ts`, sent by `src/lib/email.ts` (Resend API).
+- **Daily report** at 19:00 UTC = 20:00 Tunis (`vercel.json` cron → `/api/cron/daily-report`): today's orders, all-time
+  totals, last 7 days, ages, college ranking, suggested prices, boards per order, payment/order status, all as bars.
+  Manual: `/api/cron/daily-report?key=CRON_SECRET&preview=1` (show only) or `&force=1` (send again).
+- **Switches** live in Supabase table `email_settings` (one row, script `supabase_email_settings.sql`):
+  `notify_each_preorder`, `daily_report`, `send_to` (default moovmabh@gmail.com). No redeploy needed.
+- Env: `RESEND_API_KEY`, `CRON_SECRET` (both in Vercel). Without a verified domain Resend only sends from
+  `onboarding@resend.dev` to the Resend account's own address, so that account must be moovmabh@gmail.com.
+  An email failure never blocks or breaks a pre-order.
+
 ## 7. Images
 
 Put new photos in `public/product_images/` (or its `_web/`), posters in `public/our_work/`, then `npm run images`.
@@ -158,4 +170,4 @@ See `.env.example`. Never commit `.env.local`. Never expose `SUPABASE_SERVICE_RO
 - Attach a working domain (`moovma.vercel.app` or `moovma.tn`) and set `NEXT_PUBLIC_SITE_URL`.
 - Add a "Moovma Athir app — coming soon" section on `/` and `/elyssa` once the app has a store link.
 - Optional: real e-mail sending for the contact form (today it opens the visitor's mail app).
-- Optional: an admin view of pre-orders (today: Supabase dashboard).
+- Optional: an admin view of pre-orders (today: Supabase dashboard + the daily report email).
