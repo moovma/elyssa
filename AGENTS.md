@@ -6,7 +6,7 @@ works and for the decisions the owner has already made. **Do not re-litigate dec
 - Owner / founder: **Bejaoui Hamza** (Moovma). Contact e-mail used on the site: `moovmabh@gmail.com`.
 - Stack: **Next.js 14 (App Router) + TypeScript + plain CSS** (`src/app/globals.css`), deployed on **Vercel**.
 - Database: **Supabase** (table `preorders`). Analytics: **Vercel Web Analytics + Speed Insights**.
-- Live URL: **`https://www.moovma.tn`** (`moovma.tn` redirects to www). Vercel address: `https://moovma-git-main-moovma.vercel.app`.
+- Live URL: **`https://www.moovma.tn`** (`moovma.tn` serves the same site; canonical tags point to www). Vercel address: `https://moovma-git-main-moovma.vercel.app`.
 - Sister project: the **Moovma Athir** mobile app lives in a separate folder (`../moovma-athir`). It reuses this
   site's design identity. Do not put app code in this repo.
 
@@ -153,8 +153,9 @@ Poster captions are in `WORK_META` (`src/lib/moovma.ts`), keyed by file name.
 - `<Analytics/>` and `<SpeedInsights/>` in `layout.tsx` (enable both in the Vercel dashboard). Custom events:
   `preorder_submitted`, `contact_form_submit`, `click_preorder`, `click_shop`, `click_docs`, `click_elyssa_overview`,
   `download`, `compare_preset`, `click_email`, `click_social`, `click_external`. Never send personal data.
-- Domain: **`www.moovma.tn`** (primary) + `moovma.tn` (308 redirect to www), attached in Vercel > Domains. DNS at the
-  registrar: `A @ 216.198.79.1` and `CNAME www a535e32cae538514.vercel-dns-017.com.` (values shown in Vercel).
+- Domain: **`www.moovma.tn`** (primary) + `moovma.tn` (also Production), both attached in Vercel > Domains. DNS at the
+  registrar: `A @ 216.198.79.1` and `CNAME www a535e32cae538514.vercel-dns-017.com.` (values shown in Vercel),
+  set in Ooredoo host > Mes domaines > moovma.tn > Gestion DNS (keep Ooredoo name servers; mail/ftp/MX untouched).
   `NEXT_PUBLIC_SITE_URL=https://www.moovma.tn` in Vercel. Submit `/sitemap.xml` in Google Search Console.
 
 ## 11. Environment variables (`.env.local`, and the same in Vercel)
