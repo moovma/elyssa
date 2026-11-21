@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import WarpBackground from '../../components/WarpBackground';
 import Footer from '@/components/Footer';
 import { track } from '@/lib/track';
 
@@ -28,6 +29,12 @@ export default function PreorderPage() {
 
   useEffect(() => {
     setMounted(true);
+    // Development only: /preorder?preview=confirm shows the confirmation screen without placing an order
+    if (process.env.NODE_ENV === 'development' && new URLSearchParams(window.location.search).get('preview') === 'confirm') {
+      setPhone('+216 00 000 000');
+      setEmail('preview@example.com');
+      setSubmitted(true);
+    }
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -72,6 +79,7 @@ export default function PreorderPage() {
     <div className={`preorder-page-wrapper${submitted ? ' is-inverted' : ''}`} suppressHydrationWarning>
 
       {covering && <div className="po-wipe" onAnimationEnd={finishWipe} aria-hidden="true" />}
+      {submitted && <WarpBackground />}
 
       {/* ── Top nav ── */}
       <div className="preorder-top-nav">
