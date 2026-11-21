@@ -65,6 +65,8 @@ h1 em, h2 em { font-style: italic; }
 .button-acid:hover, .button-orange:hover { background: #b8e600; border-color: #b8e600; }
 .text-link { font: 10px var(--mono); text-transform: uppercase; letter-spacing: .04em; border-bottom: 1px solid var(--ink); padding-bottom: 4px; display: inline-flex; align-items: center; gap: 6px; }
 .text-link:hover { color: var(--muted); border-color: var(--muted); }
+.pin-card-link { color: #fff; font-weight: 700; border-bottom: 2px solid var(--acid); white-space: nowrap; }
+.pin-card-link:hover { color: var(--acid); }
 
 /* Intro / Features section */
 .intro { padding: 96px 0 100px; }
@@ -497,7 +499,7 @@ h2 { font-size: clamp(36px, 4.6vw, 64px); }
 .docs-dark .docs-lead code, .docs-dark .docs-table code { background: #1c1c1c; color: #ddd; }
 
 /* download cards = feature cards */
-.docs-dl-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 36px; }
+.docs-dl-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 36px; }
 .docs-dl-card { position: relative; display: flex; flex-direction: column; gap: 10px; min-height: 260px; text-align: left; font: inherit; color: var(--ink); background: #fff; border: 1px solid var(--line); padding: 24px; cursor: pointer; transition: border-color .2s, transform .2s; }
 .docs-dl-card:hover { border-color: var(--ink); transform: translateY(-2px); }
 .docs-dl-acid { background: var(--acid); border-color: var(--acid); }
