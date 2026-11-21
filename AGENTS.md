@@ -164,7 +164,8 @@ Poster captions are in `WORK_META` (`src/lib/moovma.ts`), keyed by file name.
   with moovmabh@gmail.com, sitemap submitted.
 - **AI assistants**: `public/llms.txt` = short verified facts + best links; the /elyssa FAQ (`PreorderSection.tsx`) is also
   emitted as schema.org `FAQPage` JSON-LD. Keep both in sync with `elyssa-docs.ts` when facts change.
-- Favicon: `src/app/favicon.ico`, `icon.png`, `apple-icon.png` (square, white logo on black). Heavy art is served as WebP
+- Favicon: `src/app/favicon.ico` + `icon.png` = square, white logo on transparent (owner choice, like the original tab icon);
+  `apple-icon.png` = white on black. Organization JSON-LD logo = `public/PNG/logo-square-black.png` (visible on white). Heavy art is served as WebP
   (`graphics/logo2.webp`, `elyssa_images/*.webp`); the PNGs stay only for the docs download buttons.
 
 ## 11. Environment variables (`.env.local`, and the same in Vercel)
