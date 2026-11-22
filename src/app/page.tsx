@@ -84,7 +84,7 @@ export default async function MoovmaHome() {
       <section className="mv-start" aria-label="Where to start">
         <div className="section-wrap mv-start-grid">
           <Link href="/shop" className="mv-start-card"><small>I want a board</small><strong>Get your hands on Elyssa</strong><b>→</b></Link>
-          <Link href="/elyssa#quickstart" className="mv-start-card"><small>I want to learn</small><strong>Blink an LED in four steps</strong><b>→</b></Link>
+          <Link href="/elyssa#quickstart" className="mv-start-card"><small>I want to learn</small><strong>Blink an LED in six steps</strong><b>→</b></Link>
           <a href="#contact" className="mv-start-card"><small>I have an idea</small><strong>Tell us what you are building</strong><b>↓</b></a>
         </div>
       </section>

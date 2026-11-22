@@ -27,7 +27,7 @@ const HIGHLIGHTS = [
 const STEPS = [
   { n: '1', title: 'Reserve', text: 'Fill in the short form and pick how many boards you want. It takes about a minute.' },
   { n: '2', title: 'We get in touch', text: 'You pay nothing now. We contact you before any charge to confirm your order.' },
-  { n: '3', title: 'Start building', text: 'Your Elyssa arrives ready for the Arduino IDE, with a four-step quick start waiting for you.' },
+  { n: '3', title: 'Start building', text: 'Your Elyssa arrives ready for the Arduino IDE, with a six-step quick start waiting for you.' },
 ];
 
 const INCLUDED = [

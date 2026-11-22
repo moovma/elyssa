@@ -125,7 +125,7 @@ export default function PreorderPage() {
               </div>
               <div className="po-next">
                 <p>While you wait</p>
-                <Link href="/elyssa#quickstart">Read the four-step quick start →</Link>
+                <Link href="/elyssa#quickstart">Read the six-step quick start →</Link>
                 <Link href="/docs">Browse the technical docs →</Link>
                 <a href="https://github.com/moovma/Elyssa-dev-board" target="_blank" rel="noreferrer">Explore the code on GitHub ↗</a>
               </div>

@@ -8,7 +8,7 @@ import JsonLd from './JsonLd';
 const FAQ = [
   {
     q: 'Do I need experience?',
-    a: 'No. If you can use Arduino, you can use Elyssa. The quick start above takes you from the box to a blinking LED in four steps, and if you get stuck you can email us.',
+    a: 'No. If you can use Arduino, you can use Elyssa. The quick start above takes you from the box to a blinking LED in six steps, and if you get stuck you can email us.',
   },
   {
     q: 'Which software does it use?',
