@@ -38,8 +38,7 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
   twitter: { card: 'summary_large_image', title: 'Moovma: open hardware from Tunisia', description: 'Home of Elyssa, the first Tunisian dev board (ESP32-S3).', images: ['/product_images/_opt/front_elyssa.webp'] },
   // Icons come from src/app/favicon.ico, icon.png (512, square) and apple-icon.png (180):
-  // white Moovma logo on a transparent background (owner choice), square as Google needs.
-  // apple-icon.png keeps a black background (iOS home screens need an opaque icon).
+  // white Moovma logo on a black square. Never transparent: Google shows icons on a white circle.
   openGraph: {
     title: 'Moovma: open hardware from Tunisia',
     description: 'Hardware for makers, built for building things. Home of the Elyssa ESP32-S3 dev board.',
