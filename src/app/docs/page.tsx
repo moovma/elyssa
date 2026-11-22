@@ -58,8 +58,8 @@ export default function DocsPage() {
               <span>The full circuit and design notes: power, charger, ESP32-S3, IMU, microSD</span>
               <b>↓</b>
             </a>
-            <a className="docs-dl-card" href="/elyssa_images/elyssa-pin-card.png" download="elyssa-pin-card.png">
-              <small>PNG</small>
+            <a className="docs-dl-card" href="/elyssa_images/elyssa-pin-card.pdf" download="elyssa-pin-card.pdf">
+              <small>PDF</small>
               <strong>Pin card</strong>
               <span>Every header pin on one page: GPIO, analog, touch, bus, PWM and what is safe. Keep it on your phone or print it</span>
               <b>↓</b>
@@ -76,7 +76,7 @@ export default function DocsPage() {
           <p className="docs-lead">
             Names follow the silkscreen and work in sketches without any <code>#include</code>. IO0 to IO6 are GPIO1 to
             GPIO7. There is no A7 and no T7.{' '}
-            <a className="pin-card-link" href="/elyssa_images/elyssa-pin-card.png" download="elyssa-pin-card.png">Download the pin card ↓</a>
+            <a className="pin-card-link" href="/elyssa_images/elyssa-pin-card.pdf" download="elyssa-pin-card.pdf">Download the pin card (PDF) ↓</a>
           </p>
           <div className="pinout-layout">
             <div className="pinout-board">

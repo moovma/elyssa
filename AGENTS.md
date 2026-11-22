@@ -36,7 +36,7 @@ Deploy = push to `main` on GitHub; Vercel builds automatically.
 | `/elyssa` | `src/app/elyssa/page.tsx` | **Elyssa overview**: hero, interactive 3D board, the idea (mission), **comparison** with ESP32-S3-DevKitC-1 and Arduino Uno R3 (the only spec list on the page, see §9), quick start, docs teaser, pre-order banner + FAQ |
 | `/shop` | `src/app/shop/page.tsx` | Elyssa product page: photo gallery, benefits, how pre-ordering works, links to Overview / Pre-order / Docs. **No price shown here** (owner decision) |
 | `/preorder` | `src/app/preorder/page.tsx` | Pre-order form (quantity 1–10, desired price pills, student switch) → black "wipe" transition → inverted confirmation that reveals the price (70 DT), over a "warp speed" streak background (`WarpBackground.tsx`, canvas, grayscale + acid). Dev only: `/preorder?preview=confirm` shows the confirmation without ordering |
-| `/docs` | `src/app/docs/page.tsx` | Technical docs: downloads (schematic, **pin card** PNG only = `public/elyssa_images/elyssa-pin-card.png`, made from `poster/pinout-source/pin-card.html`; owner decision: no separate top/back pinout PNGs, CSV or pin card PDF), pinout, **pin finder** (`PinFinder.tsx`: type a pin name to see all its data; the pin safety and "what each pin can do" tables open in a pop-up via "Show full table"), power rules + table, disclaimer, contact |
+| `/docs` | `src/app/docs/page.tsx` | Technical docs: downloads (schematic, **pin card** PDF only = `public/elyssa_images/elyssa-pin-card.pdf`, made from `poster/pinout-source/pin-card.html`; owner decision: no separate top/back pinout PNGs, CSV or pin card PNG), pinout, **pin finder** (`PinFinder.tsx`: type a pin name to see all its data; the pin safety and "what each pin can do" tables open in a pop-up via "Show full table"), power rules + table, disclaimer, contact |
 | `/api/preorder` | `src/app/api/preorder/route.ts` | Saves a pre-order to Supabase (+ local JSON backup) |
 | `/sitemap.xml`, `/robots.txt` | `src/app/sitemap.ts`, `robots.ts` | SEO, built from `SITE_URL` |
 
@@ -166,7 +166,7 @@ Poster captions are in `WORK_META` (`src/lib/moovma.ts`), keyed by file name.
   emitted as schema.org `FAQPage` JSON-LD. Keep both in sync with `elyssa-docs.ts` when facts change.
 - Favicon: `src/app/favicon.ico` + `icon.png` = square, white logo on transparent (owner choice, like the original tab icon);
   `apple-icon.png` = white on black. Organization JSON-LD logo = `public/PNG/logo-square-black.png` (visible on white). Heavy art is served as WebP
-  (`graphics/logo2.webp`, `elyssa_images/*.webp`); the PNGs stay only for the docs download buttons.
+  (`graphics/logo2.webp`, `elyssa_images/*.webp`); the original board PNGs are not linked for download.
 
 ## 11. Environment variables (`.env.local`, and the same in Vercel)
 
