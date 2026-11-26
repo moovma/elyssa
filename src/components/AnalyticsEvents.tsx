@@ -8,6 +8,7 @@ const SOCIALS: Record<string, string> = {
   'instagram.com': 'instagram',
   'youtube.com': 'youtube',
   'linkedin.com': 'linkedin',
+  'facebook.com': 'facebook',
 };
 
 /**

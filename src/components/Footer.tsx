@@ -22,6 +22,7 @@ export default function Footer() {
             <a href="https://www.instagram.com/moovm_a/" target="_blank" rel="noreferrer"><SocialIcon id="instagram" size={13} />Instagram</a>
             <a href="https://www.youtube.com/@Moovma" target="_blank" rel="noreferrer"><SocialIcon id="youtube" size={13} />YouTube</a>
             <a href="https://www.linkedin.com/company/136294093/" target="_blank" rel="noreferrer"><SocialIcon id="linkedin" size={13} />LinkedIn</a>
+            <a href="https://www.facebook.com/profile.php?id=61593748231370" target="_blank" rel="noreferrer"><SocialIcon id="facebook" size={13} />Facebook</a>
           </div>
         </div>
       </div>

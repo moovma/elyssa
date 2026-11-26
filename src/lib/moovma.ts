@@ -44,6 +44,13 @@ export const SOCIALS = [
     url: 'https://www.linkedin.com/company/136294093/',
     blurb: 'Company updates, project carousels and collaborations.',
   },
+  {
+    id: 'facebook',
+    name: 'Facebook',
+    handle: 'Moovma',
+    url: 'https://www.facebook.com/profile.php?id=61593748231370',
+    blurb: 'News, events and the Moovma community.',
+  },
 ] as const;
 
 export const SERVICES = [

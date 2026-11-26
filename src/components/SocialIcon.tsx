@@ -1,10 +1,11 @@
-import { Github, Instagram, Linkedin, Youtube } from 'lucide-react';
+import { Facebook, Github, Instagram, Linkedin, Youtube } from 'lucide-react';
 
 const ICONS = {
   github: Github,
   instagram: Instagram,
   youtube: Youtube,
   linkedin: Linkedin,
+  facebook: Facebook,
 } as const;
 
 export type SocialId = keyof typeof ICONS;
