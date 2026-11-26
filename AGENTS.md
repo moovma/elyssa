@@ -142,8 +142,8 @@ Poster captions are in `WORK_META` (`src/lib/moovma.ts`), keyed by file name.
 - Comparison section (`Compare.tsx`, data in `src/lib/compare.ts`): no 3D, only animated bars and checklists,
   written so a 7-year-old understands it (plain words first, technical name second). Keep it fair: no prices,
   every board shows a real strength. Step 3 "Spec by spec" (`SpecScroll.tsx`) grows each row as it reaches the
-  middle of the screen. Owner rule: **no duplicate information on /elyssa** (each fact appears once: built-in parts in
-  the 3D anatomy + step 2, numbers in step 3).
+  middle of the screen. Step 3 leads with what Elyssa adds around the same ESP32-S3 (motion sensor, LiPo charger, 2 A buck,
+  microSD, Qwiic, status LEDs) and frames the pin count honestly (owner decision, Nov 2026: highlight Elyssa's power).
 - Schematic PDF: KiCad export → copy to `public/elyssa_images/elyssa_schematic.pdf` → `npm run schematic`.
   This (1) merges the hundreds of thousands of tiny text triangles that caused white seams, (2) adds the Moovma
   logo + "Designed & revised by Bejaoui Hamza" in the title block. Safe to run twice.

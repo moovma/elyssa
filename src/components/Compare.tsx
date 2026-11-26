@@ -221,7 +221,7 @@ export default function Compare() {
 
         <div className="cmp-step">
           <span className="cmp-step-n">3</span>
-          <h3>Spec by spec</h3>
+          <h3>Spec by spec: what Elyssa adds</h3>
         </div>
         <SpecScroll />
 

@@ -1160,6 +1160,10 @@ img, svg, video, canvas { max-width: 100%; }
   .spec-scroll-vals > div { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 12px 14px; }
   .spec-scroll-vals dt { margin: 0; flex: none; }
   .spec-scroll-vals dd { text-align: right; font-size: 17px; }
+  /* Elyssa's card: value on its own line, the note under it (full width), so long values never squeeze */
+  .spec-scroll-vals > div.is-elyssa { flex-wrap: wrap; }
+  .spec-scroll-vals > div.is-elyssa dd { flex: 1 1 0; min-width: 0; }
+  .spec-scroll-vals > div.is-elyssa .spec-scroll-note { flex-basis: 100%; margin-top: 4px; }
   .compare-foot-actions { width: 100%; }
   .compare-foot-actions .button { flex: 1 1 auto; justify-content: space-between; }
 }

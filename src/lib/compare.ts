@@ -89,20 +89,22 @@ export const PRESETS: Preset[] = [
 
 /**
  * Spec by spec, shown one at a time as you scroll. `plain` is the kid-friendly name, `label` the grown-up one,
- * `note` explains Elyssa's value. Built-in parts (motion sensor, charger, microSD, Qwiic) are not repeated here:
- * step 2 and the 3D anatomy already cover them.
+ * `note` explains Elyssa's value. Owner decision (Nov 2026): this list leads with what Elyssa has on the board that
+ * a bare ESP32-S3 board does not (same brain, plus sensors, battery, power and storage), and frames the pin count
+ * honestly (fewer pins because those parts are already wired in). DevKitC-1 values: Espressif's official user guide.
  */
 export const SPEC_ROWS: { label: string; plain: string; values: Record<BoardId, string>; note?: string }[] = [
-  { label: 'Chip', plain: 'The brain', values: { elyssa: 'ESP32-S3, 2 cores, 240 MHz', devkit: 'ESP32-S3, 2 cores, 240 MHz', uno: 'ATmega328P, 8-bit, 16 MHz' }, note: 'Plenty fast for real projects.' },
-  { label: 'Flash', plain: 'Room for your program', values: { elyssa: '8 MB', devkit: '8 MB or more (by version)', uno: '32 KB' }, note: 'Room for big sketches (no PSRAM).' },
-  { label: 'RAM', plain: 'Short-term memory', values: { elyssa: '512 KB', devkit: '512 KB (+ PSRAM on some versions)', uno: '2 KB' } },
+  { label: 'Chip', plain: 'The brain', values: { elyssa: 'ESP32-S3, 2 cores, 240 MHz', devkit: 'ESP32-S3, 2 cores, 240 MHz', uno: 'ATmega328P, 8-bit, 16 MHz' }, note: 'The same brain as Espressif’s own board. Everything below is what Elyssa adds around it.' },
+  { label: 'Motion sensor', plain: 'Feels every move', values: { elyssa: 'LSM6DS3TR-C, 6-axis + temperature', devkit: 'None', uno: 'None' }, note: 'Tilt, shake and turn, ready in one library (ElyssaIMU). No module, no wires.' },
+  { label: 'Battery charging', plain: 'Runs on a battery', values: { elyssa: 'BQ24092 LiPo charger, about 540 mA', devkit: 'None', uno: 'None' }, note: 'Plug in one 3.7 V cell: it charges from USB and your project goes anywhere.' },
+  { label: '3.3 V power', plain: 'Strong, steady power', values: { elyssa: 'TLV62569 buck, up to 2 A', devkit: 'LDO regulator', uno: '50 mA on the 3.3 V pin' }, note: 'An efficient step-down regulator with headroom for Wi-Fi, sensors and screens together. A power-OR stage keeps USB and battery from fighting.' },
+  { label: 'microSD', plain: 'Saves your data', values: { elyssa: 'Socket on its own SPI bus', devkit: 'None', uno: 'None' }, note: 'Log days of data. The header SPI pins stay free.' },
+  { label: 'Qwiic', plain: 'Click-in modules', values: { elyssa: 'Qwiic connector, pull-ups on board', devkit: 'None', uno: 'None' }, note: 'Add sensors and screens with one cable. No soldering.' },
   { label: 'Wireless', plain: 'Talks without cables', values: { elyssa: 'Wi-Fi 2.4 GHz + BLE 5', devkit: 'Wi-Fi 2.4 GHz + BLE 5', uno: 'None' }, note: 'On-board antenna, no extra module needed.' },
-  { label: 'LED', plain: 'Built-in light', values: { elyssa: 'RGB, 3 channels', devkit: 'Addressable RGB', uno: 'Single-colour LED' }, note: 'Plus power, TX, RX and charge lights.' },
-  { label: 'USB', plain: 'The cable plug', values: { elyssa: 'USB-C, native', devkit: '2 ports (native + serial)', uno: 'USB-B (serial chip)' }, note: 'Code, power and Serial Monitor over one cable.' },
-  { label: 'Logic level', plain: 'Signal voltage', values: { elyssa: '3.3 V', devkit: '3.3 V', uno: '5 V' }, note: 'Use a level shifter for 5 V parts.' },
-  { label: 'Header pins', plain: 'Pins to connect things', values: { elyssa: '22', devkit: '44 (2 × 22)', uno: '32 sockets' }, note: 'IO0 to IO6, I2C, SPI, UART and 3 PWM outputs.' },
-  { label: 'Analog inputs', plain: 'Pins that measure', values: { elyssa: '10, 12-bit', devkit: 'Up to 20, 12-bit', uno: '6, 10-bit' }, note: 'IO0 to IO6 keep working with Wi-Fi on.' },
-  { label: 'Touch pins', plain: 'Pins that feel your finger', values: { elyssa: '10', devkit: 'Up to 14', uno: 'None' } },
+  { label: 'Lights', plain: 'Shows what is happening', values: { elyssa: 'RGB + power, TX, RX, charge LEDs', devkit: 'Addressable RGB + power LED', uno: 'Single-colour LED' }, note: 'You see power, data and charging at a glance.' },
+  { label: 'USB', plain: 'The cable plug', values: { elyssa: 'USB-C, native', devkit: '2 ports (native + serial)', uno: 'USB-B (serial chip)' }, note: 'Code, power, charging and Serial Monitor over one cable.' },
+  { label: 'Memory', plain: 'Room for your program', values: { elyssa: '8 MB flash · 512 KB RAM', devkit: '8 MB+ flash · 512 KB RAM (+ PSRAM on some)', uno: '32 KB flash · 2 KB RAM' }, note: 'Room for big sketches, web pages and sensor logs.' },
+  { label: 'Free pins', plain: 'Pins for your project', values: { elyssa: '22 · 10 analog · 10 touch', devkit: '44 · nothing built in', uno: '32 sockets · 6 analog' }, note: 'Fewer pins, because the motion sensor, charger, card slot and LEDs are already wired inside: you need fewer pins to begin with.' },
 ];
 
 /** Extra parts a board needs for a set of needs (no duplicates, stable order). */
