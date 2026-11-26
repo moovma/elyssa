@@ -6,7 +6,7 @@ works and for the decisions the owner has already made. **Do not re-litigate dec
 - Owner / founder: **Bejaoui Hamza** (Moovma). Contact e-mail used on the site: `moovmabh@gmail.com`.
 - Stack: **Next.js 14 (App Router) + TypeScript + plain CSS** (`src/app/globals.css`), deployed on **Vercel**.
 - Database: **Supabase** (table `preorders`). Analytics: **Vercel Web Analytics + Speed Insights**.
-- Live URL: **`https://www.moovma.tn`** (`moovma.tn`, printed as the QR code on the back of Elyssa, and the Vercel address `https://moovma-git-main-moovma.vercel.app` both redirect permanently to www: `redirects()` in `next.config.mjs`).
+- Live URL: **`https://www.moovma.tn`** (`moovma.tn`, printed as the QR code on the back of Elyssa, and the Vercel address `https://moovma-git-main-moovma.vercel.app` both redirect permanently to www: `redirects()` in `next.config.mjs`). The QR code on the back of Elyssa points to `https://moovma.github.io/elyssa/`: GitHub Pages serves the repo's `docs/` folder, which only holds a redirect page (`index.html` + `404.html`) to `https://www.moovma.tn/elyssa`. Keep it.
 - Sister project: the **Moovma Athir** mobile app lives in a separate folder (`../moovma-athir`). It reuses this
   site's design identity. Do not put app code in this repo.
 
